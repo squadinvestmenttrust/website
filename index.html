@@ -76,9 +76,9 @@
           });
         }
 
-        // Also collect date/value data for performance chart from columns H/I
-        const date = rows[i][7]?.trim(); // Column H
-        const val = parseFloat(rows[i][8]?.replace(/[$,]/g, '')); // Column I
+        // Read chart data from columns H (7) and I (8)
+        const date = rows[i][7]?.trim();
+        const val = parseFloat(rows[i][8]?.replace(/[$,]/g, ''));
         if (date && !isNaN(val)) {
           dates.push(date);
           values.push(val);
@@ -120,22 +120,30 @@
       const padding = 40;
       const w = canvas.width - padding * 2;
       const h = canvas.height - padding * 2;
-      const max = Math.max(...values);
-      const min = Math.min(...values);
+
+      const timeStamps = dates.map(d => {
+        const [day, month, year] = d.split('/');
+        return new Date(`${year}-${month}-${day}`).getTime();
+      });
+
+      const minTime = Math.min(...timeStamps);
+      const maxTime = Math.max(...timeStamps);
+      const minVal = Math.min(...values);
+      const maxVal = Math.max(...values);
 
       ctx.strokeStyle = '#00ff00';
       ctx.lineWidth = 2;
       ctx.beginPath();
 
-      values.forEach((val, i) => {
-        const x = padding + (i / (values.length - 1)) * w;
-        const y = padding + h - ((val - min) / (max - min)) * h;
+      for (let i = 0; i < values.length; i++) {
+        const x = padding + ((timeStamps[i] - minTime) / (maxTime - minTime)) * w;
+        const y = padding + h - ((values[i] - minVal) / (maxVal - minVal)) * h;
         if (i === 0) {
           ctx.moveTo(x, y);
         } else {
           ctx.lineTo(x, y);
         }
-      });
+      }
 
       ctx.stroke();
     }
