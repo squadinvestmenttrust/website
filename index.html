@@ -2,60 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Squad Investment Trust</title>
+  <title>Hello</title>
   <style>
     body {
       background-color: black;
       color: #00ff00;
-      font-family: 'Courier New', monospace;
-      font-size: 24px;
-      padding: 40px;
+      font-family: "Courier New", monospace;
+      font-size: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
     }
   </style>
 </head>
 <body>
-  <div id="message">Loading</div>
-
-  <script>
-    const msgEl = document.getElementById('message');
-
-    function delay(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
-    async function showLoadingDots() {
-      for (let i = 0; i < 5; i++) {
-        msgEl.textContent += '.';
-        await delay(500);
-      }
-    }
-
-    async function fetchSheetValue() {
-      const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQvIkFEd8DqGzQOSMan7QNAuwDI4fXgD1HB8PDbmnnqk5QmA0YNigbxyWuuKhoAys9VRKrbDqym2xDw/pub?gid=0&single=true&output=csv';
-
-      const response = await fetch(sheetURL);
-      const data = await response.text();
-      const rows = data.split('\n').map(row => row.split(','));
-
-      return rows[1][3]; // D2 cell
-    }
-
-    async function runSequence() {
-      await showLoadingDots();
-      await delay(700);
-      msgEl.textContent = '.....and it\'s gone';
-      await delay(1500);
-
-      try {
-        const value = await fetchSheetValue();
-        msgEl.textContent = `joking, you have $${parseFloat(value).toLocaleString()}`;
-      } catch (e) {
-        msgEl.textContent = 'Error fetching value';
-        console.error(e);
-      }
-    }
-
-    runSequence();
-  </script>
+  hello
 </body>
 </html>
