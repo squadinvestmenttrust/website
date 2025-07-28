@@ -12,44 +12,26 @@
       padding: 40px;
       white-space: pre;
     }
-    #message, #tendies, #chartContainer {
+    #message, #table, #tendies, #chartContainer, #pieContainer {
       margin-bottom: 20px;
-    }
-    #mainContainer {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 40px;
-      align-items: flex-start;
-    }
-    #table {
-      flex: 1;
-      min-width: 300px;
-    }
-    #pieContainer {
-      flex: 1;
-      min-width: 300px;
     }
     canvas {
       background-color: black;
       width: 100%;
       height: auto;
     }
-    .label {
-      font-size: 14px;
-      color: #00ff00;
-      font-family: 'Courier New', monospace;
-    }
   </style>
+  <!-- Chart.js and DataLabels plugin -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 </head>
 <body>
   <div id="message">Loading</div>
+  <div id="table"></div>
   <div id="tendies"></div>
 
-  <div id="mainContainer">
-    <div id="table"></div>
-    <div id="pieContainer">
-      <canvas id="pieChart" width="400" height="400"></canvas>
-    </div>
+  <div id="pieContainer">
+    <canvas id="pieChart" width="400" height="400"></canvas>
   </div>
 
   <div id="chartContainer">
@@ -61,9 +43,8 @@
     const tableEl = document.getElementById('table');
     const tendiesEl = document.getElementById('tendies');
     const perfCanvas = document.getElementById('performanceChart');
-    const perfCtx = perfCanvas.getContext('2d');
     const pieCanvas = document.getElementById('pieChart');
-    const pieCtx = pieCanvas.getContext('2d');
+    const perfCtx = perfCanvas.getContext('2d');
 
     function delay(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));
@@ -80,7 +61,7 @@
       const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQvIkFEd8DqGzQOSMan7QNAuwDI4fXgD1HB8PDbmnnqk5QmA0YNigbxyWuuKhoAys9VRKrbDqym2xDw/pub?output=csv';
       const response = await fetch(sheetURL);
       const data = await response.text();
-      const rows = data.split('\n').map(row => row.split(','));
+      const rows = data.split('\n').map(r=>r.split(','));
 
       const totalValueRaw = rows[1][3].replace(/[$,]/g, '');
       const totalValue = parseFloat(totalValueRaw).toLocaleString();
@@ -89,7 +70,6 @@
       const totalTendies = parseFloat(totalTendiesRaw).toLocaleString();
 
       const holdings = [];
-      const pieData = [];
       const dates = [];
       const values = [];
 
@@ -97,19 +77,12 @@
         const name = rows[i][0]?.trim();
         const valueRaw = rows[i][3]?.replace(/[$,]/g, '').trim();
         const profitRaw = rows[i][5]?.replace(/[$,]/g, '').trim();
-
         if (name && valueRaw && profitRaw && !isNaN(valueRaw) && !isNaN(profitRaw)) {
           holdings.push({
             name,
+            valueNum: parseFloat(valueRaw),
             value: parseFloat(valueRaw).toLocaleString(),
             profit: parseFloat(profitRaw).toLocaleString()
-          });
-        }
-
-        if (name && valueRaw && !isNaN(valueRaw)) {
-          pieData.push({
-            name,
-            value: parseFloat(valueRaw)
           });
         }
 
@@ -121,156 +94,140 @@
         }
       }
 
-      return { totalValue, totalTendies, holdings, pieData, dates, values };
+      return { totalValue, totalTendies, holdings, dates, values };
     }
 
     function generateASCIITable(holdings) {
-      const col1Width = Math.max(...holdings.map(h => h.name.length), 7);
-      const col2Width = Math.max(...holdings.map(h => h.value.length), 5);
-      const col3Width = Math.max(...holdings.map(h => h.profit.length), 6);
+      const col1 = Math.max(...holdings.map(h=>h.name.length), 7);
+      const col2 = Math.max(...holdings.map(h=>h.value.length), 5);
+      const col3 = Math.max(...holdings.map(h=>h.profit.length), 6);
 
-      const line = '+' + '-'.repeat(col1Width + 2) + '+' + '-'.repeat(col2Width + 2) + '+' + '-'.repeat(col3Width + 2) + '+\n';
-      let table = line;
-      table += `| ${'Holding'.padEnd(col1Width)} | ${'Value'.padStart(col2Width)} | ${'Profit'.padStart(col3Width)} |\n`;
-      table += line;
+      const line = '+' + '-'.repeat(col1+2) + '+' + '-'.repeat(col2+2) + '+' + '-'.repeat(col3+2) + '+\n';
+      let tbl = line
+        + `| ${'Holding'.padEnd(col1)} | ${'Value'.padStart(col2)} | ${'Profit'.padStart(col3)} |\n`
+        + line;
 
-      for (const h of holdings) {
-        table += `| ${h.name.padEnd(col1Width)} | ${h.value.padStart(col2Width)} | ${h.profit.padStart(col3Width)} |\n`;
-      }
-
-      table += line;
-      return table;
+      holdings.forEach(h=>{
+        tbl += `| ${h.name.padEnd(col1)} | ${h.value.padStart(col2)} | ${h.profit.padStart(col3)} |\n`;
+      });
+      tbl += line;
+      return tbl;
     }
 
-    async function typeOutText(el, text, speed = 5) {
+    async function typeOutText(el, text, speed=5) {
       el.textContent = '';
-      for (let i = 0; i < text.length; i++) {
-        el.textContent += text[i];
+      for (let ch of text) {
+        el.textContent += ch;
         await delay(speed);
       }
     }
 
-    function drawChart(dates, values) {
-      perfCtx.clearRect(0, 0, perfCanvas.width, perfCanvas.height);
-
-      const padding = 50;
-      const w = perfCanvas.width - padding * 2;
-      const h = perfCanvas.height - padding * 2;
-
-      const timeStamps = dates.map(d => {
-        const [day, month, year] = d.split('/');
+    function drawPerformance(dates, values) {
+      perfCtx.clearRect(0,0,perfCanvas.width, perfCanvas.height);
+      const pad=50, w=perfCanvas.width-2*pad, h=perfCanvas.height-2*pad;
+      const ts = dates.map(d=>{
+        const [day,month,year] = d.split('/');
         return new Date(`${year}-${month}-${day}`).getTime();
       });
+      const minT = Math.min(...ts), maxT = Math.max(...ts);
+      const minV = Math.min(...values), maxV = Math.max(...values);
 
-      const minTime = Math.min(...timeStamps);
-      const maxTime = Math.max(...timeStamps);
-      const minVal = Math.min(...values);
-      const maxVal = Math.max(...values);
-
-      // Y-axis gridlines and labels
+      // Y gridlines
       perfCtx.strokeStyle = '#004400';
       perfCtx.fillStyle = '#00ff00';
       perfCtx.lineWidth = 1;
       perfCtx.font = '14px Courier New';
       perfCtx.textAlign = 'right';
-
-      const step = 10000;
-      for (let v = Math.ceil(minVal / step) * step; v <= maxVal; v += step) {
-        const y = padding + h - ((v - minVal) / (maxVal - minVal)) * h;
+      const step=10000;
+      for (let v=Math.ceil(minV/step)*step; v<=maxV; v+=step) {
+        const y = pad + h - ((v-minV)/(maxV-minV))*h;
         perfCtx.beginPath();
-        perfCtx.moveTo(padding, y);
-        perfCtx.lineTo(padding + w, y);
+        perfCtx.moveTo(pad,y);
+        perfCtx.lineTo(pad+w,y);
         perfCtx.stroke();
-        perfCtx.fillText(`$${v / 1000}K`, padding - 5, y + 5);
+        perfCtx.fillText(`$${v/1000}K`, pad-5, y+5);
       }
 
-      // X-axis year labels
+      // X year labels
       perfCtx.textAlign = 'center';
-      const yearLabels = {};
-      timeStamps.forEach((t, i) => {
-        const year = new Date(t).getFullYear();
-        if (!yearLabels[year]) {
-          const x = padding + ((t - minTime) / (maxTime - minTime)) * w;
-          perfCtx.fillText(year.toString(), x, perfCanvas.height - 10);
-          yearLabels[year] = true;
+      const years = {};
+      ts.forEach((t,i)=>{
+        const yr = new Date(t).getFullYear();
+        if (!years[yr]) {
+          const x = pad + ((t-minT)/(maxT-minT))*w;
+          perfCtx.fillText(yr, x, perfCanvas.height-10);
+          years[yr]=true;
         }
       });
 
-      // Draw performance line
+      // Line
       perfCtx.strokeStyle = '#00ff00';
       perfCtx.lineWidth = 2;
       perfCtx.beginPath();
-
-      for (let i = 0; i < values.length; i++) {
-        const x = padding + ((timeStamps[i] - minTime) / (maxTime - minTime)) * w;
-        const y = padding + h - ((values[i] - minVal) / (maxVal - minVal)) * h;
-        if (i === 0) {
-          perfCtx.moveTo(x, y);
-        } else {
-          perfCtx.lineTo(x, y);
-        }
-      }
-
+      values.forEach((v,i)=>{
+        const x = pad + ((ts[i]-minT)/(maxT-minT))*w;
+        const y = pad + h - ((v-minV)/(maxV-minV))*h;
+        i===0 ? perfCtx.moveTo(x,y) : perfCtx.lineTo(x,y);
+      });
       perfCtx.stroke();
     }
 
-    function drawPieChart(data) {
-      pieCtx.clearRect(0, 0, pieCanvas.width, pieCanvas.height);
-      const total = data.reduce((sum, d) => sum + d.value, 0);
-      const centerX = pieCanvas.width / 2;
-      const centerY = pieCanvas.height / 2;
-      const radius = 100;
+    function drawPie(holdings) {
+      const ctx = pieCanvas.getContext('2d');
+      const vals = holdings.map(h=>h.valueNum);
+      const total = vals.reduce((a,b)=>a+b,0);
+      const labels = holdings.map(h=>{
+        const pct = Math.round((h.valueNum/total)*100);
+        return `${h.name} ${pct}%`;
+      });
 
-      let startAngle = 0;
-      pieCtx.font = '14px Courier New';
-      pieCtx.fillStyle = '#00ff00';
-
-      data.forEach(d => {
-        const sliceAngle = (d.value / total) * 2 * Math.PI;
-        const endAngle = startAngle + sliceAngle;
-
-        pieCtx.beginPath();
-        pieCtx.moveTo(centerX, centerY);
-        pieCtx.arc(centerX, centerY, radius, startAngle, endAngle);
-        pieCtx.closePath();
-        pieCtx.fillStyle = '#00' + Math.floor(Math.random() * 999).toString(16).padStart(2, '0') + '00';
-        pieCtx.fill();
-
-        const midAngle = startAngle + sliceAngle / 2;
-        const labelX = centerX + Math.cos(midAngle) * (radius + 60);
-        const labelY = centerY + Math.sin(midAngle) * (radius + 60);
-        const pct = ((d.value / total) * 100).toFixed(1);
-
-        pieCtx.fillStyle = '#00ff00';
-        pieCtx.fillText(`${d.name} (${pct}%)`, labelX, labelY);
-        startAngle = endAngle;
+      new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels,
+          datasets: [{
+            data: vals,
+            backgroundColor: vals.map(()=> 'transparent'),
+            borderColor: '#00ff00',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          plugins: {
+            legend: { display: false },
+            datalabels: {
+              color: '#00ff00',
+              formatter: (value, ctx) => ctx.chart.data.labels[ctx.dataIndex],
+              font: { size: 14 }
+            }
+          }
+        },
+        plugins: [ChartDataLabels]
       });
     }
 
-    async function runSequence() {
+    async function run() {
       await showLoadingDots();
       await delay(700);
       msgEl.textContent = ".....and it's gone";
       await delay(1500);
 
       try {
-        const { totalValue, holdings, totalTendies, pieData, dates, values } = await fetchSheetData();
-
+        const { totalValue, holdings, totalTendies, dates, values } = await fetchSheetData();
         msgEl.textContent = `joking, you have $${totalValue}`;
-        const asciiTable = generateASCIITable(holdings);
+        const ascii = generateASCIITable(holdings);
         await delay(1000);
-        await typeOutText(tableEl, asciiTable, 2);
+        await typeOutText(tableEl, ascii, 2);
         tendiesEl.textContent = `Total tendies to date $${totalTendies}`;
-        drawChart(dates, values);
-        drawPieChart(pieData);
-
+        drawPie(holdings);
+        drawPerformance(dates, values);
       } catch (e) {
         msgEl.textContent = 'Error fetching value';
         console.error(e);
       }
     }
 
-    runSequence();
+    run();
   </script>
 </body>
 </html>
