@@ -12,8 +12,13 @@
       padding: 40px;
       white-space: pre;
     }
-    #message, #table, #tendies {
+    #message, #table, #tendies, #chartContainer {
       margin-bottom: 20px;
+    }
+    canvas {
+      background-color: black;
+      width: 100%;
+      height: auto;
     }
   </style>
 </head>
@@ -21,11 +26,16 @@
   <div id="message">Loading</div>
   <div id="table"></div>
   <div id="tendies"></div>
+  <div id="chartContainer">
+    <canvas id="performanceChart" width="600" height="200"></canvas>
+  </div>
 
   <script>
     const msgEl = document.getElementById('message');
     const tableEl = document.getElementById('table');
     const tendiesEl = document.getElementById('tendies');
+    const canvas = document.getElementById('performanceChart');
+    const ctx = canvas.getContext('2d');
 
     function delay(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));
@@ -67,6 +77,27 @@
       return { totalValue, holdings, totalTendies };
     }
 
+    async function fetchHistoryData() {
+      const historySheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQvIkFEd8DqGzQOSMan7QNAuwDI4fXgD1HB8PDbmnnqk5QmA0YNigbxyWuuKhoAys9VRKrbDqym2xDw/pub?gid=0&single=true&output=csv';
+      const response = await fetch(historySheetURL);
+      const data = await response.text();
+      const rows = data.split('\n').slice(1).map(r => r.split(','));
+
+      const dates = [];
+      const values = [];
+
+      for (const row of rows) {
+        const date = row[0]?.trim();
+        const val = parseFloat(row[1]?.replace(/[$,]/g, ''));
+        if (date && !isNaN(val)) {
+          dates.push(date);
+          values.push(val);
+        }
+      }
+
+      return { dates, values };
+    }
+
     function generateASCIITable(holdings) {
       const col1Width = Math.max(...holdings.map(h => h.name.length), 7);
       const col2Width = Math.max(...holdings.map(h => h.value.length), 5);
@@ -93,6 +124,31 @@
       }
     }
 
+    function drawChart(dates, values) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const padding = 40;
+      const w = canvas.width - padding * 2;
+      const h = canvas.height - padding * 2;
+      const max = Math.max(...values);
+      const min = Math.min(...values);
+
+      ctx.strokeStyle = '#00ff00';
+      ctx.lineWidth = 2;
+
+      ctx.beginPath();
+      values.forEach((val, i) => {
+        const x = padding + (i / (values.length - 1)) * w;
+        const y = padding + h - ((val - min) / (max - min)) * h;
+        if (i === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      });
+      ctx.stroke();
+    }
+
     async function runSequence() {
       await showLoadingDots();
       await delay(700);
@@ -101,13 +157,14 @@
 
       try {
         const { totalValue, holdings, totalTendies } = await fetchSheetData();
-        msgEl.textContent = `joking, you have $${totalValue}`;
+        const { dates, values } = await fetchHistoryData();
 
+        msgEl.textContent = `joking, you have $${totalValue}`;
         const asciiTable = generateASCIITable(holdings);
         await delay(1000);
         await typeOutText(tableEl, asciiTable, 2);
-
         tendiesEl.textContent = `Total tendies to date $${totalTendies}`;
+        drawChart(dates, values);
 
       } catch (e) {
         msgEl.textContent = 'Error fetching value';
