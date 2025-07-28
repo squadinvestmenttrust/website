@@ -50,6 +50,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
   const sheetId = '1qPwQd7PPErKAnfsbDjQz0ZWMj9VcNFJXi6s3gU';
+  
   const holdingsGid = '0';
   const historyGid = '1276395401';
 
@@ -117,6 +118,7 @@
   async function init() {
     try {
       const [holdings, history] = await Promise.all([
+ 
         fetchSheetData(holdingsGid),
         fetchSheetData(historyGid)
       ]);
