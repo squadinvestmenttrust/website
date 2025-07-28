@@ -31,13 +31,18 @@
     }
 
     async function fetchSheetValue() {
-      const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQvIkFEd8DqGzQOSMan7QNAuwDI4fXgD1HB8PDbmnnqk5QmA0YNigbxyWuuKhoAys9VRKrbDqym2xDw/pub?gid=0&single=true&output=csv';
+      const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQvIkFEd8DqGzQOSMan7QNAuwDI4fXgD1HB8PDbmnnqk5QmA0YNigbxyWuuKhoAys9VRKrbDqym2xDw/pub?output=csv';
 
       const response = await fetch(sheetURL);
       const data = await response.text();
       const rows = data.split('\n').map(row => row.split(','));
 
-      return rows[1][3]; // D2 cell
+      // Safety check before accessing D2
+      if (rows.length >= 2 && rows[1].length >= 4) {
+        return rows[1][3];
+      } else {
+        throw new Error('D2 not found');
+      }
     }
 
     async function runSequence() {
