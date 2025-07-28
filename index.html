@@ -10,10 +10,34 @@
       font-family: 'Courier New', monospace;
       font-size: 24px;
       padding: 40px;
-      white-space: pre; /* preserves spacing and line breaks */
+      white-space: pre;
     }
     #message, #table {
       margin-bottom: 20px;
+    }
+    #chat {
+      margin-top: 40px;
+      border-top: 1px solid #00ff00;
+      padding-top: 20px;
+    }
+    #chatDisplay {
+      max-height: 200px;
+      overflow-y: auto;
+      margin-bottom: 10px;
+      white-space: pre-wrap;
+    }
+    input, button {
+      background: black;
+      border: 1px solid #00ff00;
+      color: #00ff00;
+      font-family: 'Courier New', monospace;
+      font-size: 18px;
+      padding: 4px 8px;
+      margin-top: 5px;
+    }
+    input::placeholder {
+      color: #00ff00;
+      opacity: 0.5;
     }
   </style>
 </head>
@@ -21,9 +45,20 @@
   <div id="message">Loading</div>
   <div id="table"></div>
 
+  <!-- Chat UI -->
+  <div id="chat">
+    <div id="chatDisplay"></div>
+    <input id="chatName" placeholder="Enter your name" /><br>
+    <input id="chatInput" placeholder="Say something..." />
+    <button onclick="submitChat()">Send</button>
+  </div>
+
   <script>
     const msgEl = document.getElementById('message');
     const tableEl = document.getElementById('table');
+    const chatDisplay = document.getElementById('chatDisplay');
+    const chatName = document.getElementById('chatName');
+    const chatInput = document.getElementById('chatInput');
 
     function delay(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));
@@ -63,11 +98,11 @@
 
       const line = '+' + '-'.repeat(col1Width + 2) + '+' + '-'.repeat(col2Width + 2) + '+\n';
       let table = line;
-      table += | ${'Holding'.padEnd(col1Width)} | ${'Value'.padStart(col2Width)} |\n;
+      table += `| ${'Holding'.padEnd(col1Width)} | ${'Value'.padStart(col2Width)} |\n`;
       table += line;
 
       for (const h of holdings) {
-        table += | ${h.name.padEnd(col1Width)} | ${h.value.padStart(col2Width)} |\n;
+        table += `| ${h.name.padEnd(col1Width)} | ${h.value.padStart(col2Width)} |\n`;
       }
 
       table += line;
@@ -90,11 +125,11 @@
 
       try {
         const { totalValue, holdings } = await fetchSheetData();
-        msgEl.textContent = joking, you have $${totalValue};
+        msgEl.textContent = `joking, you have $${totalValue}`;
 
         const asciiTable = generateASCIITable(holdings);
         await delay(1000);
-        await typeOutText(tableEl, asciiTable, 2); // Fast typing effect
+        await typeOutText(tableEl, asciiTable, 2);
 
       } catch (e) {
         msgEl.textContent = 'Error fetching value';
@@ -103,6 +138,24 @@
     }
 
     runSequence();
+
+    // Simple local chat
+    const chatLog = [];
+
+    function submitChat() {
+      const name = chatName.value.trim();
+      const text = chatInput.value.trim();
+      if (!name || !text) return;
+      const entry = `${name}: ${text}`;
+      chatLog.push(entry);
+      chatInput.value = '';
+      renderChat();
+    }
+
+    function renderChat() {
+      chatDisplay.textContent = chatLog.join('\n');
+      chatDisplay.scrollTop = chatDisplay.scrollHeight;
+    }
   </script>
 </body>
 </html>
