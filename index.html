@@ -56,14 +56,17 @@
         }
       }
 
-      // Performance data: columns H (index 7) and I (index 8)
+      // Performance data from columns H (date) and I (value)
       const history = [];
       for (let i = 2; i < rows.length; i++) {
         const date = rows[i][7]?.trim();
         const val = rows[i][8]?.replace(/[$,]/g, '').trim();
         const value = parseFloat(val);
         if (date && !isNaN(value)) {
-          history.push({ date, value });
+          const year = new Date(date).getFullYear();
+          if (year >= 2017 && year <= 2025) {
+            history.push({ year, value });
+          }
         }
       }
 
@@ -87,44 +90,49 @@
       return table;
     }
 
-    function normalizeHistoryPoints(history, width = 60, height = 10) {
-      const values = history.map(h => h.value);
-      const min = Math.min(...values);
-      const max = Math.max(...values);
-      const scale = v => Math.round((v - min) / (max - min || 1) * (height - 1));
-
-      const step = Math.ceil(history.length / width);
-      const points = [];
-      for (let i = 0; i < history.length; i += step) {
-        const scaled = scale(history[i].value);
-        points.push(scaled);
+    function groupHistoryByYear(history) {
+      const map = new Map();
+      for (let h of history) {
+        map.set(h.year, h.value);
       }
-
-      return { points, height, min, max };
+      return map;
     }
 
-    async function drawChart(history) {
-      const { points, height, min, max } = normalizeHistoryPoints(history);
-      const lines = Array.from({ length: height }, () => Array(points.length).fill(' '));
+    function renderLineChart(history, latestValue) {
+      const height = 10;
+      const minY = 500;
+      const maxY = latestValue;
+
+      const yScale = (value) => {
+        return Math.round(((value - minY) / (maxY - minY || 1)) * (height - 1));
+      };
+
+      const years = [];
+      for (let y = 2017; y <= 2025; y++) years.push(y);
+
+      const valuesByYear = groupHistoryByYear(history);
+      const points = years.map(y => yScale(valuesByYear.get(y) || 500));
+
+      // Build chart grid
+      const lines = Array.from({ length: height }, () => Array(years.length).fill(' '));
 
       for (let x = 0; x < points.length; x++) {
         const y = height - 1 - points[x];
         lines[y][x] = '|';
       }
 
-      // Pad chart with Y-axis labels
-      const maxLabel = `$${Math.round(max).toLocaleString()}`.padStart(10);
-      const minLabel = `$${Math.round(min).toLocaleString()}`.padStart(10);
-      const chartWidth = points.length;
-
-      let chart = '';
-      for (let i = 0; i < height; i++) {
-        const label = i === 0 ? maxLabel : i === height - 1 ? minLabel : ' '.repeat(10);
-        chart += label + '  ' + lines[i].join('') + '\n';
+      const chart = [];
+      for (let i = 0; i < lines.length; i++) {
+        const yLabel = i === 0 ? `$${maxY.toFixed(0).padStart(6)}` :
+                       i === lines.length - 1 ? `$${minY.toFixed(0).padStart(6)}` : '      ';
+        chart.push(`${yLabel}  ${lines[i].join('')}`);
       }
-      chart += ' '.repeat(10) + '  ' + '-'.repeat(chartWidth) + '\n';
 
-      await typeOutText(chartEl, chart, 1);
+      // X-axis labels
+      const xAxis = '       ' + years.map(y => String(y).slice(2)).join('  ');
+      chart.push(xAxis);
+
+      return chart.join('\n');
     }
 
     async function typeOutText(el, text, speed = 5) {
@@ -149,8 +157,10 @@
         await delay(1000);
         await typeOutText(tableEl, asciiTable, 2);
 
+        const latestVal = history.length ? history[history.length - 1].value : 500;
+        const chart = renderLineChart(history, latestVal);
         await delay(1000);
-        await drawChart(history);
+        await typeOutText(chartEl, chart, 1);
 
       } catch (e) {
         msgEl.textContent = 'Error fetching value';
