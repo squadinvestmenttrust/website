@@ -56,11 +56,11 @@
         }
       }
 
-      // Fetch history from H & I columns
+      // Performance data: columns H (index 7) and I (index 8)
       const history = [];
       for (let i = 2; i < rows.length; i++) {
-        const date = rows[i][7]?.trim();  // H column = index 7
-        const val = rows[i][8]?.replace(/[$,]/g, '').trim();  // I column = index 8
+        const date = rows[i][7]?.trim();
+        const val = rows[i][8]?.replace(/[$,]/g, '').trim();
         const value = parseFloat(val);
         if (date && !isNaN(value)) {
           history.push({ date, value });
@@ -99,25 +99,32 @@
         const scaled = scale(history[i].value);
         points.push(scaled);
       }
-      return { points, height };
+
+      return { points, height, min, max };
     }
 
     async function drawChart(history) {
-      const { points, height } = normalizeHistoryPoints(history);
+      const { points, height, min, max } = normalizeHistoryPoints(history);
       const lines = Array.from({ length: height }, () => Array(points.length).fill(' '));
 
       for (let x = 0; x < points.length; x++) {
         const y = height - 1 - points[x];
-        lines[y][x] = '.';
+        lines[y][x] = '|';
       }
+
+      // Pad chart with Y-axis labels
+      const maxLabel = `$${Math.round(max).toLocaleString()}`.padStart(10);
+      const minLabel = `$${Math.round(min).toLocaleString()}`.padStart(10);
+      const chartWidth = points.length;
 
       let chart = '';
-      for (let row of lines) {
-        chart += row.join('') + '\n';
+      for (let i = 0; i < height; i++) {
+        const label = i === 0 ? maxLabel : i === height - 1 ? minLabel : ' '.repeat(10);
+        chart += label + '  ' + lines[i].join('') + '\n';
       }
-      chart += '-'.repeat(points.length) + '\n';
+      chart += ' '.repeat(10) + '  ' + '-'.repeat(chartWidth) + '\n';
 
-      await typeOutText(chartEl, chart, 1); // Fast type
+      await typeOutText(chartEl, chart, 1);
     }
 
     async function typeOutText(el, text, speed = 5) {
