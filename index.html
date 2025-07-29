@@ -91,7 +91,7 @@
         }
         
         .graph-label {
-            font-size: 12px;
+            font-size: 14px;
             fill: var(--main-color);
             stroke: none;
             text-anchor: middle;
@@ -312,7 +312,7 @@ svgContent += `
             let svgContent = `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet">`;
 
             // Y-axis and labels
-            svgContent += `<line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" stroke-width="1"></line>`;
+            svgContent += `<line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" stroke-width="2"></line>`;
             for (let i = 0; i <= yMax; i += 10000) {
                 const y = yScale(i);
                 svgContent += `<line x1="${padding - 5}" y1="${y}" x2="${width - padding}" y2="${y}" stroke-width="0.5" stroke-dasharray="4"></line>`;
@@ -320,7 +320,7 @@ svgContent += `
             }
 
             // X-axis and labels
-            svgContent += `<line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke-width="1"></line>`;
+            svgContent += `<line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke-width="2"></line>`;
             for (let year = 2017; year <= 2026; year++) {
                 const x = xScale(new Date(`${year}-01-01`));
                 svgContent += `<text x="${x}" y="${height - padding + 20}" class="graph-label">${year}</text>`;
