@@ -283,7 +283,7 @@ svgContent += `
                 .map(row => {
                     const dateParts = row[7].split('/');
                     return {
-                        date: new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`),
+                        ddate: new Date(Number(dateParts[2]), Number(dateParts[1]) - 1, Number(dateParts[0])),
                         value: parseFloat(row[8])
                     };
                 })
