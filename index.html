@@ -298,7 +298,7 @@
             const yMax = Math.ceil(maxValue / 10000) * 10000;
             
             const startDate = new Date('2017-01-01');
-            const endDate = new Date('2025-12-31');
+            const endDate = new Date('2026-12-31');
 
             const xScale = (date) => {
                 return padding + ((date - startDate) / (endDate - startDate)) * (width - padding * 2);
@@ -320,7 +320,7 @@
 
             // X-axis and labels
             svgContent += `<line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke-width="1"></line>`;
-            for (let year = 2017; year <= 2025; year++) {
+            for (let year = 2017; year <= 2026; year++) {
                 const x = xScale(new Date(`${year}-01-01`));
                 svgContent += `<text x="${x}" y="${height - padding + 20}" class="graph-label">${year}</text>`;
             }
