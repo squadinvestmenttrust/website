@@ -137,7 +137,6 @@
       lines.push('+---------+----------+-----------+-----------+');
       lines.push('| Holding |   Value  |  Profit $ | Profit %  |');
       lines.push('+---------+----------+-----------+-----------+');
-
       for (let r = 2; r < data.length; r++) {
         const row = data[r];
         if (!row[0]) break;
@@ -147,7 +146,6 @@
         const p% = pad(`${parseFloat(row[6]||0).toFixed(2)}%`, 9);
         lines.push(`| ${h} | ${v} | ${p$} | ${p%} |`);
       }
-
       lines.push('+---------+----------+-----------+-----------+');
       document.getElementById('tableContainer').textContent = lines.join('\n');
     }
@@ -177,14 +175,12 @@
         ctx.arc(cx, cy, r0, start, end);
         ctx.lineTo(cx, cy);
         ctx.stroke();
-
         const mid = start + ang / 2;
         const lx = cx + (r0 + 20) * Math.cos(mid);
         const ly = cy + (r0 + 20) * Math.sin(mid);
         ctx.textAlign = 'center';
         ctx.font = '14px Courier New';
         ctx.fillText(`${labels[i]} ${Math.round(v/total*100)}%`, lx, ly);
-
         start = end;
       });
     }
@@ -215,7 +211,6 @@
       const minX = Math.min(...xs), maxX = Math.max(...xs);
       const minY = 0, maxY = Math.ceil(Math.max(...ys) / 10000) * 10000;
 
-      // grid
       ctx.lineWidth = 1;
       for (let y = 0; y <= maxY; y += 10000) {
         const yy = h - pad - (y - minY) / (maxY - minY) * (h - 2*pad);
@@ -227,14 +222,12 @@
         ctx.fillText(`$${y/1000}K`, pad - 10, yy + 5);
       }
 
-      // years
       ctx.textAlign = 'center';
       pts.forEach(p => {
         const x = pad + (p.x.getTime() - minX) / (maxX - minX) * (w - 2*pad);
         ctx.fillText(p.x.getFullYear(), x, h - pad + 20);
       });
 
-      // line
       ctx.lineWidth = 2;
       ctx.beginPath();
       pts.forEach((p,i) => {
