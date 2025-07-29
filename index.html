@@ -42,14 +42,13 @@
             align-items: flex-start;
         }
 
-        .table-container {
-            flex: 1;
-            min-width: 300px;
-            font-size: 1.1rem;
-            white-space: pre-wrap; /* Allows text to wrap */
-            word-break: break-word; /* Breaks long words to fit */
-            /* Removed overflow-x: auto as it's no longer needed for line-by-line display */
-        }
+.table-container {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    font-size: 1.1rem;
+}
 
         /* Specific styling for the new line-by-line table format */
         .holding-item {
