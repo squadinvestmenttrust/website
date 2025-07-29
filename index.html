@@ -194,7 +194,7 @@
             let tableString = '';
             holdings.forEach(row => {
                 const holdingName = row[0] || 'N/A';
-                const value = parseFloat(row[3]).toLocaleString('en-US', { style: 'currency', currency: 'USD' }); // Format as currency
+                const value = parseFloat(row[3]).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }); // Format as currency
                 const profitPercent = (row[6] || '0'); // Profit % (G column)
 
                 tableString += `<div class="holding-item">`;
