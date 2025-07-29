@@ -279,15 +279,15 @@ svgContent += `
 
         function drawLineGraph(data) {
             const graphData = data.slice(1)
-                .filter(row => row[7] && row[8])
-                .map(row => {
-                    const dateParts = row[7].split('/');
-                    return {
-                        ddate: new Date(Number(dateParts[2]), Number(dateParts[1]) - 1, Number(dateParts[0])),
-                        value: parseFloat(row[8])
-                    };
-                })
-                .sort((a, b) => a.date - b.date);
+    .filter(row => row[7] && row[8])
+    .map(row => {
+        const dateParts = row[7].split('/');
+        return {
+            date: new Date(Number(dateParts[2]), Number(dateParts[1]) - 1, Number(dateParts[0])),
+            value: parseFloat(row[8])
+        };
+    })
+    .sort((a, b) => a.date - b.date);
 
             if (graphData.length < 2) return;
 
