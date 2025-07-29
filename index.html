@@ -1,362 +1,168 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Squad Investment Trust</title>
-    <style>
-        :root {
-            --main-color: #00FF41;
-            --bg-color: #000000;
-            --font-family: 'Courier New', Courier, monospace;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--main-color);
-            font-family: var(--font-family);
-            margin: 0;
-            padding: 1rem;
-            font-size: 16px;
-        }
-
-        .container {
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-            max-width: 1000px;
-            margin: auto;
-        }
-
-        .header-text {
-            min-height: 1.2em; /* Reserve space to prevent layout shift */
-            font-size: 1.2rem;
-            white-space: pre-wrap;
-        }
-
-        .content-wrapper {
-            display: flex;
-            flex-direction: row;
-            flex-wrap: wrap;
-            gap: 2rem;
-            align-items: flex-start;
-        }
-
-        .table-container {
-            flex: 2; /* Give table more space */
-            min-width: 320px;
-            font-size: 1rem;
-            white-space: pre; /* Use preformatted text for the table */
-            overflow-x: auto;
-        }
-
-        .chart-container {
-            flex: 1;
-            min-width: 300px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .graph-container {
-            width: 100%;
-        }
-
-        svg {
-            width: 100%;
-            height: auto;
-            stroke: var(--main-color);
-            fill: var(--main-color);
-            stroke-width: 2;
-            font-family: var(--font-family);
-        }
-
-        .pie-chart-label {
-            font-size: 12px;
-            fill: var(--main-color);
-            stroke: none;
-            text-anchor: middle;
-        }
-        
-        .graph-label {
-             font-size: 12px;
-             fill: var(--main-color);
-             stroke: none;
-             text-anchor: middle;
-        }
-
-        .graph-axis-label-y {
-            text-anchor: end;
-        }
-
-        /* Blinking cursor effect */
-        .cursor::after {
-            content: '█';
-            animation: blink 1s step-end infinite;
-        }
-
-        @keyframes blink {
-            from, to {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Squad Investment Trust</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root { --green:#00ff00; }
+    body{
+      background:black;
+      color:var(--green);
+      font-family:'Courier New',monospace;
+      font-size:18px;
+      margin:0;
+      padding:20px;
+    }
+    #loading,#tendies,#table{white-space:pre;margin-bottom:20px;}
+    .row{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start;}
+    #table{flex:1 1 320px;}
+    #pieWrapper{flex:1 1 320px;}
+    canvas{background:black;width:100%;height:auto;}
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 </head>
 <body>
+  <div id="loading"></div>
+  <div id="tendies"></div>
 
-    <div class="container">
-        <div id="loading-text" class="header-text"></div>
-        <div id="tendies-text" class="header-text"></div>
+  <div class="row">
+    <pre id="table"></pre>
+    <div id="pieWrapper"><canvas id="pieChart"></canvas></div>
+  </div>
 
-        <div class="content-wrapper">
-            <div id="table-container" class="table-container"></div>
-            <div id="pie-chart-container" class="chart-container"></div>
-        </div>
+  <canvas id="lineChart"></canvas>
 
-        <div id="graph-container" class="graph-container"></div>
-    </div>
+  <script>
+    const SHEET_CSV='https://docs.google.com/spreadsheets/d/e/2PACX-1vQvIkFEd8DqGzQOSMan7QNAuwDI4fXgD1HB8PDbmnnqk5QmA0YNigbxyWuuKhoAys9VRKrbDqym2xDw/pub?output=csv';
+    const delay=ms=>new Promise(r=>setTimeout(r,ms));
 
-    <script>
-        const loadingTextEl = document.getElementById('loading-text');
-        const tendiesTextEl = document.getElementById('tendies-text');
-        const tableContainerEl = document.getElementById('table-container');
-        const pieChartContainerEl = document.getElementById('pie-chart-container');
-        const graphContainerEl = document.getElementById('graph-container');
+    async function type(el,text,speed=20){
+      for(const ch of text){el.textContent+=ch;await delay(speed);}
+    }
 
-        const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQvIkFEd8DqGzQOSMan7QNAuwDI4fXgD1HB8PDbmnnqk5QmA0YNigbxyWuuKhoAys9VRKrbDqym2xDw/pub?output=csv';
+    async function showLoader(){
+      const el=document.getElementById('loading');
+      await type(el,'Loading',70);
+      for(let i=0;i<5;i++){await delay(500);el.textContent+='.';}
+      await delay(500);
+      el.textContent+='\n';
+      await type(el,".....and it's gone",60);
+      await delay(800);
+    }
 
-        // --- UTILITY FUNCTIONS ---
+    function parseCSV(t){
+      return t.trim().split(/\r?\n/).map(r=>r.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(c=>c.replace(/^"|"$/g,'')));
+    }
+    const num=s=>parseFloat(s.replace(/[$,%]/g,'').replace(/,/g,''));
 
-        const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+    function holdingsData(rows){
+      const arr=[];
+      for(let i=2;i<rows.length;i++){
+        const [name,, ,val,,profit,pct]=rows[i];
+        if(name)arr.push({name,value:num(val),profit:num(profit),pct:pct.trim()});
+      }
+      return arr;
+    }
+    function historyData(rows){
+      const hist=[];
+      for(let i=1;i<rows.length;i++){
+        const d=rows[i][7],v=rows[i][8];
+        if(d&&v){
+          hist.push({year:d.split('/')[2],value:num(v)});
+        }
+      }
+      return hist;
+    }
+    function asciiTable(data){
+      const heads=['Holding','Value','Profit $','Profit %'];
+      const w=[
+        Math.max(...data.map(x=>x.name.length),heads[0].length),
+        Math.max(...data.map(x=>x.value.toLocaleString().length),heads[1].length),
+        Math.max(...data.map(x=>x.profit.toLocaleString().length),heads[2].length),
+        Math.max(...data.map(x=>x.pct.length),heads[3].length)
+      ];
+      const line=ch=>'+'+w.map(x=>ch.repeat(x+2)).join('+')+'+\n';
+      let out=line('-');
+      out+='|'+heads.map((h,i)=>' '+h.padEnd(w[i])+' ').join('|')+'|\n';
+      out+=line('-');
+      data.forEach(r=>{
+        out+='|'+' '+r.name.padEnd(w[0])+'|'
+              +' '+r.value.toLocaleString().padStart(w[1])+'|'
+              +' '+r.profit.toLocaleString().padStart(w[2])+'|'
+              +' '+r.pct.padStart(w[3])+'|\n';
+      });
+      out+=line('-');
+      return out;
+    }
 
-        // Function to simulate typing text letter by letter
-        async function typeText(element, text, speed = 50) {
-            element.classList.add('cursor');
-            element.textContent = ''; // Clear existing text before typing
-            for (let i = 0; i < text.length; i++) {
-                element.textContent += text[i];
-                await sleep(speed);
+    function pieChart(holdings){
+      new Chart(document.getElementById('pieChart'),{
+        type:'pie',
+        data:{
+          labels:holdings.map(h=>h.name),
+          datasets:[{
+            data:holdings.map(h=>h.value),
+            backgroundColor:holdings.map(()=> 'rgba(0,0,0,0)'),
+            borderColor:holdings.map(()=> '#00ff00'),
+            borderWidth:2
+          }]
+        },
+        options:{
+          plugins:{
+            legend:{display:false},
+            tooltip:{enabled:false},
+            datalabels:{
+              color:'#00ff00',
+              formatter:(v,ctx)=>{
+                const sum=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);
+                return ctx.chart.data.labels[ctx.dataIndex]+' '+Math.round(v/sum*100)+'%';
+              }
             }
-            element.classList.remove('cursor');
+          }
+        },
+        plugins:[ChartDataLabels]
+      });
+    }
+
+    function lineChart(hist){
+      const labels=hist.map(h=>h.year),vals=hist.map(h=>h.value);
+      const mx=Math.max(...vals),step=10000,top=Math.ceil(mx/step)*step;
+      new Chart(document.getElementById('lineChart'),{
+        type:'line',
+        data:{labels,datasets:[{data:vals,borderColor:'#00ff00',borderWidth:2,pointRadius:0,fill:false,tension:0}]},
+        options:{
+          plugins:{legend:{display:false},tooltip:{enabled:false}},
+          scales:{
+            x:{grid:{color:'#003300',lineWidth:0.2},
+               ticks:{color:'#00ff00',callback:(v,i)=>i===0||labels[i]!==labels[i-1]?labels[i]:''}},
+            y:{beginAtZero:true,max:top,ticks:{stepSize:step,color:'#00ff00',callback:v=>'$'+v/1000+'K'},
+               grid:{color:'#003300',lineWidth:0.2}}
+          }
         }
-        
-        // Function to simulate typing text character by character for preformatted text
-        async function typePreformattedText(element, text, speed = 5) {
-            element.classList.add('cursor');
-            element.textContent = '';
-             for (let i = 0; i < text.length; i++) {
-                element.textContent = text.substring(0, i + 1);
-                await sleep(speed);
-            }
-            element.classList.remove('cursor');
-        }
+      });
+    }
 
-        // Function to simulate typing dots
-        async function typeDots(element, count = 5, speed = 200) {
-            element.classList.add('cursor');
-            for (let i = 0; i < count; i++) {
-                element.textContent += '.';
-                await sleep(speed);
-            }
-            element.classList.remove('cursor');
-        }
+    (async()=>{
+      const csvP=fetch(SHEET_CSV).then(r=>r.text()).then(parseCSV);
+      await showLoader();
+      const rows=await csvP;
+      const cash=num(rows[1][3]).toLocaleString();
+      const tend=num(rows[1][5]).toLocaleString();
 
-        // --- DATA FETCHING AND PARSING ---
+      const load=document.getElementById('loading');
+      load.textContent='';
+      await type(load,'just joking, you have $'+cash,20);
 
-        async function getSheetData() {
-            try {
-                const response = await fetch(SPREADSHEET_URL, { cache: 'no-store' }); // Disable cache
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const csvText = await response.text();
-                // Simple CSV to Array parser, handles potential commas inside quotes
-                const rows = csvText.split('\n').map(row => 
-                    row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g)
-                       .map(str => str.replace(/"/g, ''))
-                );
-                return rows;
-            } catch (e) {
-                console.error("Error fetching or parsing spreadsheet data:", e);
-                loadingTextEl.textContent = "Error: Could not load spreadsheet data.";
-                return null;
-            }
-        }
+      await type(document.getElementById('tendies'),'Total tendies to date $'+tend,20);
 
-        // --- DRAWING FUNCTIONS ---
+      const holds=holdingsData(rows);
+      await type(document.getElementById('table'),asciiTable(holds),1);
 
-        function drawTable(data) {
-            const holdings = data.slice(2).filter(row => row && row[0]); // Filter empty/invalid rows
-
-            // Define column widths
-            const colWidths = {
-                holding: 10,
-                value: 11,
-                profit$: 11,
-                profitPercent: 10
-            };
-
-            // Create separator line based on widths
-            const separator = `+${'-'.repeat(colWidths.holding + 2)}+${'-'.repeat(colWidths.value + 2)}+${'-'.repeat(colWidths.profit$ + 2)}+${'-'.repeat(colWidths.profitPercent + 2)}+`;
-
-            let tableString = `${separator}\n`;
-            tableString += `| ${'Holding'.padEnd(colWidths.holding)} | ${'Value'.padEnd(colWidths.value)} | ${'Profit $'.padEnd(colWidths.profit$)} | ${'Profit %'.padEnd(colWidths.profitPercent)} |\n`;
-            tableString += `${separator}\n`;
-
-            holdings.forEach(row => {
-                const holding = (row[0] || '').padEnd(colWidths.holding);
-                const value = ('$' + (row[3] || '0')).padEnd(colWidths.value);
-                const profitDollars = ('$' + (row[5] || '0')).padEnd(colWidths.profit$);
-                
-                const profitPercentRaw = parseFloat(row[6] || 0);
-                const profitPercentFormatted = (profitPercentRaw * 100).toFixed(2) + '%';
-                const profitPercent = profitPercentFormatted.padEnd(colWidths.profitPercent);
-
-                tableString += `| ${holding} | ${value} | ${profitDollars} | ${profitPercent} |\n`;
-            });
-            tableString += separator;
-            
-            typePreformattedText(tableContainerEl, tableString, 5);
-        }
-
-        function drawPieChart(data) {
-            const holdingsData = data.slice(2)
-                .filter(row => row && row[0] && parseFloat(row[3]) > 0)
-                .map(row => ({
-                    name: row[0],
-                    value: parseFloat(row[3])
-                }));
-
-            const totalValue = holdingsData.reduce((sum, item) => sum + item.value, 0);
-            if (totalValue === 0) { // Handle case where there's only cash or no holdings
-                 const cashRow = data.slice(2).find(r => r[0] && r[0].toLowerCase() === 'cash');
-                 if(cashRow) {
-                     pieChartContainerEl.innerHTML = `<svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid meet"><circle cx="100" cy="100" r="99" fill="none" stroke-width="2"></circle><text x="100" y="100" class="pie-chart-label">CASH 100%</text></svg>`;
-                 }
-                return;
-            }
-
-            const radius = 100;
-            const cx = radius;
-            const cy = radius;
-            let startAngle = -90; // Start from the top
-
-            let svgContent = `<svg viewBox="0 0 ${radius * 2} ${radius * 2}" preserveAspectRatio="xMidYMid meet">`;
-
-            holdingsData.forEach(item => {
-                const percentage = item.value / totalValue;
-                const angle = percentage * 360;
-                const endAngle = startAngle + angle;
-
-                const start = polarToCartesian(cx, cy, radius, endAngle);
-                const end = polarToCartesian(cx, cy, radius, startAngle);
-
-                const largeArcFlag = angle > 180 ? "1" : "0";
-                
-                const d = `M ${cx},${cy} L ${end.x},${end.y} A ${radius},${radius} 0 ${largeArcFlag},1 ${start.x},${start.y} Z`;
-                svgContent += `<path d="${d}" fill="none" stroke-width="2"></path>`;
-
-                const labelAngle = startAngle + angle / 2;
-                const labelPos = polarToCartesian(cx, cy, radius * 0.7, labelAngle);
-                const labelText = `${item.name} ${Math.round(percentage * 100)}%`;
-
-                svgContent += `<text x="${labelPos.x}" y="${labelPos.y}" class="pie-chart-label">${labelText}</text>`;
-                startAngle = endAngle;
-            });
-            
-            svgContent += `</svg>`;
-            pieChartContainerEl.innerHTML = svgContent;
-        }
-
-        function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
-            const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
-            return {
-                x: centerX + (radius * Math.cos(angleInRadians)),
-                y: centerY + (radius * Math.sin(angleInRadians))
-            };
-        }
-
-        function drawLineGraph(data) {
-             const graphData = data.slice(1)
-                .filter(row => row && row[7] && row[8])
-                .map(row => {
-                    const dateParts = row[7].split('/');
-                    return {
-                        date: new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`),
-                        value: parseFloat(row[8])
-                    };
-                })
-                .sort((a, b) => a.date - b.date);
-
-            if (graphData.length < 2) return;
-
-            const width = 800;
-            const height = 400;
-            const padding = 60;
-
-            const maxValue = Math.max(...graphData.map(d => d.value));
-            const yMax = Math.ceil(maxValue / 10000) * 10000;
-            
-            const startDate = new Date('2017-01-01');
-            const endDate = new Date('2025-12-31');
-
-            const xScale = (date) => padding + ((date - startDate) / (endDate - startDate)) * (width - padding * 2);
-            const yScale = (value) => height - padding - (value / yMax) * (height - padding * 2);
-
-            let svgContent = `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet">`;
-
-            // Y-axis and labels
-            svgContent += `<line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" stroke-width="1"></line>`;
-            for (let i = 0; i <= yMax; i += 10000) {
-                if(i < 0) continue;
-                const y = yScale(i);
-                svgContent += `<line x1="${padding - 5}" y1="${y}" x2="${width - padding}" y2="${y}" stroke-width="0.5" stroke-dasharray="4"></line>`;
-                svgContent += `<text x="${padding - 10}" y="${y + 4}" class="graph-label graph-axis-label-y">$${i / 1000}K</text>`;
-            }
-
-            // X-axis and labels
-            svgContent += `<line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke-width="1"></line>`;
-            for (let year = 2017; year <= 2025; year++) {
-                const x = xScale(new Date(`${year}-07-01`)); // Center label in the year
-                 svgContent += `<text x="${x}" y="${height - padding + 20}" class="graph-label">${year}</text>`;
-            }
-            
-            // Data line
-            const points = graphData.map(d => `${xScale(d.date)},${yScale(d.value)}`).join(' ');
-            svgContent += `<polyline points="${points}" fill="none" stroke-width="3"></polyline>`;
-
-            svgContent += `</svg>`;
-            graphContainerEl.innerHTML = svgContent;
-        }
-
-
-        // --- MAIN EXECUTION ---
-
-        async function main() {
-            await typeText(loadingTextEl, 'Loading', 80);
-            await typeDots(loadingTextEl, 5, 250);
-            await sleep(500);
-            await typeText(loadingTextEl, '.....and it\'s gone', 80);
-            await sleep(1000);
-
-            const sheetData = await getSheetData();
-            if (!sheetData) return;
-
-            const jokingValue = sheetData[1][3] || '0';
-            await typeText(loadingTextEl, `joking, you have $${jokingValue}`);
-
-            const tendiesValue = sheetData[1][5] || '0';
-            await typeText(tendiesTextEl, `Total tendies to date $${tendiesValue}`);
-            
-            drawTable(sheetData);
-            drawPieChart(sheetData);
-            drawLineGraph(sheetData);
-        }
-
-        window.onload = main;
-    </script>
+      pieChart(holds);
+      lineChart(historyData(rows));
+    })();
+  </script>
 </body>
 </html>
