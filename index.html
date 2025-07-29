@@ -291,9 +291,9 @@ svgContent += `
 
             if (graphData.length < 2) return;
 
-            const width = 900;
+            const width = 1000;
             const height = 600;
-            const padding = 20;
+            const padding = 40;
 
             const maxValue = Math.max(...graphData.map(d => d.value));
             const yMax = Math.ceil(maxValue / 10000) * 10000;
