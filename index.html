@@ -46,10 +46,21 @@
             flex: 1;
             min-width: 300px;
             font-size: 1.1rem;
-            white-space: pre-wrap; /* Changed from pre to pre-wrap for better responsiveness */
-            word-break: break-all; /* Helps break long words if necessary */
-            overflow-x: auto; /* Kept for fallback, but less scrolling expected */
+            white-space: pre-wrap; /* Allows text to wrap */
+            word-break: break-word; /* Breaks long words to fit */
+            /* Removed overflow-x: auto as it's no longer needed for line-by-line display */
         }
+
+        /* Specific styling for the new line-by-line table format */
+        .holding-item {
+            margin-bottom: 1rem; /* Space between each holding block */
+            line-height: 1.4;
+        }
+        .holding-item strong {
+            display: inline-block; /* Makes labels align nicely */
+            min-width: 60px; /* Adjust as needed for label alignment */
+        }
+
 
         .chart-container {
             flex: 1;
@@ -136,8 +147,10 @@
         // Function to simulate typing text letter by letter
         async function typeText(element, text, speed = 50) {
             element.classList.add('cursor');
+            let currentText = ""; // Accumulate text
             for (let i = 0; i < text.length; i++) {
-                element.textContent = text.substring(0, i + 1);
+                currentText += text.charAt(i);
+                element.innerHTML = currentText.replace(/\n/g, '<br>'); // Use innerHTML for <br>
                 await sleep(speed);
             }
             element.classList.remove('cursor');
@@ -178,22 +191,23 @@
             // Filter out header rows and empty rows
             const holdings = data.slice(2).filter(row => row[0]);
 
-            let tableString = `+------------+-----------+------------+----------+\n`;
-            tableString += `| Holding    | Value     | Profit $   | Profit % |\n`;
-            tableString += `+------------+-----------+------------+----------+\n`;
-
+            let tableString = '';
             holdings.forEach(row => {
-                const holding = (row[0] || '').padEnd(10); // Holding name (adjust padding)
-                const value = (row[3] || '0').padEnd(9);   // Value (D column)
-                const profitDollar = (row[5] || '0').padEnd(10); // Profit $ (F column)
-                const profitPercent = (row[6] || '0').padEnd(8); // Profit % (G column)
+                const holdingName = row[0] || 'N/A';
+                const value = parseFloat(row[3]).toLocaleString('en-US', { style: 'currency', currency: 'USD' }); // Format as currency
+                const profitPercent = (row[6] || '0'); // Profit % (G column)
 
-                tableString += `| ${holding} | $${value} | $${profitDollar} | ${profitPercent}% |\n`;
+                tableString += `<div class="holding-item">`;
+                tableString += `<strong>Holding:</strong> ${holdingName}\n`;
+                tableString += `<strong>Value:</strong> ${value}\n`;
+                tableString += `<strong>Profit:</strong> ${profitPercent}%\n`;
+                tableString += `</div>`;
             });
-            tableString += `+------------+-----------+------------+----------+`;
-
-            // Animate table drawing
-            typeText(tableContainerEl, tableString, 5);
+            
+            // For line-by-line display, we set innerHTML directly after composing
+            // the full string, and then apply the typing effect.
+            // Adjust speed for the new format. `5` is very fast, try `1` or `0` for instant.
+            typeText(tableContainerEl, tableString, 1); 
         }
 
         function drawPieChart(data) {
@@ -336,11 +350,11 @@
             if (!sheetData) return;
 
             // 3. Display data with animations
-            const jokingValue = sheetData[1][3] || '0';
-            await typeText(loadingTextEl, `joking, you have $${jokingValue}`);
+            const jokingValue = parseFloat(sheetData[1][3]).toLocaleString('en-US', { style: 'currency', currency: 'USD' }) || '$0';
+            await typeText(loadingTextEl, `joking, you have ${jokingValue}`);
 
-            const tendiesValue = sheetData[1][5] || '0';
-            await typeText(tendiesTextEl, `Total tendies to date $${tendiesValue}`);
+            const tendiesValue = parseFloat(sheetData[1][5]).toLocaleString('en-US', { style: 'currency', currency: 'USD' }) || '$0';
+            await typeText(tendiesTextEl, `Total tendies to date ${tendiesValue}`);
             
             // 4. Draw elements
             drawTable(sheetData);
