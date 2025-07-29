@@ -129,18 +129,6 @@
         </div>
 
         <div id="graph-container" class="graph-container"></div>
-        <div id="news-section" style="margin-top: 2rem;">
-    <button id="news-button" style="
-        border: 2px solid var(--main-color);
-        background-color: transparent;
-        color: var(--main-color);
-        font-family: var(--font-family);
-        font-size: 1rem;
-        padding: 0.5rem 1rem;
-        cursor: pointer;
-    ">Stonk News</button>
-    <div id="news-list" style="margin-top: 1rem; display: none; white-space: pre-wrap; font-size: 1rem;"></div>
-</div>
     </div>
 
     <script>
@@ -345,25 +333,6 @@ svgContent += `
             svgContent += `</svg>`;
             graphContainerEl.innerHTML = svgContent;
         }
-        function drawNewsSection(data) {
-    const newsListEl = document.getElementById('news-list');
-    const newsButton = document.getElementById('news-button');
-
-    const newsItems = data.slice(2)
-        .map(row => row[9])  // Column J = index 9
-        .filter(item => item && item.trim() !== '');
-
-    if (newsItems.length === 0) {
-        newsListEl.textContent = 'No news available.';
-        return;
-    }
-
-    newsListEl.innerHTML = newsItems.map(item => `• ${item}`).join('\n');
-
-    newsButton.addEventListener('click', () => {
-        newsListEl.style.display = (newsListEl.style.display === 'none') ? 'block' : 'none';
-    });
-}
 
 
         // --- MAIN EXECUTION ---
@@ -392,7 +361,6 @@ svgContent += `
             drawTable(sheetData);
             drawPieChart(sheetData);
             drawLineGraph(sheetData);
-            drawNewsSection(sheetData);
         }
 
         // Run the main function when the page loads
