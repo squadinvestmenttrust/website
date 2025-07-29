@@ -251,9 +251,10 @@
                 // Label position
                 const labelAngle = startAngle + angle / 2;
                 const labelPos = polarToCartesian(cx, cy, radius * 0.7, labelAngle);
-                const labelText = `${item.name} ${Math.round(percentage * 100)}%`;
-
-                svgContent += `<text x="${labelPos.x}" y="${labelPos.y}" class="pie-chart-label">${labelText}</text>`;
+svgContent += `
+    <text x="${labelPos.x}" y="${labelPos.y - 6}" class="pie-chart-label">${item.name}</text>
+    <text x="${labelPos.x}" y="${labelPos.y + 8}" class="pie-chart-label">${Math.round(percentage * 100)}%</text>
+`;
 
                 startAngle = endAngle;
             });
