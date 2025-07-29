@@ -1,185 +1,271 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Squad Investment Trust</title>
-  <style>
-    body {
-      background-color: black;
-      color: #00ff00;
-      font-family: 'Courier New', monospace;
-      font-size: 18px;
-      padding: 20px;
-    }
-    .line {
-      white-space: pre;
-    }
-    table {
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    th, td {
-      border: 1px dashed #00ff00;
-      padding: 5px 10px;
-    }
-    #tableContainer, #pieContainer, #chartContainer {
-      margin-top: 20px;
-    }
-    #row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 40px;
-      align-items: start;
-    }
-    canvas {
-      background-color: black;
-    }
-    @media (max-width: 768px) {
-      #row {
-        flex-direction: column;
-        align-items: stretch;
-      }
-    }
-  </style>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta charset="UTF-8">
+<title>Squad Investment Trust</title>
+
+<!-- Chart.js & DataLabels -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+
+<style>
+  :root {
+    --green: #00ff00;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0 16px;
+    background: #000;
+    color: var(--green);
+    font-family: "Courier New", monospace;
+    font-size: 18px;
+  }
+
+  /* typing cursor */
+  .cursor::after {
+    content: "_";
+    animation: blink 1s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* container layout */
+  #content { display: flex; flex-direction: column; gap: 24px; }
+  #upperRow { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+  #tableBox { white-space: pre; }
+  #pieBox, #lineBox { width: 100%; max-width: 640px; }
+  canvas { width: 100% !important; height: auto !important; background: #000; }
+
+  /* axes & grid styling */
+  .chart-axes line,
+  .chart-axes path,
+  .chart-grid line {
+    stroke: var(--green) !important;
+  }
+  .chart-axes text { fill: var(--green) !important; font-family: "Courier New", monospace; }
+</style>
 </head>
+
 <body>
-  <div class="line" id="message"></div>
-  <div class="line" id="tendies"></div>
-  <div id="row">
-    <div id="tableContainer"></div>
-    <div>
-      <canvas id="pieChart" width="300" height="300"></canvas>
-    </div>
+<div id="loading" class="cursor"></div>
+
+<!-- everything else lives here, revealed after load -->
+<div id="content" style="display:none;">
+  <div id="summary"></div>
+  <div id="tendies"></div>
+
+  <div id="upperRow">
+    <div id="tableBox"></div>
+    <div id="pieBox"><canvas id="pie"></canvas></div>
   </div>
-  <div id="chartContainer">
-    <canvas id="lineChart" width="800" height="400"></canvas>
-  </div>
 
-  <script>
-    const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQvIkFEd8DqGzQOSMan7QNAuwDI4fXgD1HB8PDbmnnqk5QmA0YNigbxyWuuKhoAys9VRKrbDqym2xDw/pub?output=csv';
+  <div id="lineBox"><canvas id="line"></canvas></div>
+</div>
 
-    async function delay(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
+<script>
+const SHEET_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQvIkFEd8DqGzQOSMan7QNAuwDI4fXgD1HB8PDbmnnqk5QmA0YNigbxyWuuKhoAys9VRKrbDqym2xDw/pub?output=csv";
+
+// util: delay
+const wait = ms => new Promise(r => setTimeout(r, ms));
+
+// step‑by‑step loader
+async function runLoader() {
+  const el = document.getElementById('loading');
+
+  async function type(text, speed = 75) {
+    el.classList.add('cursor');
+    for (let ch of text) {
+      el.textContent += ch;
+      await wait(speed);
     }
+    el.classList.remove('cursor');
+  }
 
-    async function startLoading() {
-      const msgEl = document.getElementById('message');
-      msgEl.textContent = 'Loading';
-      for (let i = 0; i < 5; i++) {
-        msgEl.textContent += '.';
-        await delay(400);
-      }
-      await delay(500);
-      msgEl.textContent = '.....and it\'s gone';
-      await delay(700);
+  await type('Loading');
+  for (let i = 0; i < 5; i++) {
+    await wait(300);
+    el.textContent += '.';
+  }
+  await wait(500);
+  el.textContent = '';
+  await type('.....and it\'s gone');
+  await wait(800);
+}
+
+// fetch and parse CSV
+async function fetchData() {
+  const res = await fetch(SHEET_CSV);
+  if (!res.ok) throw Error('fetch failed');
+  const csv = await res.text();
+  const rows = csv.trim().split('\n').map(r => r.split(','));
+
+  // core values
+  const have       = Number(rows[1][3].replace(/[^0-9.-]+/g, ''));
+  const tendiesVal = Number(rows[1][5].replace(/[^0-9.-]+/g, ''));
+
+  // holdings (start row 3)
+  const holdings = [];
+  for (let i = 2; i < rows.length; i++) {
+    const [h, , , val, , prof$, profPct] = rows[i];
+    if (!h) break; // stop at blank line
+    holdings.push({
+      holding: h,
+      value:  Number(val.replace(/[^0-9.-]+/g, '')),
+      profit$: prof$,
+      profitPct: profPct
+    });
+  }
+
+  // history columns H & I (zero‑based 7 & 8)
+  const dates = [], values = [];
+  for (let i = 0; i < rows.length; i++) {
+    const date = rows[i][7], val = rows[i][8];
+    if (date && val) {
+      dates.push(date);
+      values.push(Number(val.replace(/[^0-9.-]+/g, '')));
     }
+  }
 
-    async function fetchCSV() {
-      const res = await fetch(sheetUrl);
-      const text = await res.text();
-      const rows = text.split('\n').map(row => row.split(','));
-      return rows;
-    }
+  return {have, tendiesVal, holdings, dates, values};
+}
 
-    function formatMoney(value) {
-      return '$' + Number(value).toLocaleString();
-    }
+// ASCII table builder
+function buildTable(headers, rows) {
+  const colWidths = headers.map((h, i) =>
+    Math.max(h.length, ...rows.map(r => r[i].toString().length))
+  );
 
-    async function renderData() {
-      const data = await fetchCSV();
-      const message = document.getElementById('message');
-      const tendies = document.getElementById('tendies');
-      const tableContainer = document.getElementById('tableContainer');
+  const line = '+' + colWidths.map(w => '-'.repeat(w + 2)).join('+') + '+\n';
+  const rowStr = r => '| ' + r.map((c,i) => c.toString().padEnd(colWidths[i])).join(' | ') + ' |\n';
 
-      const totalVal = data[1][3];
-      const tendiesVal = data[1][5];
+  let txt = line + rowStr(headers) + line;
+  rows.forEach(r => { txt += rowStr(r); });
+  txt += line;
+  return txt;
+}
 
-      message.textContent = `just joking, you have ${formatMoney(totalVal)}`;
-      tendies.textContent = `Total tendies to date ${formatMoney(tendiesVal)}`;
-
-      let tableHTML = '<table><tr><th>Holding</th><th>Value</th><th>Profit $</th><th>Profit %</th></tr>';
-      const holdings = [];
-      const values = [];
-      for (let i = 2; i < data.length; i++) {
-        if (!data[i][0]) continue;
-        tableHTML += `<tr><td>${data[i][0]}</td><td>${formatMoney(data[i][3])}</td><td>${formatMoney(data[i][5])}</td><td>${data[i][6]}%</td></tr>`;
-        holdings.push(data[i][0]);
-        values.push(parseFloat(data[i][3]));
-      }
-      tableHTML += '</table>';
-      tableContainer.innerHTML = tableHTML;
-
-      const pieCtx = document.getElementById('pieChart').getContext('2d');
-      new Chart(pieCtx, {
-        type: 'pie',
-        data: {
-          labels: holdings,
-          datasets: [{
-            data: values,
-            backgroundColor: values.map(() => 'rgba(0,0,0,0)'),
-            borderColor: '#00ff00',
-            borderWidth: 1
-          }]
-        },
-        options: {
-          plugins: {
-            legend: {
-              labels: { color: '#00ff00' }
-            },
-            tooltip: { enabled: false }
+// draw charts
+function drawPie(ctx, labels, data) {
+  new Chart(ctx, {
+    type: 'pie',
+    plugins:[ChartDataLabels],
+    data: {
+      labels,
+      datasets:[{
+        data,
+        borderColor: '#00ff00',
+        borderWidth: 2,
+        backgroundColor: data.map(()=>'rgba(0,0,0,0)')
+      }]
+    },
+    options:{
+      plugins:{
+        tooltip:{enabled:false},
+        legend:{display:false},
+        datalabels:{
+          color:'#00ff00',
+          formatter:(v,ctx)=>{
+            const total = ctx.dataset.data.reduce((a,b)=>a+b,0);
+            return ctx.chart.data.labels[ctx.dataIndex] + ' ' +
+                   Math.round(v/total*100)+'%';
           }
         }
-      });
+      }
+    }
+  });
+}
 
-      const dateRow = data[0];
-      const valueRow = data[1];
-      const dates = dateRow.slice(7).map(d => {
-        const [day, month, year] = d.split('/');
-        return `${year}`;
-      });
-      const valuesLine = valueRow.slice(7).map(v => parseFloat(v));
-
-      const lineCtx = document.getElementById('lineChart').getContext('2d');
-      new Chart(lineCtx, {
-        type: 'line',
-        data: {
-          labels: dates,
-          datasets: [{
-            label: 'Portfolio Value',
-            data: valuesLine,
-            borderColor: '#00ff00',
-            borderWidth: 2,
-            pointRadius: 0
-          }]
+function drawLine(ctx, labels, data) {
+  new Chart(ctx, {
+    type:'line',
+    data:{
+      labels,
+      datasets:[{
+        data,
+        borderColor:'#00ff00',
+        borderWidth:2,
+        pointRadius:0,
+        fill:false
+      }]
+    },
+    options:{
+      plugins:{tooltip:{enabled:false}, legend:{display:false}},
+      interaction:{mode:'index',intersect:false},
+      scales:{
+        x:{
+          grid:{color:'#003300'},
+          ticks:{color:'#00ff00'},
+          title:{display:false}
         },
-        options: {
-          scales: {
-            y: {
-              ticks: {
-                color: '#00ff00',
-                callback: val => `$${val / 1000}K`
-              },
-              grid: { color: '#004400' }
-            },
-            x: {
-              ticks: { color: '#00ff00' },
-              grid: { color: '#004400' }
-            }
+        y:{
+          grid:{color:'#003300'},
+          ticks:{
+            color:'#00ff00',
+            callback:v=>'$'+(v/1000)+'K'
           },
-          plugins: {
-            legend: { display: false },
-            tooltip: { enabled: false }
-          }
+          beginAtZero:true,
+          suggestedMax: Math.ceil(Math.max(...data)/10000)*10000
         }
-      });
+      }
     }
+  });
+}
 
-    (async function init() {
-      await startLoading();
-      await renderData();
-    })();
-  </script>
+// sequential reveal
+async function buildUI() {
+  try {
+    const {have, tendiesVal, holdings, dates, values} = await fetchData();
+
+    // replace loading text
+    const loadBox = document.getElementById('loading');
+    loadBox.textContent = '';
+    document.getElementById('content').style.display = 'flex';
+
+    // summary
+    document.getElementById('summary').textContent =
+      `just joking, you have $${have.toLocaleString()}`;
+
+    await wait(500);
+
+    // tendies
+    document.getElementById('tendies').textContent =
+      `Total tendies to date $${tendiesVal.toLocaleString()}`;
+
+    await wait(500);
+
+    // table
+    const tblHeaders = ['Holding','Value','Profit'];
+    const tblRows = holdings.map(h=>[
+      h.holding,
+      h.value.toLocaleString(),
+      h.profit$
+    ]);
+    document.getElementById('tableBox').textContent =
+      buildTable(tblHeaders, tblRows);
+
+    await wait(500);
+
+    // pie
+    drawPie(document.getElementById('pie'), holdings.map(h=>h.holding), holdings.map(h=>h.value));
+
+    await wait(500);
+
+    // line
+    // convert dates like DD/MM/YYYY to YYYY label (use regex fallback)
+    const yrLabels = dates.map(d=>d.split('/').pop());
+    drawLine(document.getElementById('line'), yrLabels, values);
+
+  } catch(e) {
+    document.body.textContent = 'failure to load';
+    console.error(e);
+  }
+}
+
+// run
+(async()=>{
+  await runLoader();
+  await buildUI();
+})();
+</script>
 </body>
 </html>
