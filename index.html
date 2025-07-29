@@ -2,243 +2,184 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Squad Investment Trust</title>
   <style>
     body {
-      background: black;
+      background-color: black;
       color: #00ff00;
       font-family: 'Courier New', monospace;
-      white-space: pre-wrap;
-      margin: 20px;
+      font-size: 18px;
+      padding: 20px;
     }
-    #loadingText, #justJokeText, #tendiesText {
-      font-size: 24px;
-      line-height: 1.4;
+    .line {
+      white-space: pre;
     }
-    #justJokeText, #tendiesText,
-    #tablePieContainer,
-    #lineContainer {
-      display: none;
-    }
-    #tablePieContainer {
-      display: flex;
-      align-items: flex-start;
+    table {
+      border-collapse: collapse;
       margin-top: 20px;
     }
-    #tableContainer {
-      white-space: pre;
-      font-size: 18px;
-      margin-right: 50px;
+    th, td {
+      border: 1px dashed #00ff00;
+      padding: 5px 10px;
+    }
+    #tableContainer, #pieContainer, #chartContainer {
+      margin-top: 20px;
+    }
+    #row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 40px;
+      align-items: start;
     }
     canvas {
-      background: black;
-      display: block;
+      background-color: black;
     }
-    #pieCanvas {
-      width: 300px;
-      height: 300px;
-    }
-    #lineCanvas {
-      width: 100%;
-      height: 400px;
-    }
-    #lineContainer {
-      margin-top: 30px;
+    @media (max-width: 768px) {
+      #row {
+        flex-direction: column;
+        align-items: stretch;
+      }
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <div id="loadingText"></div>
-  <div id="justJokeText"></div>
-  <div id="tendiesText"></div>
-
-  <div id="tablePieContainer">
+  <div class="line" id="message"></div>
+  <div class="line" id="tendies"></div>
+  <div id="row">
     <div id="tableContainer"></div>
-    <canvas id="pieCanvas" width="300" height="300"></canvas>
+    <div>
+      <canvas id="pieChart" width="300" height="300"></canvas>
+    </div>
   </div>
-
-  <div id="lineContainer">
-    <canvas id="lineCanvas" width="800" height="400"></canvas>
+  <div id="chartContainer">
+    <canvas id="lineChart" width="800" height="400"></canvas>
   </div>
 
   <script>
     const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQvIkFEd8DqGzQOSMan7QNAuwDI4fXgD1HB8PDbmnnqk5QmA0YNigbxyWuuKhoAys9VRKrbDqym2xDw/pub?output=csv';
 
-    function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-    async function typeText(el, txt, ms=100) {
-      for (let c of txt) {
-        el.textContent += c;
-        await delay(ms);
-      }
+    async function delay(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    async function loadSequence() {
-      const loadEl = document.getElementById('loadingText');
-      await typeText(loadEl, 'Loading');
+    async function startLoading() {
+      const msgEl = document.getElementById('message');
+      msgEl.textContent = 'Loading';
       for (let i = 0; i < 5; i++) {
-        await delay(500);
-        loadEl.textContent += '.';
+        msgEl.textContent += '.';
+        await delay(400);
       }
       await delay(500);
-      loadEl.textContent = '';
-
-      const jokeEl = document.getElementById('justJokeText');
-      jokeEl.style.display = 'block';
-      await typeText(jokeEl, '.....and it\'s gone');
-      await delay(800);
-
-      const data = await fetchCsv(sheetUrl);
-      const have = getCell(data, 'D2');
-      const tendies = getCell(data, 'F2');
-
-      jokeEl.textContent = '';
-      await typeText(jokeEl, `just joking, you have $${formatNum(have)}`);
-
-      const tEl = document.getElementById('tendiesText');
-      tEl.style.display = 'block';
-      await typeText(tEl, `Total tendies to date $${formatNum(tendies)}`);
-
-      document.getElementById('tablePieContainer').style.display = 'flex';
-      buildTable(data);
-      drawPie(data);
-
-      document.getElementById('lineContainer').style.display = 'block';
-      drawLine(data);
+      msgEl.textContent = '.....and it\'s gone';
+      await delay(700);
     }
 
-    async function fetchCsv(url) {
-      const res = await fetch(url);
-      const txt = await res.text();
-      return txt.trim().split('\n').map(r => r.split(','));
+    async function fetchCSV() {
+      const res = await fetch(sheetUrl);
+      const text = await res.text();
+      const rows = text.split('\n').map(row => row.split(','));
+      return rows;
     }
 
-    function getCell(data, cell) {
-      const col = cell.charCodeAt(0) - 65;
-      const row = parseInt(cell.slice(1), 10) - 1;
-      return data[row][col] || '0';
+    function formatMoney(value) {
+      return '$' + Number(value).toLocaleString();
     }
 
-    function formatNum(v) {
-      return parseFloat(v).toLocaleString('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
+    async function renderData() {
+      const data = await fetchCSV();
+      const message = document.getElementById('message');
+      const tendies = document.getElementById('tendies');
+      const tableContainer = document.getElementById('tableContainer');
+
+      const totalVal = data[1][3];
+      const tendiesVal = data[1][5];
+
+      message.textContent = `just joking, you have ${formatMoney(totalVal)}`;
+      tendies.textContent = `Total tendies to date ${formatMoney(tendiesVal)}`;
+
+      let tableHTML = '<table><tr><th>Holding</th><th>Value</th><th>Profit $</th><th>Profit %</th></tr>';
+      const holdings = [];
+      const values = [];
+      for (let i = 2; i < data.length; i++) {
+        if (!data[i][0]) continue;
+        tableHTML += `<tr><td>${data[i][0]}</td><td>${formatMoney(data[i][3])}</td><td>${formatMoney(data[i][5])}</td><td>${data[i][6]}%</td></tr>`;
+        holdings.push(data[i][0]);
+        values.push(parseFloat(data[i][3]));
+      }
+      tableHTML += '</table>';
+      tableContainer.innerHTML = tableHTML;
+
+      const pieCtx = document.getElementById('pieChart').getContext('2d');
+      new Chart(pieCtx, {
+        type: 'pie',
+        data: {
+          labels: holdings,
+          datasets: [{
+            data: values,
+            backgroundColor: values.map(() => 'rgba(0,0,0,0)'),
+            borderColor: '#00ff00',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          plugins: {
+            legend: {
+              labels: { color: '#00ff00' }
+            },
+            tooltip: { enabled: false }
+          }
+        }
+      });
+
+      const dateRow = data[0];
+      const valueRow = data[1];
+      const dates = dateRow.slice(7).map(d => {
+        const [day, month, year] = d.split('/');
+        return `${year}`;
+      });
+      const valuesLine = valueRow.slice(7).map(v => parseFloat(v));
+
+      const lineCtx = document.getElementById('lineChart').getContext('2d');
+      new Chart(lineCtx, {
+        type: 'line',
+        data: {
+          labels: dates,
+          datasets: [{
+            label: 'Portfolio Value',
+            data: valuesLine,
+            borderColor: '#00ff00',
+            borderWidth: 2,
+            pointRadius: 0
+          }]
+        },
+        options: {
+          scales: {
+            y: {
+              ticks: {
+                color: '#00ff00',
+                callback: val => `$${val / 1000}K`
+              },
+              grid: { color: '#004400' }
+            },
+            x: {
+              ticks: { color: '#00ff00' },
+              grid: { color: '#004400' }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: { enabled: false }
+          }
+        }
       });
     }
 
-    function pad(s, w) {
-      s = s.toString();
-      return s + ' '.repeat(Math.max(0, w - s.length));
-    }
-
-    function buildTable(data) {
-      const lines = [];
-      lines.push('+---------+----------+-----------+-----------+');
-      lines.push('| Holding |   Value  |  Profit $ | Profit %  |');
-      lines.push('+---------+----------+-----------+-----------+');
-      for (let r = 2; r < data.length; r++) {
-        const row = data[r];
-        if (!row[0]) break;
-        const h = pad(row[0], 7);
-        const v = pad(formatNum(row[3] || '0'), 8);
-        const p$ = pad(formatNum(row[5] || '0'), 9);
-        const p% = pad(`${parseFloat(row[6]||0).toFixed(2)}%`, 9);
-        lines.push(`| ${h} | ${v} | ${p$} | ${p%} |`);
-      }
-      lines.push('+---------+----------+-----------+-----------+');
-      document.getElementById('tableContainer').textContent = lines.join('\n');
-    }
-
-    function drawPie(data) {
-      const c = document.getElementById('pieCanvas');
-      const ctx = c.getContext('2d');
-      ctx.clearRect(0, 0, c.width, c.height);
-      ctx.strokeStyle = '#00ff00';
-      ctx.fillStyle = '#00ff00';
-      ctx.lineWidth = 2;
-
-      const labels = [], vals = [];
-      for (let r = 2; r < data.length; r++) {
-        if (!data[r][0]) break;
-        labels.push(data[r][0]);
-        vals.push(+data[r][3] || 0);
-      }
-      const total = vals.reduce((a,b) => a + b, 0);
-      let start = -0.5 * Math.PI;
-      const cx = c.width / 2, cy = c.height / 2, r0 = Math.min(cx, cy) - 10;
-
-      vals.forEach((v, i) => {
-        const ang = v / total * 2 * Math.PI;
-        const end = start + ang;
-        ctx.beginPath();
-        ctx.arc(cx, cy, r0, start, end);
-        ctx.lineTo(cx, cy);
-        ctx.stroke();
-        const mid = start + ang / 2;
-        const lx = cx + (r0 + 20) * Math.cos(mid);
-        const ly = cy + (r0 + 20) * Math.sin(mid);
-        ctx.textAlign = 'center';
-        ctx.font = '14px Courier New';
-        ctx.fillText(`${labels[i]} ${Math.round(v/total*100)}%`, lx, ly);
-        start = end;
-      });
-    }
-
-    function drawLine(data) {
-      const c = document.getElementById('lineCanvas');
-      const ctx = c.getContext('2d');
-      ctx.clearRect(0, 0, c.width, c.height);
-      ctx.strokeStyle = '#00ff00';
-      ctx.fillStyle = '#00ff00';
-      ctx.lineWidth = 2;
-      ctx.font = '14px Courier New';
-
-      const pts = [];
-      for (let r = 1; r < data.length; r++) {
-        const d = data[r][7];
-        if (!d) continue;
-        const [day, mo, yr] = d.split('/').map(n=>+n);
-        const dt = new Date(yr, mo-1, day);
-        pts.push({ x: dt, y: +data[r][8] || 0 });
-      }
-      pts.sort((a,b) => a.x - b.x);
-
-      const pad = 50;
-      const w = c.width, h = c.height;
-      const xs = pts.map(p => p.x.getTime());
-      const ys = pts.map(p => p.y);
-      const minX = Math.min(...xs), maxX = Math.max(...xs);
-      const minY = 0, maxY = Math.ceil(Math.max(...ys) / 10000) * 10000;
-
-      ctx.lineWidth = 1;
-      for (let y = 0; y <= maxY; y += 10000) {
-        const yy = h - pad - (y - minY) / (maxY - minY) * (h - 2*pad);
-        ctx.beginPath();
-        ctx.moveTo(pad, yy);
-        ctx.lineTo(w - pad, yy);
-        ctx.stroke();
-        ctx.textAlign = 'right';
-        ctx.fillText(`$${y/1000}K`, pad - 10, yy + 5);
-      }
-
-      ctx.textAlign = 'center';
-      pts.forEach(p => {
-        const x = pad + (p.x.getTime() - minX) / (maxX - minX) * (w - 2*pad);
-        ctx.fillText(p.x.getFullYear(), x, h - pad + 20);
-      });
-
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      pts.forEach((p,i) => {
-        const x = pad + (p.x.getTime() - minX) / (maxX - minX) * (w - 2*pad);
-        const y = h - pad - (p.y - minY) / (maxY - minY) * (h - 2*pad);
-        i === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
-      });
-      ctx.stroke();
-    }
-
-    loadSequence();
+    (async function init() {
+      await startLoading();
+      await renderData();
+    })();
   </script>
 </body>
 </html>
