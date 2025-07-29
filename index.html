@@ -3,434 +3,445 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Squad Investment Trust</title>
+    <title>S.I.T. Terminal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     <style>
         :root {
-            --main-color: #00ff41;
+            --main-color: #00FF41;
             --bg-color: #000000;
+            --font-family: 'VT323', monospace;
         }
 
         html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
             background-color: var(--bg-color);
             color: var(--main-color);
-            font-family: 'VT323', monospace;
-            font-size: 18px;
-            margin: 0;
-            padding: 1rem;
+            font-family: var(--font-family);
+            font-size: 20px;
             overflow-x: hidden;
         }
 
-        .container {
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
+        #terminal {
+            padding: 15px;
+            box-sizing: border-box;
             width: 100%;
-            max-width: 1200px;
-            margin: auto;
+            height: 100%;
         }
 
-        .header-text, .summary-text {
-            min-height: 1.5em; /* Reserve space to prevent layout shift */
-            font-size: 1.5em;
+        #loading-text, #header-info p {
+            min-height: 24px; /* Prevents layout shift */
         }
 
-        .main-content {
+        #main-content {
+            display: none;
+            width: 100%;
+        }
+
+        #top-container {
             display: flex;
             flex-direction: row;
-            flex-wrap: wrap;
-            gap: 2rem;
             align-items: flex-start;
+            gap: 20px;
+            width: 100%;
         }
 
-        .table-container {
-            flex: 1;
-            min-width: 300px;
-        }
-
-        #portfolio-table {
+        #holdings-table {
+            flex-grow: 1;
+            font-family: var(--font-family);
             white-space: pre;
-            font-family: 'VT323', monospace;
-            font-size: 1em;
+            margin: 0;
+            padding-top: 5px; /* Align with pie chart */
             line-height: 1.2;
         }
 
-        .pie-chart-container {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-width: 300px;
-            min-height: 300px;
+        #pie-chart-container {
+            flex-basis: 300px;
+            flex-shrink: 0;
+            height: 300px;
         }
 
-        .graph-container {
+        #bottom-container {
             width: 100%;
-            min-height: 350px; /* Give it a minimum height */
+            height: 350px;
+            margin-top: 20px;
         }
-        
+
         canvas {
+            background-color: transparent;
             width: 100%;
             height: 100%;
-            display: block;
         }
 
-        /* Blinking cursor effect */
-        .cursor::after {
-            content: '█';
-            animation: blink 1s step-end infinite;
-        }
-
-        @keyframes blink {
-            50% {
-                opacity: 0;
+        /* Responsive layout for mobile */
+        @media (max-width: 800px) {
+            body {
+                font-size: 16px;
+            }
+             #loading-text, #header-info p {
+                min-height: 20px;
+            }
+            #top-container {
+                flex-direction: column;
+            }
+            #pie-chart-container {
+                width: 100%;
+                max-width: 300px;
+                margin: 20px auto 0;
+            }
+            #bottom-container {
+                height: 300px;
             }
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div id="loading-text" class="header-text cursor"></div>
-        <div id="tendies-text" class="summary-text"></div>
-
-        <div class="main-content">
-            <div class="table-container">
-                <pre id="portfolio-table"></pre>
+    <div id="terminal">
+        <div id="loading-text"></div>
+        <div id="main-content">
+            <div id="header-info">
+                <p id="balance-text"></p>
+                <p id="tendies-text"></p>
             </div>
-            <div class="pie-chart-container">
-                <canvas id="pie-chart"></canvas>
+            <div id="top-container">
+                <pre id="holdings-table"></pre>
+                <div id="pie-chart-container">
+                    <canvas id="pie-chart"></canvas>
+                </div>
             </div>
-        </div>
-
-        <div class="graph-container">
-            <canvas id="line-graph"></canvas>
+            <div id="bottom-container">
+                <canvas id="line-graph"></canvas>
+            </div>
         </div>
     </div>
 
     <script>
-        // --- CONFIGURATION ---
-        const PORTFOLIO_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQvIkFEd8DqGzQOSMan7QNAuwDI4fXgD1HB8PDbmnnqk5QmA0YNigbxyWuuKhoAys9VRKrbDqym2xDw/pub?gid=0&single=true&output=csv';
-        const HISTORICAL_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQvIkFEd8DqGzQOSMan7QNAuwDI4fXgD1HB8PDbmnnqk5QmA0YNigbxyWuuKhoAys9VRKrbDqym2xDw/pub?gid=150645858&single=true&output=csv';
+        const CONFIG = {
+            // URLs for the Google Sheet, published as CSV
+            sheetBaseUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQvIkFEd8DqGzQOSMan7QNAuwDI4fXgD1HB8PDbmnnqk5QmA0YNigbxyWuuKhoAys9VRKrbDqym2xDw/pub?output=csv',
+            dashboardGid: '0',
+            logGid: '1503373307',
+            // Element IDs
+            loadingEl: document.getElementById('loading-text'),
+            mainContentEl: document.getElementById('main-content'),
+            balanceEl: document.getElementById('balance-text'),
+            tendiesEl: document.getElementById('tendies-text'),
+            tableEl: document.getElementById('holdings-table'),
+            pieCanvas: document.getElementById('pie-chart'),
+            lineCanvas: document.getElementById('line-graph'),
+            // Animation speeds
+            typingSpeed: 50,
+            dotSpeed: 300,
+            tableCharSpeed: 1,
+        };
 
-        // --- DOM ELEMENTS ---
-        const loadingTextEl = document.getElementById('loading-text');
-        const tendiesTextEl = document.getElementById('tendies-text');
-        const tableEl = document.getElementById('portfolio-table');
-        const pieCanvas = document.getElementById('pie-chart');
-        const lineCanvas = document.getElementById('line-graph');
-
-        // --- UTILITY FUNCTIONS ---
+        const state = {
+            dashboardData: null,
+            logData: null,
+        };
 
         /**
-         * Pauses execution for a given duration.
-         * @param {number} ms - Milliseconds to wait.
+         * Utility function for creating a delay.
+         * @param {number} ms - The delay in milliseconds.
          * @returns {Promise<void>}
          */
         const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
         /**
-         * Simulates a typewriter effect for a given text element.
-         * @param {HTMLElement} element - The HTML element to type into.
+         * Simulates a typewriter effect on an element.
+         * @param {HTMLElement} element - The target element.
          * @param {string} text - The text to type.
-         * @param {number} speed - The typing speed in milliseconds per character.
+         * @param {number} speed - The delay between characters in ms.
          */
-        async function typeWriter(element, text, speed = 50) {
-            element.classList.add('cursor');
-            for (let i = 0; i < text.length; i++) {
-                element.innerHTML += text.charAt(i);
+        const typewriter = async (element, text, speed) => {
+            element.textContent = '';
+            for (const char of text) {
+                element.textContent += char;
                 await sleep(speed);
             }
-            element.classList.remove('cursor');
-        }
-
-        /**
-         * Fetches and parses CSV data from a URL.
-         * @param {string} url - The URL of the CSV file.
-         * @returns {Promise<string[][]>} A promise that resolves to an array of arrays (rows and columns).
-         */
-        async function fetchCSV(url) {
-            try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
-                const text = await response.text();
-                // Simple CSV parser: splits by newline, then by comma. Handles quoted fields.
-                return text.trim().split('\n').map(row => row.split(',').map(cell => cell.trim().replace(/^"|"$/g, '')));
-            } catch (error) {
-                console.error('Error fetching CSV:', error);
-                loadingTextEl.innerHTML = `[ERROR] Failed to fetch data from sheet.`;
-                return null;
-            }
-        }
+        };
         
         /**
-         * Formats a number into a currency string (e.g., $1,234.56).
-         * @param {number} num - The number to format.
-         * @returns {string}
+         * Parses CSV text, handling quoted values.
+         * @param {string} csvText - The raw CSV string.
+         * @returns {string[][]} - A 2D array of the parsed data.
          */
-        const formatCurrency = (num) => {
-            return new Intl.NumberFormat('en-AU', {
-                style: 'currency',
-                currency: 'AUD',
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0
-            }).format(num);
-        }
-
-        /**
-         * Sets up a canvas for high-DPI rendering.
-         * @param {HTMLCanvasElement} canvas - The canvas element.
-         * @returns {CanvasRenderingContext2D} The 2D rendering context.
-         */
-        function setupCanvas(canvas) {
-            const dpr = window.devicePixelRatio || 1;
-            const rect = canvas.getBoundingClientRect();
-            canvas.width = rect.width * dpr;
-            canvas.height = rect.height * dpr;
-            const ctx = canvas.getContext('2d');
-            ctx.scale(dpr, dpr);
-            ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--main-color');
-            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--main-color');
-            ctx.font = `14px 'VT323', monospace`;
-            ctx.lineWidth = 2;
-            return ctx;
-        }
-
-
-        // --- MAIN LOGIC FUNCTIONS ---
-
-        /**
-         * Displays the initial loading animation and welcome message.
-         * @param {string[][]} portfolioData - The parsed portfolio data from the CSV.
-         */
-        async function runIntro(portfolioData) {
-            await typeWriter(loadingTextEl, 'Loading', 75);
-            for (let i = 0; i < 5; i++) {
-                loadingTextEl.innerHTML += '.';
-                await sleep(300);
-            }
-            await sleep(500);
-            loadingTextEl.innerHTML = '';
-            await typeWriter(loadingTextEl, '.....and it\'s gone.', 75);
-            await sleep(1000);
-            
-            const totalValue = formatCurrency(parseFloat(portfolioData[1][3]));
-            loadingTextEl.innerHTML = '';
-            await typeWriter(loadingTextEl, `joking, you have ${totalValue}`);
-
-            const totalTendies = formatCurrency(parseFloat(portfolioData[1][5]));
-            tendiesTextEl.classList.add('cursor');
-            await typeWriter(tendiesTextEl, `Total tendies to date ${totalTendies}`);
-            tendiesTextEl.classList.remove('cursor');
-        }
-
-        /**
-         * Generates and displays the portfolio table.
-         * @param {string[][]} portfolioData - The parsed portfolio data.
-         */
-        async function buildTable(portfolioData) {
-            const holdings = portfolioData.slice(2).filter(row => row[0]); // Start from 3rd row, ensure holding exists
-            
-            const headers = ['Holding', 'Value', 'Profit', 'Profit %'];
-            const cols = [
-                [...holdings.map(row => row[0])],
-                [...holdings.map(row => formatCurrency(parseFloat(row[3])))],
-                [...holdings.map(row => formatCurrency(parseFloat(row[5])))],
-                [...holdings.map(row => `${parseFloat(row[6]).toFixed(2)}%`)]
-            ];
-
-            const colWidths = headers.map((header, i) => {
-                return Math.max(header.length, ...cols[i].map(cell => cell.length));
+        const parseCsv = (csvText) => {
+            const lines = csvText.trim().split('\n');
+            return lines.map(line => {
+                const values = [];
+                let current = '';
+                let inQuote = false;
+                for (let i = 0; i < line.length; i++) {
+                    const char = line[i];
+                    if (char === '"' && (i === 0 || line[i-1] !== '\\')) {
+                        inQuote = !inQuote;
+                    } else if (char === ',' && !inQuote) {
+                        values.push(current.trim().replace(/^"|"$/g, '').replace(/\\"/g, '"'));
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+                values.push(current.trim().replace(/^"|"$/g, '').replace(/\\"/g, '"'));
+                return values;
             });
-            
-            let tableString = '';
-            const topBorder = `+${colWidths.map(w => '-'.repeat(w + 2)).join('+')}+\n`;
-            const headerRow = `| ${headers.map((h, i) => h.padEnd(colWidths[i])).join(' | ')} |\n`;
+        };
 
-            tableString += topBorder + headerRow + topBorder;
-
-            for (let i = 0; i < holdings.length; i++) {
-                const cells = [
-                    cols[0][i].padEnd(colWidths[0]),
-                    cols[1][i].padStart(colWidths[1]),
-                    cols[2][i].padStart(colWidths[2]),
-                    cols[3][i].padStart(colWidths[3])
-                ];
-                tableString += `| ${cells.join(' | ')} |\n`;
+        /**
+         * Fetches data from the specified Google Sheet GID.
+         * @param {string} gid - The GID of the sheet.
+         * @returns {Promise<string[][]>} - The parsed CSV data.
+         */
+        const fetchSheetData = async (gid) => {
+            try {
+                const response = await fetch(`${CONFIG.sheetBaseUrl}&gid=${gid}`);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const csvText = await response.text();
+                return parseCsv(csvText);
+            } catch (error) {
+                console.error(`Failed to fetch sheet with GID ${gid}:`, error);
+                CONFIG.loadingEl.textContent = `ERROR: Could not load sheet data. ${error.message}`;
+                return null;
             }
-            tableString += topBorder;
+        };
 
-            tableEl.classList.add('cursor');
-            await typeWriter(tableEl, tableString, 5);
-            tableEl.classList.remove('cursor');
-        }
+        /**
+         * Draws the ASCII-style holdings table character by character.
+         */
+        const drawAsciiTable = async () => {
+            const headers = ['Holding', 'Value', 'Profit', 'Profit %'];
+            const rows = state.dashboardData.slice(2); // Data starts from 3rd row
+
+            const data = rows.map(row => ({
+                holding: row[0],
+                value: parseFloat(row[3]).toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
+                profit: parseFloat(row[5]).toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
+                profitPercent: row[6]
+            }));
+
+            // Calculate column widths
+            const colWidths = headers.map((h, i) => {
+                const key = Object.keys(data[0])[i];
+                const maxWidth = Math.max(h.length, ...data.map(d => d[key].length));
+                return maxWidth + 2; // Add padding
+            });
+
+            // Build table string
+            let tableString = '';
+            const border = `+${colWidths.map(w => '-'.repeat(w)).join('+')}+\n`;
+            
+            tableString += border;
+            tableString += `|${headers.map((h, i) => h.padEnd(colWidths[i] - 1) + ' ').join('|')}|\n`;
+            tableString += border;
+
+            data.forEach(d => {
+                tableString += `|${Object.values(d).map((val, i) => (' ' + val).padEnd(colWidths[i])).join('|')}|\n`;
+            });
+            tableString += border;
+            
+            await typewriter(CONFIG.tableEl, tableString, CONFIG.tableCharSpeed);
+        };
+        
+        /**
+         * Sets up canvas resolution and draws the charts.
+         */
+        const setupAndDrawCharts = () => {
+            if (!state.dashboardData || !state.logData) return;
+
+            // Pie Chart
+            const pieCtx = CONFIG.pieCanvas.getContext('2d');
+            const pieContainer = CONFIG.pieCanvas.parentElement;
+            const dpr = window.devicePixelRatio || 1;
+            CONFIG.pieCanvas.width = pieContainer.clientWidth * dpr;
+            CONFIG.pieCanvas.height = pieContainer.clientHeight * dpr;
+            pieCtx.scale(dpr, dpr);
+            drawPieChart(pieCtx, pieContainer.clientWidth, pieContainer.clientHeight);
+            
+            // Line Graph
+            const lineCtx = CONFIG.lineCanvas.getContext('2d');
+            const lineContainer = CONFIG.lineCanvas.parentElement;
+            CONFIG.lineCanvas.width = lineContainer.clientWidth * dpr;
+            CONFIG.lineCanvas.height = lineContainer.clientHeight * dpr;
+            lineCtx.scale(dpr, dpr);
+            drawLineGraph(lineCtx, lineContainer.clientWidth, lineContainer.clientHeight);
+        };
 
         /**
          * Draws the pie chart on its canvas.
-         * @param {string[][]} portfolioData - The parsed portfolio data.
          */
-        async function drawPieChart(portfolioData) {
-            const holdings = portfolioData.slice(2)
-                .filter(row => row[0] && parseFloat(row[3]) > 0)
-                .map(row => ({
-                    label: row[0],
-                    value: parseFloat(row[3])
-                }));
-            
+        const drawPieChart = (ctx, width, height) => {
+            const holdings = state.dashboardData.slice(2).map(row => ({
+                name: row[0],
+                value: parseFloat(row[3])
+            })).filter(h => h.value > 0);
+
             const totalValue = holdings.reduce((sum, h) => sum + h.value, 0);
             if (totalValue === 0) return;
 
-            const ctx = setupCanvas(pieCanvas);
-            const centerX = pieCanvas.clientWidth / 2;
-            const centerY = pieCanvas.clientHeight / 2;
-            const radius = Math.min(centerX, centerY) * 0.7;
+            ctx.clearRect(0, 0, width, height);
+            ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--main-color');
+            ctx.fillStyle = ctx.strokeStyle;
+            ctx.font = `14px ${getComputedStyle(document.documentElement).getPropertyValue('--font-family')}`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
 
-            let startAngle = -0.5 * Math.PI; // Start at the top
-
-            // Draw the main circle
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-            ctx.stroke();
-            await sleep(200);
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = Math.min(width, height) / 2 * 0.9;
+            let startAngle = -Math.PI / 2;
 
             for (const holding of holdings) {
                 const sliceAngle = (holding.value / totalValue) * 2 * Math.PI;
                 const endAngle = startAngle + sliceAngle;
 
-                // Draw dividing line
+                // Draw arc
                 ctx.beginPath();
-                ctx.moveTo(centerX, centerY);
-                ctx.lineTo(centerX + radius * Math.cos(startAngle), centerY + radius * Math.sin(startAngle));
+                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                ctx.lineTo(centerX, centerY);
                 ctx.stroke();
-                await sleep(100);
 
                 // Draw label
-                const labelAngle = startAngle + sliceAngle / 2;
-                const percentage = (holding.value / totalValue * 100).toFixed(0);
-                const labelText = `${holding.label} ${percentage}%`;
-                const labelX = centerX + (radius * 0.6) * Math.cos(labelAngle);
-                const labelY = centerY + (radius * 0.6) * Math.sin(labelAngle);
+                const midAngle = startAngle + sliceAngle / 2;
+                const labelRadius = radius * 0.65;
+                const labelX = centerX + labelRadius * Math.cos(midAngle);
+                const labelY = centerY + labelRadius * Math.sin(midAngle);
                 
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(labelText, labelX, labelY);
-                await sleep(50);
-                
+                const percentage = (holding.value / totalValue * 100).toFixed(1);
+                ctx.fillText(`${holding.name}`, labelX, labelY - 7);
+                ctx.fillText(`${percentage}%`, labelX, labelY + 7);
+
                 startAngle = endAngle;
             }
-        }
-        
+        };
+
         /**
          * Draws the line graph on its canvas.
-         * @param {string[][]} historicalData - The parsed historical data.
          */
-        async function drawLineGraph(historicalData) {
-            const data = historicalData.slice(1) // Skip header
+        const drawLineGraph = (ctx, width, height) => {
+            const logData = state.logData.slice(1) // Skip header row
                 .map(row => {
-                    const dateParts = row[7].split('/'); // DD/MM/YYYY
-                    return {
-                        date: new Date(dateParts[2], dateParts[1] - 1, dateParts[0]),
-                        value: parseFloat(row[8])
-                    };
+                    const [day, month, year] = row[0].split('/');
+                    return { date: new Date(`${year}-${month}-${day}`), value: parseFloat(row[1]) };
                 })
-                .filter(d => !isNaN(d.date) && !isNaN(d.value))
+                .filter(d => !isNaN(d.date.getTime()) && !isNaN(d.value))
                 .sort((a, b) => a.date - b.date);
 
-            if (data.length < 2) return;
+            if (logData.length < 2) return;
 
-            const ctx = setupCanvas(lineCanvas);
+            ctx.clearRect(0, 0, width, height);
+            ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--main-color');
+            ctx.fillStyle = ctx.strokeStyle;
+            ctx.lineWidth = 2;
+            const font = getComputedStyle(document.documentElement).getPropertyValue('--font-family');
+            
             const padding = { top: 20, bottom: 40, left: 60, right: 20 };
-            const graphWidth = lineCanvas.clientWidth - padding.left - padding.right;
-            const graphHeight = lineCanvas.clientHeight - padding.top - padding.bottom;
+            const chartWidth = width - padding.left - padding.right;
+            const chartHeight = height - padding.top - padding.bottom;
 
-            const maxValue = Math.max(...data.map(d => d.value));
-            const yMax = Math.ceil(maxValue / 10000) * 10000;
-            const minDate = data[0].date;
-            const maxDate = data[data.length - 1].date;
+            // Y-Axis
+            const maxValue = Math.max(...logData.map(d => d.value));
+            const yAxisMax = Math.ceil(maxValue / 10000) * 10000;
+            const yLabelsCount = yAxisMax / 10000;
 
-            // Draw axes
-            ctx.beginPath();
-            ctx.moveTo(padding.left, padding.top);
-            ctx.lineTo(padding.left, padding.top + graphHeight);
-            ctx.lineTo(padding.left + graphWidth, padding.top + graphHeight);
-            ctx.stroke();
-
-            // Draw Y-axis labels and grid lines
-            const yLabelCount = yMax / 10000;
+            ctx.font = `16px ${font}`;
             ctx.textAlign = 'right';
             ctx.textBaseline = 'middle';
-            for (let i = 0; i <= yLabelCount; i++) {
+            for (let i = 0; i <= yLabelsCount; i++) {
                 const value = i * 10000;
-                const y = padding.top + graphHeight - (value / yMax) * graphHeight;
-                ctx.fillText(`$${i}0K`, padding.left - 10, y);
+                const y = padding.top + chartHeight - (value / yAxisMax) * chartHeight;
+                ctx.fillText(`$${value/1000}K`, padding.left - 10, y);
                 
                 ctx.beginPath();
-                ctx.moveTo(padding.left - 5, y);
-                ctx.lineTo(padding.left + graphWidth, y);
-                ctx.strokeStyle = 'rgba(0, 255, 65, 0.2)';
+                ctx.moveTo(padding.left - 4, y);
+                ctx.lineTo(padding.left, y);
                 ctx.stroke();
-                ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--main-color');
             }
+
+            // X-Axis
+            const startYear = 2017;
+            const endYear = 2025;
+            const xAxisMin = new Date(`${startYear}-01-01`).getTime();
+            const xAxisMax = new Date(`${endYear}-12-31`).getTime();
             
-            // Draw X-axis labels (Years)
-            const years = [...new Set(data.map(d => d.date.getFullYear()))];
             ctx.textAlign = 'center';
             ctx.textBaseline = 'top';
-            for (const year of years) {
-                const yearDate = new Date(year, 0, 1);
-                const x = padding.left + ((yearDate - minDate) / (maxDate - minDate)) * graphWidth;
-                if(x > padding.left -5 && x < padding.left + graphWidth + 5) {
-                    ctx.fillText(year, x, padding.top + graphHeight + 10);
-                }
+            for (let year = startYear; year <= endYear; year++) {
+                const date = new Date(`${year}-07-01`); // Mid-year for better label placement
+                const x = padding.left + ((date.getTime() - xAxisMin) / (xAxisMax - xAxisMin)) * chartWidth;
+                ctx.fillText(year, x, height - padding.bottom + 10);
             }
-
-            // Draw the line
+            
+            // Draw Axes Lines
             ctx.beginPath();
-            const getCoords = (d) => ({
-                x: padding.left + ((d.date - minDate) / (maxDate - minDate)) * graphWidth,
-                y: padding.top + graphHeight - (d.value / yMax) * graphHeight
+            ctx.moveTo(padding.left, padding.top);
+            ctx.lineTo(padding.left, height - padding.bottom);
+            ctx.lineTo(width - padding.right, height - padding.bottom);
+            ctx.stroke();
+
+            // Draw data line
+            ctx.beginPath();
+            logData.forEach((d, i) => {
+                const x = padding.left + ((d.date.getTime() - xAxisMin) / (xAxisMax - xAxisMin)) * chartWidth;
+                const y = padding.top + chartHeight - (d.value / yAxisMax) * chartHeight;
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
             });
-            
-            let firstPoint = getCoords(data[0]);
-            ctx.moveTo(firstPoint.x, firstPoint.y);
-            
-            for(let i = 1; i < data.length; i++) {
-                const point = getCoords(data[i]);
-                ctx.lineTo(point.x, point.y);
-                ctx.stroke(); // To animate segment by segment
-                ctx.beginPath(); // Start new path for next segment
-                ctx.moveTo(point.x, point.y);
-                await sleep(5);
+            ctx.stroke();
+        };
+
+        /**
+         * The main function to orchestrate the entire loading sequence.
+         */
+        const main = async () => {
+            // 1. Initial loading animation
+            await typewriter(CONFIG.loadingEl, 'Loading', CONFIG.typingSpeed);
+            for (let i = 0; i < 5; i++) {
+                CONFIG.loadingEl.textContent += '.';
+                await sleep(CONFIG.dotSpeed);
             }
-        }
+            await sleep(500);
+            await typewriter(CONFIG.loadingEl, '.....and it\'s gone', CONFIG.typingSpeed);
+            await sleep(1000);
+            CONFIG.loadingEl.textContent = 'Fetching data...';
 
-
-        // --- MAIN EXECUTION ---
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Fetch data first
-            const [portfolioData, historicalData] = await Promise.all([
-                fetchCSV(PORTFOLIO_SHEET_URL),
-                fetchCSV(HISTORICAL_SHEET_URL)
-            ]);
-
-            if (!portfolioData || !historicalData) {
-                loadingTextEl.innerHTML = '[FATAL ERROR] Cannot render page without data.';
-                return;
-            }
-            
-            // Run animations sequentially
-            await runIntro(portfolioData);
-            
-            // Run table and charts concurrently
-            Promise.all([
-                buildTable(portfolioData),
-                drawPieChart(portfolioData)
+            // 2. Fetch data
+            const [dashboardData, logData] = await Promise.all([
+                fetchSheetData(CONFIG.dashboardGid),
+                fetchSheetData(CONFIG.logGid)
             ]);
             
-            await drawLineGraph(historicalData);
-        });
+            if (!dashboardData || !logData) return; // Stop if data fetching failed
+            state.dashboardData = dashboardData;
+            state.logData = logData;
+            
+            CONFIG.loadingEl.style.display = 'none';
+            CONFIG.mainContentEl.style.display = 'block';
+
+            // 3. Display main content with animations
+            const totalValue = parseFloat(state.dashboardData[1][3]).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            const totalTendies = parseFloat(state.dashboardData[1][5]).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+            await typewriter(CONFIG.balanceEl, `just joking, you have $${totalValue}`, CONFIG.typingSpeed);
+            await typewriter(CONFIG.tendiesEl, `Total tendies to date $${totalTendies}`, CONFIG.typingSpeed);
+            
+            // 4. Draw table and charts
+            await drawAsciiTable();
+            setupAndDrawCharts();
+
+            // 5. Add resize listener for responsiveness
+            window.addEventListener('resize', setupAndDrawCharts);
+        };
+
+        // Start the process when the DOM is ready
+        document.addEventListener('DOMContentLoaded', main);
     </script>
 </body>
 </html>
