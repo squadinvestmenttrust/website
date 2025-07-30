@@ -118,7 +118,10 @@
     </style>
 </head>
 <body>
-
+<div id="imageContainer" style="overflow: hidden; height: 0; max-width: 100%; text-align: center;">
+  <img id="headerImage" src="https://i.ibb.co/RpYCHF8W/SIT.jpg" alt="Header Image" style="max-width: 100%; display: block; margin: auto;">
+</div>
+    
     <div class="container">
         <div id="loading-text" class="header-text"></div>
         <div id="tendies-text" class="header-text"></div>
@@ -365,6 +368,34 @@ svgContent += `
 
         // Run the main function when the page loads
         window.onload = main;
+        window.addEventListener('load', () => {
+  const image = document.getElementById('headerImage');
+  const container = document.getElementById('imageContainer');
+
+  const step = 5; // pixels per frame
+  const fps = 60; // animation speed
+
+  const reveal = () => {
+    let height = 0;
+    const targetHeight = image.naturalHeight || 400;
+
+    const interval = setInterval(() => {
+      height += step;
+      container.style.height = height + 'px';
+
+      if (height >= targetHeight) {
+        container.style.height = 'auto';
+        clearInterval(interval);
+      }
+    }, 1000 / fps);
+  };
+
+  if (image.complete) {
+    reveal();
+  } else {
+    image.onload = reveal;
+  }
+});
     </script>
 </body>
 </html>
