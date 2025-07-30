@@ -397,6 +397,49 @@ svgContent += `
     image.onload = reveal;
   }
 });
+        function typeLineByLine(container, lines, delay = 30) {
+  let currentLine = 0;
+
+  function typeLine() {
+    if (currentLine >= lines.length) return;
+
+    const line = lines[currentLine];
+    let i = 0;
+    const span = document.createElement('div');
+
+    container.appendChild(span);
+
+    const interval = setInterval(() => {
+      span.textContent += line[i++];
+      if (i >= line.length) {
+        clearInterval(interval);
+        currentLine++;
+        setTimeout(typeLine, delay * 4); // delay before next line starts
+      }
+    }, delay);
+  }
+
+  typeLine();
+}
+
+function loadPortfolioUpdates(data) {
+  const updates = [];
+  for (let i = 1; i < data.length; i++) { // Skip header
+    const item = data[i][9]; // Column J is index 9 (0-based)
+    if (item) updates.push(item);
+  }
+
+  const container = document.getElementById('updatesContainer');
+  container.textContent = ''; // clear previous content
+
+  const header = document.createElement('div');
+  header.textContent = 'Portfolio Updates';
+  header.style.fontWeight = 'bold';
+  container.appendChild(header);
+
+  typeLineByLine(container, updates);
+}
     </script>
+      <div id="updatesContainer" style="white-space: pre-wrap;"></div>
 </body>
 </html>
