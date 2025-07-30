@@ -416,6 +416,7 @@ loadPortfolioUpdates(sheetData);
       span.textContent += line[i++];
       if (i >= line.length) {
         clearInterval(interval);
+          container.appendChild(document.createElement('br'));
         currentLine++;
         setTimeout(typeLine, delay * 4); // delay before next line starts
       }
@@ -439,6 +440,7 @@ function loadPortfolioUpdates(data) {
   header.textContent = 'Portfolio Updates';
   header.style.fontWeight = 'bold';
   container.appendChild(header);
+    container.appendChild(document.createElement('br'));
 
   typeLineByLine(container, updates);
 }
