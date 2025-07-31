@@ -3,448 +3,270 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Squad Investment Trust</title>
+    <title>Waitlist</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --main-color: #00FF41;
-            --bg-color: #000000;
-            --font-family: 'Courier New', Courier, monospace;
-        }
-
+        /* CSS Styling */
         body {
-            background-color: var(--bg-color);
-            color: var(--main-color);
-            font-family: var(--font-family);
+            background-color: #0000ff; /* Corrected hex code for blue */
+            color: white;
+            font-family: 'VT323', monospace; /* DOS-style font from Google Fonts */
+            text-align: center;
             margin: 0;
-            padding: 1rem;
-            font-size: 16px;
-        }
-
-        .container {
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-            max-width: 1000px;
-            margin: auto;
-        }
-
-        .header-text {
-            min-height: 1.2em; /* Reserve space to prevent layout shift */
-            font-size: 1.2rem;
-            white-space: pre-wrap;
+            padding: 20px;
+            overflow: hidden; /* Hide scrollbars that might appear when button moves */
         }
 
         .content-wrapper {
             display: flex;
-            flex-direction: row;
-            flex-wrap: wrap;
-            gap: 2rem;
-            align-items: flex-start;
-        }
-
-        .table-container {
-            flex: 1;
-            min-width: 300px;
-            font-size: 1.1rem;
-            white-space: pre-wrap; /* Allows text to wrap */
-            word-break: break-word; /* Breaks long words to fit */
-            /* Removed overflow-x: auto as it's no longer needed for line-by-line display */
-        }
-
-        /* Specific styling for the new line-by-line table format */
-        .holding-item {
-            margin-bottom: 1rem; /* Space between each holding block */
-            line-height: 1.4;
-        }
-        .holding-item strong {
-            display: inline-block; /* Makes labels align nicely */
-            min-width: 60px; /* Adjust as needed for label alignment */
-        }
-
-
-        .chart-container {
-            flex: 1;
-            min-width: 300px;
-            display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
+            min-height: 90vh;
         }
 
-        .graph-container {
-            width: 100%;
+        #top-image {
+            max-width: 200px;
+            margin-bottom: 20px;
         }
 
-        svg {
-            width: 100%;
-            height: auto;
-            stroke: var(--main-color);
-            fill: var(--main-color);
-            stroke-width: 2;
-            font-family: var(--font-family);
-        }
-
-        .pie-chart-label {
-            font-size: 8px;
-            fill: var(--main-color);
-            stroke: none;
-            text-anchor: middle;
+        #product-image {
+            max-width: 300px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            visibility: hidden; /* Hidden until loaded by JS */
         }
         
-        .graph-label {
-            font-size: 14px;
-            fill: var(--main-color);
-            stroke: none;
-            text-anchor: middle;
+        #product-info p {
+            margin: 5px 0;
+            font-size: 1.2em;
         }
 
-        .graph-axis-label-y {
-            text-anchor: end;
+        #waitlist-button {
+            border: 2px solid white;
+            background-color: transparent;
+            color: white;
+            padding: 10px 20px;
+            font-family: 'VT323', monospace;
+            font-size: 1.2em;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: all 0.3s ease;
+            position: absolute; /* Needed for moving the button */
+            visibility: hidden; /* Hidden until product info is displayed */
         }
 
-        /* Blinking cursor effect */
-        .cursor::after {
-            content: '█';
-            animation: blink 1s step-end infinite;
-        }
-
-        @keyframes blink {
-            from, to {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0;
-            }
+        .hidden {
+            display: none !important;
         }
     </style>
 </head>
 <body>
-<div id="imageContainer" style="overflow: hidden; height: 0; max-width: 100%; text-align: center;">
-  <img id="headerImage" src="https://i.ibb.co/RpYCHF8W/SIT.jpg" alt="Header Image" style="max-width: 100%; display: block; margin: auto;">
-</div>
-    <br>
-    <br>
-    <div class="container">
-        <div id="loading-text" class="header-text"></div>
-        <div id="tendies-text" class="header-text"></div>
 
-        <div class="content-wrapper">
-            <div id="table-container" class="table-container"></div>
-            <div id="pie-chart-container" class="chart-container"></div>
+    <div class="content-wrapper" id="main-content">
+        <img id="top-image" src="https://i.ibb.co/TqkgQZYM/clock.jpg" alt="Clock">
+        
+        <h1 id="welcome-text"></h1>
+        
+        <img id="product-image" src="" alt="Product Image">
+        
+        <div id="product-info">
+            <p id="product-name"></p>
+            <p id="product-materials"></p>
+            <p id="product-price"></p>
+            <p id="product-wait"></p>
         </div>
 
-        <div id="graph-container" class="graph-container"></div>
     </div>
 
+    <div id="lockout-content" class="hidden">
+        <h1 id="lockout-text"></h1>
+    </div>
+
+    <button id="waitlist-button">join waitlist</button>
+
     <script>
-        const loadingTextEl = document.getElementById('loading-text');
-        const tendiesTextEl = document.getElementById('tendies-text');
-        const tableContainerEl = document.getElementById('table-container');
-        const pieChartContainerEl = document.getElementById('pie-chart-container');
-        const graphContainerEl = document.getElementById('graph-container');
+        // JavaScript Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- CONFIGURATION ---
+            const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT6aU1_jB0juldfdNBs-KX3XLLqOuAoZDNpg_znvr_x1ToUAariHKo2Gz-REVye58V_nenvXETUOTZk/pub?output=csv';
+            const WELCOME_MESSAGE = 'welcome to waitlist.';
+            const LOCKOUT_DURATION = 900; // seconds
 
-        const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQvIkFEd8DqGzQOSMan7QNAuwDI4fXgD1HB8PDbmnnqk5QmA0YNigbxyWuuKhoAys9VRKrbDqym2xDw/pub?output=csv';
+            // --- ELEMENT SELECTORS ---
+            const welcomeTextEl = document.getElementById('welcome-text');
+            const productImageEl = document.getElementById('product-image');
+            const productNameEl = document.getElementById('product-name');
+            const productMaterialsEl = document.getElementById('product-materials');
+            const productPriceEl = document.getElementById('product-price');
+            const productWaitEl = document.getElementById('product-wait');
+            const waitlistButton = document.getElementById('waitlist-button');
+            const mainContent = document.getElementById('main-content');
+            const lockoutContent = document.getElementById('lockout-content');
+            const lockoutTextEl = document.getElementById('lockout-text');
 
-        // --- UTILITY FUNCTIONS ---
+            let buttonClickCount = 0;
 
-        const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+            // --- FUNCTIONS ---
 
-        // Function to simulate typing text letter by letter
-        async function typeText(element, text, speed = 50) {
-            element.classList.add('cursor');
-            let currentText = ""; // Accumulate text
-            for (let i = 0; i < text.length; i++) {
-                currentText += text.charAt(i);
-                element.innerHTML = currentText.replace(/\n/g, '<br>'); // Use innerHTML for <br>
-                await sleep(speed);
-            }
-            element.classList.remove('cursor');
-        }
+            /**
+             * Animates text to appear letter by letter.
+             * @param {HTMLElement} element The HTML element to display the text in.
+             * @param {string} text The text to animate.
+             * @param {number} speed The speed of the animation in milliseconds.
+             * @param {function} onComplete A callback function to run after animation.
+             */
+            const typeWriter = (element, text, speed = 100, onComplete = () => {}) => {
+                let i = 0;
+                element.innerHTML = ''; // Clear existing text
+                const typing = () => {
+                    if (i < text.length) {
+                        element.innerHTML += text.charAt(i);
+                        i++;
+                        setTimeout(typing, speed);
+                    } else {
+                        onComplete();
+                    }
+                };
+                typing();
+            };
+            
+            /**
+             * Fetches and parses CSV data from the provided URL.
+             */
+            const loadProductData = async () => {
+                try {
+                    const response = await fetch(SPREADSHEET_URL);
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    
+                    const csvText = await response.text();
+                    const rows = csvText.split('\n');
+                    // Data is in the second row (index 1), split by commas
+                    const data = rows[1].split(',');
 
-        // Function to simulate typing dots
-        async function typeDots(element, count = 5, speed = 200) {
-            element.classList.add('cursor');
-            for (let i = 0; i < count; i++) {
-                element.textContent += '.';
-                await sleep(speed);
-            }
-            element.classList.remove('cursor');
-        }
+                    // Unpack data from cells B2, B1, B3, B4, B5 (indices 1, 0, 2, 3, 4)
+                    const productImageUrl = data[1];
+                    const productName = data[0];
+                    const productMaterials = data[2];
+                    const productPrice = data[3];
+                    const productWait = data[4];
 
-        // --- DATA FETCHING AND PARSING ---
+                    // Set product image source and make it visible
+                    productImageEl.src = productImageUrl;
+                    productImageEl.style.visibility = 'visible';
 
-        async function getSheetData() {
-            try {
-                const response = await fetch(SPREADSHEET_URL);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    // Start displaying product info after a short delay
+                    setTimeout(() => {
+                        displayProductInfo(productName, productMaterials, productPrice, productWait);
+                    }, 500);
+
+                } catch (error) {
+                    console.error("Error fetching spreadsheet data:", error);
+                    welcomeTextEl.innerText = "Error: Could not load data.";
                 }
-                const csvText = await response.text();
-                // Simple CSV to Array parser
-                const rows = csvText.split('\n').map(row => row.trim().split(','));
-                return rows;
-            } catch (e) {
-                console.error("Error fetching or parsing spreadsheet data:", e);
-                loadingTextEl.textContent = "Error: Could not load spreadsheet data.";
-                return null;
-            }
-        }
+            };
+            
+            /**
+             * Displays product information using the typewriter effect.
+             */
+            const displayProductInfo = (name, materials, price, wait) => {
+                typeWriter(productNameEl, `Product: ${name}`, 50, () => {
+                    typeWriter(productMaterialsEl, `Materials: ${materials}`, 50, () => {
+                        typeWriter(productPriceEl, `Price: ${price}`, 50, () => {
+                            typeWriter(productWaitEl, `Wait: ${wait}`, 50, () => {
+                                // Show and position the button after all text is displayed
+                                waitlistButton.style.visibility = 'visible';
+                                positionButton();
+                            });
+                        });
+                    });
+                });
+            };
 
-        // --- DRAWING FUNCTIONS ---
+            /**
+             * Positions the button at its initial spot.
+             */
+            const positionButton = () => {
+                // Center the button horizontally initially
+                const screenWidth = window.innerWidth;
+                waitlistButton.style.left = `${(screenWidth - waitlistButton.offsetWidth) / 2}px`;
+                // Position it below the main content
+                waitlistButton.style.top = `${mainContent.offsetHeight + 60}px`;
+            };
 
-        function drawTable(data) {
-            // Filter out header rows and empty rows
-            const holdings = data.slice(2).filter(row => row[0]);
+            /**
+             * Moves the button to a new random position on the screen.
+             */
+            const moveButton = () => {
+                const screenWidth = window.innerWidth;
+                const screenHeight = window.innerHeight;
+                const buttonWidth = waitlistButton.offsetWidth;
+                const buttonHeight = waitlistButton.offsetHeight;
 
-            let tableString = '';
-            holdings.forEach(row => {
-                const holdingName = row[0] || 'N/A';
-                const value = parseFloat(row[3]).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }); // Format as currency
-                const profitPercent = (row[6] || '0'); // Profit % (G column)
+                const newX = Math.random() * (screenWidth - buttonWidth);
+                const newY = Math.random() * (screenHeight - buttonHeight);
 
-                tableString += `<div class="holding-item">`;
-                tableString += `<strong>Holding:</strong> ${holdingName}\n`;
-                tableString += `<strong>Value:</strong> ${value}\n`;
-                tableString += `<strong>Profit:</strong> ${profitPercent}%\n`;
-                tableString += `</div>`;
+                waitlistButton.style.left = `${newX}px`;
+                waitlistButton.style.top = `${newY}px`;
+            };
+            
+            /**
+             * Starts the lockout sequence and countdown.
+             */
+            const startLockout = () => {
+                mainContent.classList.add('hidden');
+                waitlistButton.classList.add('hidden');
+                lockoutContent.classList.remove('hidden');
+
+                let countdown = LOCKOUT_DURATION;
+
+                const updateCountdown = () => {
+                    const message = `You are locked out of waitlist for ${countdown} seconds`;
+                    if (lockoutTextEl.innerHTML !== message) {
+                       lockoutTextEl.innerHTML = message;
+                    }
+                    
+                    if (countdown > 0) {
+                        countdown--;
+                    } else {
+                        clearInterval(countdownInterval);
+                        location.reload(); // Refresh the page
+                    }
+                };
+                
+                // Animate the initial lockout text
+                const lockoutMessage = `You are locked out of waitlist for ${countdown} seconds`;
+                typeWriter(lockoutTextEl, lockoutMessage, 50, () => {
+                     // Start the countdown timer after the text is written
+                    countdownInterval = setInterval(updateCountdown, 1000);
+                });
+
+                let countdownInterval = setInterval(updateCountdown, 1000);
+            };
+
+            // --- EVENT LISTENERS ---
+
+            waitlistButton.addEventListener('click', () => {
+                buttonClickCount++;
+                if (buttonClickCount < 3) {
+                    moveButton();
+                } else {
+                    startLockout();
+                }
             });
-            
-            // For line-by-line display, we set innerHTML directly after composing
-            // the full string, and then apply the typing effect.
-            // Adjust speed for the new format. `5` is very fast, try `1` or `0` for instant.
-            typeText(tableContainerEl, tableString, 1); 
-        }
 
-        function drawPieChart(data) {
-            const holdingsData = data.slice(2)
-                .filter(row => row[0] && parseFloat(row[3]) > 0)
-                .map(row => ({
-                    name: row[0],
-                    value: parseFloat(row[3])
-                }));
+            // Adjust button position on window resize
+            window.addEventListener('resize', positionButton);
 
-            const totalValue = holdingsData.reduce((sum, item) => sum + item.value, 0);
-            if (totalValue === 0) return;
-
-            const radius = 100;
-            const cx = radius;
-            const cy = radius;
-            let startAngle = -90; // Start from the top
-
-            let svgContent = `<svg viewBox="0 0 ${radius * 2} ${radius * 2}" preserveAspectRatio="xMidYMid meet">`;
-
-            holdingsData.forEach(item => {
-                const percentage = item.value / totalValue;
-                const angle = percentage * 360;
-                const endAngle = startAngle + angle;
-
-                const start = polarToCartesian(cx, cy, radius, endAngle);
-                const end = polarToCartesian(cx, cy, radius, startAngle);
-
-                const largeArcFlag = angle > 180 ? "1" : "0";
-
-                // Path for the slice border
-                const d = [
-                    "M", cx, cy,
-                    "L", end.x, end.y,
-                    "A", radius, radius, 0, largeArcFlag, 1, start.x, start.y,
-                    "Z" // Close path back to center
-                ].join(" ");
-
-                svgContent += `<path d="${d}" fill="none" stroke-width="2"></path>`;
-
-                // Label position
-                const labelAngle = startAngle + angle / 2;
-                const labelPos = polarToCartesian(cx, cy, radius * 0.7, labelAngle);
-svgContent += `
-    <text x="${labelPos.x}" y="${labelPos.y - 6}" class="pie-chart-label">${item.name}</text>
-    <text x="${labelPos.x}" y="${labelPos.y + 8}" class="pie-chart-label">${Math.round(percentage * 100)}%</text>
-`;
-
-                startAngle = endAngle;
+            // --- INITIALIZATION ---
+            typeWriter(welcomeTextEl, WELCOME_MESSAGE, 100, () => {
+                // Once the welcome message is complete, load the product data
+                loadProductData();
             });
-            
-            // Handle the case of 100% cash
-            if(holdingsData.length === 0 && data[2][0] && data[2][0].toLowerCase() === 'cash') {
-                svgContent += `<circle cx="${cx}" cy="${cy}" r="${radius-1}" fill="none" stroke-width="2"></circle>`;
-                svgContent += `<text x="${cx}" y="${cy}" class="pie-chart-label">CASH 100%</text>`;
-            }
-
-            svgContent += `</svg>`;
-            pieChartContainerEl.innerHTML = svgContent;
-        }
-
-        function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
-            const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
-            return {
-                x: centerX + (radius * Math.cos(angleInRadians)),
-                y: centerY + (radius * Math.sin(angleInRadians))
-            };
-        }
-
-        function drawLineGraph(data) {
-            const graphData = data.slice(1)
-                .filter(row => row[7] && row[8])
-                .map(row => {
-                    const dateParts = row[7].split('/');
-                    return {
-                        date: new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`),
-                        value: parseFloat(row[8])
-                    };
-                })
-                .sort((a, b) => a.date - b.date);
-
-            if (graphData.length < 2) return;
-
-            const width = 1000;
-            const height = 600;
-            const padding = 50;
-
-            const maxValue = Math.max(...graphData.map(d => d.value));
-            const yMax = Math.ceil(maxValue / 10000) * 10000;
-            
-            const startDate = new Date('2017-01-01');
-            const endDate = new Date('2025-12-31');
-
-            const xScale = (date) => {
-                return padding + ((date - startDate) / (endDate - startDate)) * (width - padding * 2);
-            };
-
-            const yScale = (value) => {
-                return height - padding - (value / yMax) * (height - padding * 2);
-            };
-
-            let svgContent = `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet">`;
-
-            // Y-axis and labels
-            svgContent += `<line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" stroke-width="2"></line>`;
-            for (let i = 0; i <= yMax; i += 10000) {
-                const y = yScale(i);
-                svgContent += `<line x1="${padding - 5}" y1="${y}" x2="${width - padding}" y2="${y}" stroke-width="0.5" stroke-dasharray="4"></line>`;
-                svgContent += `<text x="${padding - 10}" y="${y + 4}" class="graph-label graph-axis-label-y">$${i / 1000}K</text>`;
-            }
-
-            // X-axis and labels
-            svgContent += `<line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke-width="2"></line>`;
-            for (let year = 2017; year <= 2026; year++) {
-                const x = xScale(new Date(`${year}-01-01`));
-                svgContent += `<text x="${x}" y="${height - padding + 20}" class="graph-label">${year}</text>`;
-            }
-            
-            // Data line
-            const points = graphData.map(d => `${xScale(d.date)},${yScale(d.value)}`).join(' ');
-            svgContent += `<polyline points="${points}" fill="none" stroke-width="3"></polyline>`;
-
-            svgContent += `</svg>`;
-            graphContainerEl.innerHTML = svgContent;
-        }
-
-
-        // --- MAIN EXECUTION ---
-
-        async function main() {
-            // 1. Initial loading animation
-            await typeText(loadingTextEl, 'Loading', 80);
-            await typeDots(loadingTextEl, 5, 250);
-            await sleep(500);
-
-            await typeText(loadingTextEl, '.....and it\'s gone', 80);
-            await sleep(1000);
-
-            // 2. Fetch data
-            const sheetData = await getSheetData();
-            if (!sheetData) return;
-
-            // 3. Display data with animations
-            const jokingValue = parseFloat(sheetData[1][3]).toLocaleString('en-US', { style: 'currency', currency: 'USD' }) || '$0';
-            await typeText(loadingTextEl, `Relax guy, you have ${jokingValue}`);
-
-            const tendiesValue = parseFloat(sheetData[1][5]).toLocaleString('en-US', { style: 'currency', currency: 'USD' }) || '$0';
-            await typeText(tendiesTextEl, `Total tendies to date ${tendiesValue}`);
-            
-            // 4. Draw elements
-            drawTable(sheetData);
-            drawPieChart(sheetData);
-            drawLineGraph(sheetData);
-
-            // 5. Portfolio Updates at bottom
-loadPortfolioUpdates(sheetData);
-        }
-
-        // Run the main function when the page loads
-        window.onload = main;
-        window.addEventListener('load', () => {
-  const image = document.getElementById('headerImage');
-  const container = document.getElementById('imageContainer');
-
-  const step = 5; // pixels per frame
-  const fps = 60; // animation speed
-
-  const reveal = () => {
-    let height = 0;
-    const targetHeight = image.naturalHeight || 400;
-
-    const interval = setInterval(() => {
-      height += step;
-      container.style.height = height + 'px';
-
-      if (height >= targetHeight) {
-        container.style.height = 'auto';
-        clearInterval(interval);
-      }
-    }, 1000 / fps);
-  };
-
-  if (image.complete) {
-    reveal();
-  } else {
-    image.onload = reveal;
-  }
-});
-        function typeLineByLine(container, lines, delay = 30) {
-  let currentLine = 0;
-
-  function typeLine() {
-    if (currentLine >= lines.length) return;
-
-    const line = lines[currentLine];
-    let i = 0;
-    const span = document.createElement('div');
-
-    container.appendChild(span);
-
-    const interval = setInterval(() => {
-      span.textContent += line[i++];
-      if (i >= line.length) {
-        clearInterval(interval);
-          container.appendChild(document.createElement('br'));
-        currentLine++;
-        setTimeout(typeLine, delay * 4); // delay before next line starts
-      }
-    }, delay);
-  }
-
-  typeLine();
-}
-
-function loadPortfolioUpdates(data) {
-  const updates = [];
-  for (let i = 1; i < data.length; i++) { // Skip header
-    const item = data[i][9]; // Column J is index 9 (0-based)
-    if (item) updates.push(item);
-  }
-
-  const container = document.getElementById('updatesContainer');
-  container.textContent = ''; // clear previous content
-
-  const header = document.createElement('div');
-  header.textContent = 'PORTFOLIO UPDATES';
-  header.style.fontWeight = 'bold';
-  container.appendChild(header);
-    container.appendChild(document.createElement('br'));
-
-  typeLineByLine(container, updates);
-}
+        });
     </script>
-      <div id="updatesContainer" style="white-space: pre-wrap; margin-top: 2rem;"></div>
 </body>
 </html>
