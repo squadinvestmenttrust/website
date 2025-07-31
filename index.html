@@ -1,24 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Waitlist</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet" />
     <style>
-        /* CSS Styling */
         body {
-            background-color: #0000ff; /* Corrected hex code for blue */
+            background-color: #0000FF;
             color: white;
-            font-family: 'VT323', monospace; /* DOS-style font from Google Fonts */
+            font-family: 'VT323', monospace;
             text-align: center;
             margin: 0;
             padding: 20px;
-            overflow: hidden; /* Hide scrollbars that might appear when button moves */
+            overflow: hidden;
         }
-
         .content-wrapper {
             display: flex;
             flex-direction: column;
@@ -26,59 +24,47 @@
             justify-content: center;
             min-height: 90vh;
         }
-
         #top-image {
             max-width: 200px;
             margin-bottom: 20px;
         }
-
         #product-image {
             max-width: 300px;
-            margin-top: 20px;
-            margin-bottom: 20px;
-            visibility: hidden; /* Hidden until loaded by JS */
+            margin: 20px 0;
+            visibility: hidden;
         }
-        
         #product-info p {
             margin: 5px 0;
             font-size: 1.2em;
         }
-
         #waitlist-button {
+            position: absolute;
+            visibility: hidden;
             border: 2px solid white;
-            background-color: transparent;
+            background: transparent;
             color: white;
             padding: 10px 20px;
             font-family: 'VT323', monospace;
             font-size: 1.2em;
             cursor: pointer;
-            margin-top: 30px;
             transition: all 0.3s ease;
-            position: absolute; /* Needed for moving the button */
-            visibility: hidden; /* Hidden until product info is displayed */
         }
-
         .hidden {
             display: none !important;
         }
     </style>
 </head>
 <body>
-
     <div class="content-wrapper" id="main-content">
-        <img id="top-image" src="https://i.ibb.co/TqkgQZYM/clock.jpg" alt="Clock">
-        
+        <img id="top-image" src="https://i.ibb.co/TqkgQZYM/clock.jpg" alt="Clock" />
         <h1 id="welcome-text"></h1>
-        
-        <img id="product-image" src="" alt="Product Image">
-        
+        <img id="product-image" src="" alt="Product Image" />
         <div id="product-info">
             <p id="product-name"></p>
             <p id="product-materials"></p>
             <p id="product-price"></p>
             <p id="product-wait"></p>
         </div>
-
     </div>
 
     <div id="lockout-content" class="hidden">
@@ -88,185 +74,109 @@
     <button id="waitlist-button">join waitlist</button>
 
     <script>
-        // JavaScript Logic
-        document.addEventListener('DOMContentLoaded', () => {
-            
-            // --- CONFIGURATION ---
-            const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT6aU1_jB0juldfdNBs-KX3XLLqOuAoZDNpg_znvr_x1ToUAariHKo2Gz-REVye58V_nenvXETUOTZk/pub?output=csv';
-            const WELCOME_MESSAGE = 'welcome to waitlist.';
-            const LOCKOUT_DURATION = 900; // seconds
+    document.addEventListener('DOMContentLoaded', () => {
+        const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT6aU1_jB0juldfdNBs-KX3XLLqOuAoZDNpg_znvr_x1ToUAariHKo2Gz-REVye58V_nenvXETZk/pub?output=csv';
+        const WELCOME_MESSAGE = 'welcome to waitlist.';
+        const LOCKOUT_DURATION = 900;  // seconds
 
-            // --- ELEMENT SELECTORS ---
-            const welcomeTextEl = document.getElementById('welcome-text');
-            const productImageEl = document.getElementById('product-image');
-            const productNameEl = document.getElementById('product-name');
-            const productMaterialsEl = document.getElementById('product-materials');
-            const productPriceEl = document.getElementById('product-price');
-            const productWaitEl = document.getElementById('product-wait');
-            const waitlistButton = document.getElementById('waitlist-button');
-            const mainContent = document.getElementById('main-content');
-            const lockoutContent = document.getElementById('lockout-content');
-            const lockoutTextEl = document.getElementById('lockout-text');
+        const welcomeEl = document.getElementById('welcome-text');
+        const imgEl = document.getElementById('product-image');
+        const nameEl = document.getElementById('product-name');
+        const matEl  = document.getElementById('product-materials');
+        const prcEl  = document.getElementById('product-price');
+        const w8El   = document.getElementById('product-wait');
+        const btn    = document.getElementById('waitlist-button');
+        const main   = document.getElementById('main-content');
+        const lock   = document.getElementById('lockout-content');
+        const lockTxt= document.getElementById('lockout-text');
 
-            let buttonClickCount = 0;
+        let clicks = 0;
 
-            // --- FUNCTIONS ---
+        function typeWriter(el, text, speed=100, done=() => {}) {
+            el.innerHTML = '';
+            let i = 0;
+            (function tick() {
+                if (i < text.length) {
+                    el.innerHTML += text.charAt(i++);
+                    setTimeout(tick, speed);
+                } else done();
+            })();
+        }
 
-            /**
-             * Animates text to appear letter by letter.
-             * @param {HTMLElement} element The HTML element to display the text in.
-             * @param {string} text The text to animate.
-             * @param {number} speed The speed of the animation in milliseconds.
-             * @param {function} onComplete A callback function to run after animation.
-             */
-            const typeWriter = (element, text, speed = 100, onComplete = () => {}) => {
-                let i = 0;
-                element.innerHTML = ''; // Clear existing text
-                const typing = () => {
-                    if (i < text.length) {
-                        element.innerHTML += text.charAt(i);
-                        i++;
-                        setTimeout(typing, speed);
-                    } else {
-                        onComplete();
-                    }
-                };
-                typing();
-            };
-            
-            /**
-             * Fetches and parses CSV data from the provided URL.
-             */
-            const loadProductData = async () => {
-                try {
-                    const response = await fetch(SPREADSHEET_URL);
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    
-                    const csvText = await response.text();
-                    const rows = csvText.split('\n');
-                    // Data is in the second row (index 1), split by commas
-                    const data = rows[1].split(',');
+        function positionButton() {
+            const x = (window.innerWidth - btn.offsetWidth) / 2;
+            btn.style.left = x + 'px';
+            btn.style.top  = (main.offsetHeight + 60) + 'px';
+        }
 
-                    // Unpack data from cells B2, B1, B3, B4, B5 (indices 1, 0, 2, 3, 4)
-                    const productImageUrl = data[1];
-                    const productName = data[0];
-                    const productMaterials = data[2];
-                    const productPrice = data[3];
-                    const productWait = data[4];
+        function moveButton() {
+            const maxX = window.innerWidth - btn.offsetWidth;
+            const maxY = window.innerHeight - btn.offsetHeight;
+            btn.style.left = Math.random() * maxX + 'px';
+            btn.style.top  = Math.random() * maxY + 'px';
+        }
 
-                    // Set product image source and make it visible
-                    productImageEl.src = productImageUrl;
-                    productImageEl.style.visibility = 'visible';
-
-                    // Start displaying product info after a short delay
-                    setTimeout(() => {
-                        displayProductInfo(productName, productMaterials, productPrice, productWait);
-                    }, 500);
-
-                } catch (error) {
-                    console.error("Error fetching spreadsheet data:", error);
-                    welcomeTextEl.innerText = "Error: Could not load data.";
-                }
-            };
-            
-            /**
-             * Displays product information using the typewriter effect.
-             */
-            const displayProductInfo = (name, materials, price, wait) => {
-                typeWriter(productNameEl, `Product: ${name}`, 50, () => {
-                    typeWriter(productMaterialsEl, `Materials: ${materials}`, 50, () => {
-                        typeWriter(productPriceEl, `Price: ${price}`, 50, () => {
-                            typeWriter(productWaitEl, `Wait: ${wait}`, 50, () => {
-                                // Show and position the button after all text is displayed
-                                waitlistButton.style.visibility = 'visible';
-                                positionButton();
-                            });
+        function displayInfo(n, m, p, w) {
+            typeWriter(nameEl, `Product: ${n}`, 50, () => {
+                typeWriter(matEl, `Materials: ${m}`, 50, () => {
+                    typeWriter(prcEl, `Price: ${p}`, 50, () => {
+                        typeWriter(w8El, `Wait: ${w}`, 50, () => {
+                            btn.style.visibility = 'visible';
+                            positionButton();
                         });
                     });
                 });
-            };
+            });
+        }
 
-            /**
-             * Positions the button at its initial spot.
-             */
-            const positionButton = () => {
-                // Center the button horizontally initially
-                const screenWidth = window.innerWidth;
-                waitlistButton.style.left = `${(screenWidth - waitlistButton.offsetWidth) / 2}px`;
-                // Position it below the main content
-                waitlistButton.style.top = `${mainContent.offsetHeight + 60}px`;
-            };
+        async function loadData() {
+            try {
+                const res = await fetch(SPREADSHEET_URL);
+                if (!res.ok) throw new Error(`Status ${res.status}`);
+                const text = await res.text();
+                const row = text.split('\n')[1].split(',');
+                const [nm, img, mat, prc, w8] = [row[0], row[1], row[2], row[3], row[4]];
 
-            /**
-             * Moves the button to a new random position on the screen.
-             */
-            const moveButton = () => {
-                const screenWidth = window.innerWidth;
-                const screenHeight = window.innerHeight;
-                const buttonWidth = waitlistButton.offsetWidth;
-                const buttonHeight = waitlistButton.offsetHeight;
+                imgEl.src = img;
+                imgEl.style.visibility = 'visible';
+                imgEl.onload = () => setTimeout(() => displayInfo(nm, mat, prc, w8), 500);
 
-                const newX = Math.random() * (screenWidth - buttonWidth);
-                const newY = Math.random() * (screenHeight - buttonHeight);
+            } catch (e) {
+                console.error(e);
+                welcomeEl.innerText = 'Error: Could not load data.';
+            }
+        }
 
-                waitlistButton.style.left = `${newX}px`;
-                waitlistButton.style.top = `${newY}px`;
-            };
-            
-            /**
-             * Starts the lockout sequence and countdown.
-             */
-            const startLockout = () => {
-                mainContent.classList.add('hidden');
-                waitlistButton.classList.add('hidden');
-                lockoutContent.classList.remove('hidden');
+        function startLockout() {
+            main.classList.add('hidden');
+            btn.classList.add('hidden');
+            lock.classList.remove('hidden');
 
-                let countdown = LOCKOUT_DURATION;
+            let timeLeft = LOCKOUT_DURATION;
+            let timer;
 
-                const updateCountdown = () => {
-                    const message = `You are locked out of waitlist for ${countdown} seconds`;
-                    if (lockoutTextEl.innerHTML !== message) {
-                       lockoutTextEl.innerHTML = message;
-                    }
-                    
-                    if (countdown > 0) {
-                        countdown--;
-                    } else {
-                        clearInterval(countdownInterval);
-                        location.reload(); // Refresh the page
-                    }
-                };
-                
-                // Animate the initial lockout text
-                const lockoutMessage = `You are locked out of waitlist for ${countdown} seconds`;
-                typeWriter(lockoutTextEl, lockoutMessage, 50, () => {
-                     // Start the countdown timer after the text is written
-                    countdownInterval = setInterval(updateCountdown, 1000);
-                });
-
-                let countdownInterval = setInterval(updateCountdown, 1000);
-            };
-
-            // --- EVENT LISTENERS ---
-
-            waitlistButton.addEventListener('click', () => {
-                buttonClickCount++;
-                if (buttonClickCount < 3) {
-                    moveButton();
-                } else {
-                    startLockout();
+            function update() {
+                lockTxt.innerText = `You are locked out of waitlist for ${timeLeft} seconds`;
+                if (timeLeft-- <= 0) {
+                    clearInterval(timer);
+                    location.reload();
                 }
-            });
+            }
 
-            // Adjust button position on window resize
-            window.addEventListener('resize', positionButton);
-
-            // --- INITIALIZATION ---
-            typeWriter(welcomeTextEl, WELCOME_MESSAGE, 100, () => {
-                // Once the welcome message is complete, load the product data
-                loadProductData();
+            typeWriter(lockTxt, `You are locked out of waitlist for ${timeLeft} seconds`, 50, () => {
+                timer = setInterval(update, 1000);
             });
+        }
+
+        btn.addEventListener('click', () => {
+            clicks++;
+            clicks < 3 ? moveButton() : startLockout();
         });
+
+        window.addEventListener('resize', positionButton);
+
+        typeWriter(welcomeEl, WELCOME_MESSAGE, 100, loadData);
+    });
     </script>
 </body>
 </html>
