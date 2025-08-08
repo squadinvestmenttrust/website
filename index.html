@@ -1,479 +1,450 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Squad Investment Trust</title>
-  <style>
-    :root {
-      --main-color: #00ff41;
-      --bg-color: #000000;
-      --font-family: "Courier New", Courier, monospace;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Squad Investment Trust</title>
+    <style>
+        :root {
+            --main-color: #00FF41;
+            --bg-color: #000000;
+            --font-family: 'Courier New', Courier, monospace;
+        }
 
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: var(--bg-color);
-      color: var(--main-color);
-      font-family: var(--font-family);
-      font-size: 16px;
-      line-height: 1.4;
-    }
+        body {
+            background-color: var(--bg-color);
+            color: var(--main-color);
+            font-family: var(--font-family);
+            margin: 0;
+            padding: 1rem;
+            font-size: 16px;
+        }
 
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 2rem;
-    }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            max-width: 1000px;
+            margin: auto;
+        }
 
-    .header-text {
-      min-height: 1.2em;
-      font-size: 1.2rem;
-      white-space: pre-wrap;
-    }
+        .header-text {
+            min-height: 1.2em; /* Reserve space to prevent layout shift */
+            font-size: 1.2rem;
+            white-space: pre-wrap;
+        }
 
-    .content-wrapper {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 2rem;
-      align-items: flex-start;
-    }
+        .content-wrapper {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 2rem;
+            align-items: flex-start;
+        }
 
-    .table-container,
-    .chart-container {
-      flex: 1 1 320px;
-      min-width: 300px;
-    }
+        .table-container {
+            flex: 1;
+            min-width: 300px;
+            font-size: 1.1rem;
+            white-space: pre-wrap; /* Allows text to wrap */
+            word-break: break-word; /* Breaks long words to fit */
+            /* Removed overflow-x: auto as it's no longer needed for line-by-line display */
+        }
 
-    .graph-container {
-      width: 100%;
-    }
+        /* Specific styling for the new line-by-line table format */
+        .holding-item {
+            margin-bottom: 1rem; /* Space between each holding block */
+            line-height: 1.4;
+        }
+        .holding-item strong {
+            display: inline-block; /* Makes labels align nicely */
+            min-width: 60px; /* Adjust as needed for label alignment */
+        }
 
-    .holding-item {
-      margin-bottom: 1rem;
-    }
-    .holding-item strong {
-      display: inline-block;
-      min-width: 70px;
-    }
 
-    svg {
-      width: 100%;
-      height: auto;
-      stroke: var(--main-color);
-      fill: var(--main-color);
-      stroke-width: 2;
-      font-family: var(--font-family);
-    }
+        .chart-container {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-    .pie-chart-label {
-      font-size: 10px;
-      fill: var(--main-color);
-      stroke: none;
-      text-anchor: middle;
-    }
+        .graph-container {
+            width: 100%;
+        }
 
-    .graph-label {
-      font-size: 12px;
-      fill: var(--main-color);
-      stroke: none;
-      text-anchor: middle;
-    }
+        svg {
+            width: 100%;
+            height: auto;
+            stroke: var(--main-color);
+            fill: var(--main-color);
+            stroke-width: 2;
+            font-family: var(--font-family);
+        }
 
-    .graph-axis-label-y {
-      text-anchor: end;
-    }
+        .pie-chart-label {
+            font-size: 8px;
+            fill: var(--main-color);
+            stroke: none;
+            text-anchor: middle;
+        }
+        
+        .graph-label {
+            font-size: 14px;
+            fill: var(--main-color);
+            stroke: none;
+            text-anchor: middle;
+        }
 
-    .cursor::after {
-      content: "█";
-      animation: blink 1s step-end infinite;
-    }
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0; }
-    }
+        .graph-axis-label-y {
+            text-anchor: end;
+        }
 
-    /* Header image reveal */
-    #imageContainer {
-      overflow: hidden;
-      height: 0;
-      max-width: 100%;
-      text-align: center;
-    }
-    #headerImage {
-      max-width: 100%;
-      display: block;
-      margin: 0 auto;
-    }
+        /* Blinking cursor effect */
+        .cursor::after {
+            content: '█';
+            animation: blink 1s step-end infinite;
+        }
 
-    /* Updates section */
-    #updatesContainer {
-      white-space: pre-wrap;
-      margin-top: 2rem;
-    }
-  </style>
+        @keyframes blink {
+            from, to {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div id="imageContainer" aria-hidden="true">
-    <img id="headerImage" src="https://i.ibb.co/RpYCHF8W/SIT.jpg" alt="SIT header image" />
-  </div>
+<div id="imageContainer" style="overflow: hidden; height: 0; max-width: 100%; text-align: center;">
+  <img id="headerImage" src="https://i.ibb.co/RpYCHF8W/SIT.jpg" alt="Header Image" style="max-width: 100%; display: block; margin: auto;">
+</div>
+    <br>
+    <br>
+    <div class="container">
+        <div id="loading-text" class="header-text"></div>
+        <div id="tendies-text" class="header-text"></div>
 
-  <div class="container">
-    <div id="loading-text" class="header-text"></div>
-    <div id="tendies-text" class="header-text"></div>
+        <div class="content-wrapper">
+            <div id="table-container" class="table-container"></div>
+            <div id="pie-chart-container" class="chart-container"></div>
+        </div>
 
-    <div class="content-wrapper">
-      <div id="table-container" class="table-container" aria-live="polite"></div>
-      <div id="pie-chart-container" class="chart-container" aria-label="Portfolio pie chart"></div>
+        <div id="graph-container" class="graph-container"></div>
     </div>
 
-    <div id="graph-container" class="graph-container" aria-label="Portfolio value over time"></div>
+    <script>
+        const loadingTextEl = document.getElementById('loading-text');
+        const tendiesTextEl = document.getElementById('tendies-text');
+        const tableContainerEl = document.getElementById('table-container');
+        const pieChartContainerEl = document.getElementById('pie-chart-container');
+        const graphContainerEl = document.getElementById('graph-container');
 
-    <div id="updatesContainer"></div>
-  </div>
+        const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQvIkFEd8DqGzQOSMan7QNAuwDI4fXgD1HB8PDbmnnqk5QmA0YNigbxyWuuKhoAys9VRKrbDqym2xDw/pub?output=csv';
 
-  <script>
-    (function () {
-      const loadingTextEl = document.getElementById("loading-text");
-      const tendiesTextEl = document.getElementById("tendies-text");
-      const tableContainerEl = document.getElementById("table-container");
-      const pieChartContainerEl = document.getElementById("pie-chart-container");
-      const graphContainerEl = document.getElementById("graph-container");
+        // --- UTILITY FUNCTIONS ---
 
-      // Your published CSV
-      const SPREADSHEET_URL =
-        "https://docs.google.com/spreadsheets/d/e/2PACX-1vQvIkFEd8DqGzQOSMan7QNAuwDI4fXgD1HB8PDbmnnqk5QmA0YNigbxyWuuKhoAys9VRKrbDqym2xDw/pub?output=csv";
+        const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-
-      async function typeText(el, text, speed = 50) {
-        el.classList.add("cursor");
-        let out = "";
-        for (let i = 0; i < text.length; i++) {
-          out += text[i];
-          el.innerHTML = out.replace(/\n/g, "<br>");
-          await sleep(speed);
-        }
-        el.classList.remove("cursor");
-      }
-
-      async function typeDots(el, count = 5, speed = 200) {
-        el.classList.add("cursor");
-        for (let i = 0; i < count; i++) {
-          el.textContent += ".";
-          await sleep(speed);
-        }
-        el.classList.remove("cursor");
-      }
-
-      // Robust CSV parser that handles quotes and commas
-      function parseCSV(text) {
-        const rows = [];
-        let row = [];
-        let field = "";
-        let inQuotes = false;
-        for (let i = 0; i < text.length; i++) {
-          const c = text[i];
-          const n = text[i + 1];
-
-          if (c === '"' ) {
-            if (inQuotes && n === '"') { // escaped quote
-              field += '"';
-              i++;
-            } else {
-              inQuotes = !inQuotes;
+        // Function to simulate typing text letter by letter
+        async function typeText(element, text, speed = 50) {
+            element.classList.add('cursor');
+            let currentText = ""; // Accumulate text
+            for (let i = 0; i < text.length; i++) {
+                currentText += text.charAt(i);
+                element.innerHTML = currentText.replace(/\n/g, '<br>'); // Use innerHTML for <br>
+                await sleep(speed);
             }
-          } else if (c === "," && !inQuotes) {
-            row.push(field);
-            field = "";
-          } else if ((c === "\n" || c === "\r") && !inQuotes) {
-            // handle CRLF or LF
-            if (c === "\r" && n === "\n") i++;
-            row.push(field);
-            rows.push(row);
-            row = [];
-            field = "";
-          } else {
-            field += c;
-          }
-        }
-        // push last field
-        if (field.length || row.length) {
-          row.push(field);
-          rows.push(row);
-        }
-        return rows.map(r => r.map(cell => cell.trim()));
-      }
-
-      async function getSheetData() {
-        try {
-          const resp = await fetch(SPREADSHEET_URL, { cache: "no-store" });
-          if (!resp.ok) throw new Error("Fetch failed " + resp.status);
-          const text = await resp.text();
-          return parseCSV(text.replace(/^\uFEFF/, "")); // strip BOM if present
-        } catch (err) {
-          console.error(err);
-          loadingTextEl.textContent = "Error loading data";
-          return null;
-        }
-      }
-
-      function safeNumber(x) {
-        if (x == null) return 0;
-        const n = parseFloat(String(x).replace(/[^0-9.\-]+/g, ""));
-        return Number.isFinite(n) ? n : 0;
-      }
-
-      function formatCurrencyUSD(n, maxFrac = 0) {
-        try {
-          return new Intl.NumberFormat("en-US", {
-            style: "currency",
-            currency: "USD",
-            maximumFractionDigits: maxFrac
-          }).format(n);
-        } catch {
-          return "$" + (Math.round(n * 100) / 100).toLocaleString("en-US");
-        }
-      }
-
-      function drawTable(data) {
-        // Assumes first two rows are headers or totals as in your original
-        const holdings = data.slice(2).filter(r => r[0] && r[0].length);
-
-        let html = "";
-        for (const row of holdings) {
-          const name = row[0] || "N/A";
-          const value = formatCurrencyUSD(safeNumber(row[3]), 0);
-          const profitPct = row[6] != null && row[6] !== "" ? String(row[6]) : "0";
-          html += `<div class="holding-item">
-            <strong>Holding:</strong> ${name}\n
-            <strong>Value:</strong> ${value}\n
-            <strong>Profit:</strong> ${profitPct}%\n
-          </div>`;
-        }
-        // Fast type
-        typeText(tableContainerEl, html, 1);
-      }
-
-      function polarToCartesian(cx, cy, r, angleDeg) {
-        const rad = (angleDeg - 90) * Math.PI / 180;
-        return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
-      }
-
-      function drawPieChart(data) {
-        const rows = data.slice(2)
-          .filter(r => r[0] && safeNumber(r[3]) > 0)
-          .map(r => ({ name: r[0], value: safeNumber(r[3]) }));
-
-        const total = rows.reduce((s, x) => s + x.value, 0);
-        if (total <= 0) {
-          pieChartContainerEl.innerHTML = "";
-          return;
+            element.classList.remove('cursor');
         }
 
-        const radius = 110;
-        const cx = radius;
-        const cy = radius;
-        let startAngle = -90;
-
-        let svg = `<svg viewBox="0 0 ${radius * 2} ${radius * 2}" preserveAspectRatio="xMidYMid meet">`;
-
-        for (const item of rows) {
-          const pct = item.value / total;
-          const angle = pct * 360;
-          const endAngle = startAngle + angle;
-
-          const start = polarToCartesian(cx, cy, radius, endAngle);
-          const end = polarToCartesian(cx, cy, radius, startAngle);
-          const largeArc = angle > 180 ? 1 : 0;
-
-          const d = [
-            "M", cx, cy,
-            "L", end.x, end.y,
-            "A", radius, radius, 0, largeArc, 1, start.x, start.y,
-            "Z"
-          ].join(" ");
-
-          // outline slice for the wireframe effect
-          svg += `<path d="${d}" fill="none" stroke-width="2"></path>`;
-
-          const labelAngle = startAngle + angle / 2;
-          const lp = polarToCartesian(cx, cy, radius * 0.68, labelAngle);
-          svg += `<text x="${lp.x}" y="${lp.y - 6}" class="pie-chart-label">${item.name}</text>`;
-          svg += `<text x="${lp.x}" y="${lp.y + 8}" class="pie-chart-label">${Math.round(pct * 100)}%</text>`;
-
-          startAngle = endAngle;
-        }
-
-        svg += `</svg>`;
-        pieChartContainerEl.innerHTML = svg;
-      }
-
-      // Simple nice tick generator
-      function niceStep(maxVal, targetTicks = 6) {
-        if (maxVal <= 0) return 1;
-        const rough = maxVal / targetTicks;
-        const pow10 = Math.pow(10, Math.floor(Math.log10(rough)));
-        const multiples = [1, 2, 2.5, 5, 10];
-        let step = pow10;
-        for (const m of multiples) {
-          if (rough <= m * pow10) {
-            step = m * pow10;
-            break;
-          }
-        }
-        return step;
-      }
-
-      function drawLineGraph(data) {
-        const points = data.slice(1)
-          .filter(r => r[7] && r[8])
-          .map(r => {
-            // expected dd/mm/yyyy in col H (index 7)
-            const [d, m, y] = String(r[7]).split("/").map(s => s.trim());
-            const dt = new Date(Number(y), Number(m) - 1, Number(d));
-            return { date: dt, value: safeNumber(r[8]) };
-          })
-          .filter(p => p.date.toString() !== "Invalid Date" && Number.isFinite(p.value))
-          .sort((a, b) => a.date - b.date);
-
-        if (points.length < 2) {
-          graphContainerEl.innerHTML = "";
-          return;
-        }
-
-        const minDate = points[0].date;
-        const maxDate = points[points.length - 1].date;
-
-        const startDate = new Date(minDate.getFullYear(), 0, 1);
-        const endDate = new Date(maxDate.getFullYear(), 11, 31);
-
-        const maxVal = Math.max(...points.map(p => p.value));
-        const step = niceStep(maxVal);
-        const yMax = Math.ceil(maxVal / step) * step;
-
-        const width = 1000;
-        const height = 600;
-        const pad = 50;
-
-        const xScale = (dt) =>
-          pad + ((dt - startDate) / (endDate - startDate)) * (width - pad * 2);
-        const yScale = (v) =>
-          height - pad - (v / yMax) * (height - pad * 2);
-
-        let svg = `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet">`;
-
-        // Y axis and grid
-        svg += `<line x1="${pad}" y1="${pad}" x2="${pad}" y2="${height - pad}" stroke-width="2"></line>`;
-        for (let yTick = 0; yTick <= yMax + 1e-9; yTick += step) {
-          const y = yScale(yTick);
-          svg += `<line x1="${pad - 5}" y1="${y}" x2="${width - pad}" y2="${y}" stroke-width="0.5" stroke-dasharray="4"></line>`;
-          svg += `<text x="${pad - 10}" y="${y + 4}" class="graph-label graph-axis-label-y">$${(yTick / 1000).toFixed(0)}K</text>`;
-        }
-
-        // X axis and year labels
-        svg += `<line x1="${pad}" y1="${height - pad}" x2="${width - pad}" y2="${height - pad}" stroke-width="2"></line>`;
-        for (let yr = startDate.getFullYear(); yr <= endDate.getFullYear(); yr++) {
-          const x = xScale(new Date(yr, 0, 1));
-          svg += `<text x="${x}" y="${height - pad + 20}" class="graph-label">${yr}</text>`;
-        }
-
-        // Data line
-        const pts = points.map(p => `${xScale(p.date)},${yScale(p.value)}`).join(" ");
-        svg += `<polyline points="${pts}" fill="none" stroke-width="3"></polyline>`;
-
-        // Last point marker
-        const last = points[points.length - 1];
-        svg += `<circle cx="${xScale(last.date)}" cy="${yScale(last.value)}" r="4" fill="none" stroke-width="2"></circle>`;
-
-        svg += `</svg>`;
-        graphContainerEl.innerHTML = svg;
-      }
-
-      function typeLineByLine(container, lines, delay = 30) {
-        let idx = 0;
-        function typeNext() {
-          if (idx >= lines.length) return;
-          const line = lines[idx++];
-          let i = 0;
-          const div = document.createElement("div");
-          container.appendChild(div);
-          const t = setInterval(() => {
-            div.textContent += line[i++] || "";
-            if (i >= line.length) {
-              clearInterval(t);
-              container.appendChild(document.createElement("br"));
-              setTimeout(typeNext, delay * 4);
+        // Function to simulate typing dots
+        async function typeDots(element, count = 5, speed = 200) {
+            element.classList.add('cursor');
+            for (let i = 0; i < count; i++) {
+                element.textContent += '.';
+                await sleep(speed);
             }
-          }, delay);
+            element.classList.remove('cursor');
         }
-        typeNext();
-      }
 
-      function loadPortfolioUpdates(data) {
-        const updates = [];
-        for (let i = 1; i < data.length; i++) {
-          const cell = data[i][9]; // column J
-          if (cell) updates.push(String(cell));
-        }
-        const container = document.getElementById("updatesContainer");
-        container.textContent = "";
-        const header = document.createElement("div");
-        header.textContent = "PORTFOLIO UPDATES";
-        header.style.fontWeight = "bold";
-        container.appendChild(header);
-        container.appendChild(document.createElement("br"));
-        if (updates.length) typeLineByLine(container, updates);
-      }
+        // --- DATA FETCHING AND PARSING ---
 
-      async function main() {
-        // header image reveal
-        window.addEventListener("load", () => {
-          const image = document.getElementById("headerImage");
-          const container = document.getElementById("imageContainer");
-          const step = 6; // px per frame
-          const reveal = () => {
-            let h = 0;
-            const target = image.naturalHeight || 400;
-            function tick() {
-              h += step;
-              container.style.height = h + "px";
-              if (h < target) requestAnimationFrame(tick);
-              else container.style.height = "auto";
+        async function getSheetData() {
+            try {
+                const response = await fetch(SPREADSHEET_URL);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const csvText = await response.text();
+                // Simple CSV to Array parser
+                const rows = csvText.split('\n').map(row => row.trim().split(','));
+                return rows;
+            } catch (e) {
+                console.error("Error fetching or parsing spreadsheet data:", e);
+                loadingTextEl.textContent = "Error: Could not load spreadsheet data.";
+                return null;
             }
-            requestAnimationFrame(tick);
-          };
-          if (image.complete) reveal();
-          else image.onload = reveal;
-        });
+        }
 
-        await typeText(loadingTextEl, "Loading", 80);
-        await typeDots(loadingTextEl, 5, 250);
-        await sleep(400);
-        await typeText(loadingTextEl, ".....and it's gone", 80);
-        await sleep(800);
+        // --- DRAWING FUNCTIONS ---
 
-        const data = await getSheetData();
-        if (!data) return;
+        function drawTable(data) {
+            // Filter out header rows and empty rows
+            const holdings = data.slice(2).filter(row => row[0]);
 
-        const jokingValue = formatCurrencyUSD(safeNumber(data?.[1]?.[3] ?? 0));
-        await typeText(loadingTextEl, `Relax guy, you have ${jokingValue}`, 25);
+            let tableString = '';
+            holdings.forEach(row => {
+                const holdingName = row[0] || 'N/A';
+                const value = parseFloat(row[3]).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }); // Format as currency
+                const profitPercent = (row[6] || '0'); // Profit % (G column)
 
-        const tendiesValue = formatCurrencyUSD(safeNumber(data?.[1]?.[5] ?? 0));
-        await typeText(tendiesTextEl, `Total tendies to date ${tendiesValue}`, 25);
+                tableString += `<div class="holding-item">`;
+                tableString += `<strong>Holding:</strong> ${holdingName}\n`;
+                tableString += `<strong>Value:</strong> ${value}\n`;
+                tableString += `<strong>Profit:</strong> ${profitPercent}%\n`;
+                tableString += `</div>`;
+            });
+            
+            // For line-by-line display, we set innerHTML directly after composing
+            // the full string, and then apply the typing effect.
+            // Adjust speed for the new format. `5` is very fast, try `1` or `0` for instant.
+            typeText(tableContainerEl, tableString, 1); 
+        }
 
-        drawTable(data);
-        drawPieChart(data);
-        drawLineGraph(data);
-        loadPortfolioUpdates(data);
+        function drawPieChart(data) {
+            const holdingsData = data.slice(2)
+                .filter(row => row[0] && parseFloat(row[3]) > 0)
+                .map(row => ({
+                    name: row[0],
+                    value: parseFloat(row[3])
+                }));
+
+            const totalValue = holdingsData.reduce((sum, item) => sum + item.value, 0);
+            if (totalValue === 0) return;
+
+            const radius = 100;
+            const cx = radius;
+            const cy = radius;
+            let startAngle = -90; // Start from the top
+
+            let svgContent = `<svg viewBox="0 0 ${radius * 2} ${radius * 2}" preserveAspectRatio="xMidYMid meet">`;
+
+            holdingsData.forEach(item => {
+                const percentage = item.value / totalValue;
+                const angle = percentage * 360;
+                const endAngle = startAngle + angle;
+
+                const start = polarToCartesian(cx, cy, radius, endAngle);
+                const end = polarToCartesian(cx, cy, radius, startAngle);
+
+                const largeArcFlag = angle > 180 ? "1" : "0";
+
+                // Path for the slice border
+                const d = [
+                    "M", cx, cy,
+                    "L", end.x, end.y,
+                    "A", radius, radius, 0, largeArcFlag, 1, start.x, start.y,
+                    "Z" // Close path back to center
+                ].join(" ");
+
+                svgContent += `<path d="${d}" fill="none" stroke-width="2"></path>`;
+
+                // Label position
+                const labelAngle = startAngle + angle / 2;
+                const labelPos = polarToCartesian(cx, cy, radius * 0.7, labelAngle);
+svgContent += `
+    <text x="${labelPos.x}" y="${labelPos.y - 6}" class="pie-chart-label">${item.name}</text>
+    <text x="${labelPos.x}" y="${labelPos.y + 8}" class="pie-chart-label">${Math.round(percentage * 100)}%</text>
+`;
+
+                startAngle = endAngle;
+            });
+            
+            // Handle the case of 100% cash
+            if(holdingsData.length === 0 && data[2][0] && data[2][0].toLowerCase() === 'cash') {
+                svgContent += `<circle cx="${cx}" cy="${cy}" r="${radius-1}" fill="none" stroke-width="2"></circle>`;
+                svgContent += `<text x="${cx}" y="${cy}" class="pie-chart-label">CASH 100%</text>`;
+            }
+
+            svgContent += `</svg>`;
+            pieChartContainerEl.innerHTML = svgContent;
+        }
+
+        function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+            const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+            return {
+                x: centerX + (radius * Math.cos(angleInRadians)),
+                y: centerY + (radius * Math.sin(angleInRadians))
+            };
+        }
+
+        function drawLineGraph(data) {
+            const graphData = data.slice(1)
+                .filter(row => row[7] && row[8])
+                .map(row => {
+                    const dateParts = row[7].split('/');
+                    return {
+                        date: new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`),
+                        value: parseFloat(row[8])
+                    };
+                })
+                .sort((a, b) => a.date - b.date);
+
+            if (graphData.length < 2) return;
+
+            const width = 1000;
+            const height = 600;
+            const padding = 50;
+
+            const maxValue = Math.max(...graphData.map(d => d.value));
+            const yMax = Math.ceil(maxValue / 10000) * 10000;
+            
+            const startDate = new Date('2017-01-01');
+            const endDate = new Date('2025-12-31');
+
+            const xScale = (date) => {
+                return padding + ((date - startDate) / (endDate - startDate)) * (width - padding * 2);
+            };
+
+            const yScale = (value) => {
+                return height - padding - (value / yMax) * (height - padding * 2);
+            };
+
+            let svgContent = `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet">`;
+
+            // Y-axis and labels
+            svgContent += `<line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" stroke-width="2"></line>`;
+            for (let i = 0; i <= yMax; i += 10000) {
+                const y = yScale(i);
+                svgContent += `<line x1="${padding - 5}" y1="${y}" x2="${width - padding}" y2="${y}" stroke-width="0.5" stroke-dasharray="4"></line>`;
+                svgContent += `<text x="${padding - 10}" y="${y + 4}" class="graph-label graph-axis-label-y">$${i / 1000}K</text>`;
+            }
+
+            // X-axis and labels
+            svgContent += `<line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke-width="2"></line>`;
+            for (let year = 2017; year <= 2026; year++) {
+                const x = xScale(new Date(`${year}-01-01`));
+                svgContent += `<text x="${x}" y="${height - padding + 20}" class="graph-label">${year}</text>`;
+            }
+            
+            // Data line
+            const points = graphData.map(d => `${xScale(d.date)},${yScale(d.value)}`).join(' ');
+            svgContent += `<polyline points="${points}" fill="none" stroke-width="3"></polyline>`;
+
+            svgContent += `</svg>`;
+            graphContainerEl.innerHTML = svgContent;
+        }
+
+
+        // --- MAIN EXECUTION ---
+
+        async function main() {
+            // 1. Initial loading animation
+            await typeText(loadingTextEl, 'Loading', 80);
+            await typeDots(loadingTextEl, 5, 250);
+            await sleep(500);
+
+            await typeText(loadingTextEl, '.....and it\'s gone', 80);
+            await sleep(1000);
+
+            // 2. Fetch data
+            const sheetData = await getSheetData();
+            if (!sheetData) return;
+
+            // 3. Display data with animations
+            const jokingValue = parseFloat(sheetData[1][3]).toLocaleString('en-US', { style: 'currency', currency: 'USD' }) || '$0';
+            await typeText(loadingTextEl, `Relax guy, you have ${jokingValue}`);
+
+            const tendiesValue = parseFloat(sheetData[1][5]).toLocaleString('en-US', { style: 'currency', currency: 'USD' }) || '$0';
+            await typeText(tendiesTextEl, `Total tendies to date ${tendiesValue}`);
+            
+            // 4. Draw elements
+            drawTable(sheetData);
+            drawPieChart(sheetData);
+            drawLineGraph(sheetData);
+
+            // 5. Portfolio Updates at bottom
+loadPortfolioUpdates(sheetData);
+        }
+
+        // Run the main function when the page loads
+        window.onload = main;
+        window.addEventListener('load', () => {
+  const image = document.getElementById('headerImage');
+  const container = document.getElementById('imageContainer');
+
+  const step = 5; // pixels per frame
+  const fps = 60; // animation speed
+
+  const reveal = () => {
+    let height = 0;
+    const targetHeight = image.naturalHeight || 400;
+
+    const interval = setInterval(() => {
+      height += step;
+      container.style.height = height + 'px';
+
+      if (height >= targetHeight) {
+        container.style.height = 'auto';
+        clearInterval(interval);
       }
+    }, 1000 / fps);
+  };
 
-      main();
-    })();
-  </script>
+  if (image.complete) {
+    reveal();
+  } else {
+    image.onload = reveal;
+  }
+});
+        function typeLineByLine(container, lines, delay = 30) {
+  let currentLine = 0;
+
+  function typeLine() {
+    if (currentLine >= lines.length) return;
+
+    const line = lines[currentLine];
+    let i = 0;
+    const span = document.createElement('div');
+
+    container.appendChild(span);
+
+    const interval = setInterval(() => {
+      span.textContent += line[i++];
+      if (i >= line.length) {
+        clearInterval(interval);
+          container.appendChild(document.createElement('br'));
+        currentLine++;
+        setTimeout(typeLine, delay * 4); // delay before next line starts
+      }
+    }, delay);
+  }
+
+  typeLine();
+}
+
+function loadPortfolioUpdates(data) {
+  const updates = [];
+  for (let i = 1; i < data.length; i++) { // Skip header
+    const item = data[i][9]; // Column J is index 9 (0-based)
+    if (item) updates.push(item);
+  }
+
+  const container = document.getElementById('updatesContainer');
+  container.textContent = ''; // clear previous content
+
+  const header = document.createElement('div');
+  header.textContent = 'PORTFOLIO UPDATES';
+  header.style.fontWeight = 'bold';
+  container.appendChild(header);
+    container.appendChild(document.createElement('br'));
+
+  typeLineByLine(container, updates);
+}
+    </script>
+      <div id="updatesContainer" style="white-space: pre-wrap; margin-top: 2rem;"></div>
 </body>
 </html>
