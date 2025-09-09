@@ -403,7 +403,7 @@
             if (isNaN(n)) return unitRaw || '$0';
             return n.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
         })();
-        await typeText(unitPriceTextEl, `Oh, you like Unit Prices SK? We'll, it's ${unitPrice}.`, 50);
+        await typeText(unitPriceTextEl, `Oh, you like Unit Prices SK? We'll, it's ${unitPrice}`, 50);
 
         const tendiesValue = parseFloat(sheetData[1][5]).toLocaleString('en-US', { style: 'currency', currency: 'USD' }) || '$0';
         await typeText(tendiesTextEl, `Total tendies to date ${tendiesValue}`);
