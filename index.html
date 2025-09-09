@@ -98,7 +98,6 @@
             text-anchor: end;
         }
 
-        /* Blinking cursor effect */
         .cursor::after {
             content: '█';
             animation: blink 1s step-end infinite;
@@ -109,7 +108,6 @@
             50% { opacity: 0; }
         }
 
-        /* Returns table styling */
         .returns-table-wrapper {
             width: 100%;
             display: flex;
@@ -152,6 +150,8 @@
 
 <div class="container">
     <div id="loading-text" class="header-text"></div>
+    <!-- NEW: unit price line directly under the 'Relax guy...' line -->
+    <div id="unitprice-text" class="header-text"></div>
     <div id="tendies-text" class="header-text"></div>
 
     <div class="content-wrapper">
@@ -167,6 +167,7 @@
 
 <script>
     const loadingTextEl = document.getElementById('loading-text');
+    const unitPriceTextEl = document.getElementById('unitprice-text');
     const tendiesTextEl = document.getElementById('tendies-text');
     const tableContainerEl = document.getElementById('table-container');
     const pieChartContainerEl = document.getElementById('pie-chart-container');
@@ -175,7 +176,6 @@
 
     const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQvIkFEd8DqGzQOSMan7QNAuwDI4fXgD1HB8PDbmnnqk5QmA0YNigbxyWuuKhoAys9VRKrbDqym2xDw/pub?output=csv';
 
-    // --- UTILITY FUNCTIONS ---
     const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
     async function typeText(element, text, speed = 50) {
@@ -198,7 +198,6 @@
         element.classList.remove('cursor');
     }
 
-    // --- DATA FETCHING AND PARSING ---
     async function getSheetData() {
         try {
             const response = await fetch(SPREADSHEET_URL);
@@ -213,7 +212,6 @@
         }
     }
 
-    // --- DRAWING FUNCTIONS ---
     function drawTable(data) {
         const holdings = data.slice(2).filter(row => row[0]);
         let tableString = '';
@@ -316,9 +314,9 @@
         const maxValue = Math.max(...graphData.map(d => d.value));
         const yMax = Math.ceil(maxValue / 10000) * 10000;
         const startDate = new Date('2017-01-01');
-        const endDate = new Date('2025-12-31');
+        theEndDate = new Date('2025-12-31');
 
-        const xScale = (date) => padding + ((date - startDate) / (endDate - startDate)) * (width - padding * 2);
+        const xScale = (date) => padding + ((date - startDate) / (theEndDate - startDate)) * (width - padding * 2);
         const yScale = (value) => height - padding - (value / yMax) * (height - padding * 2);
 
         let svgContent = `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet">`;
@@ -342,14 +340,7 @@
         graphContainerEl.innerHTML = svgContent;
     }
 
-    /* NEW: Returns table between pie and chart
-       Reads:
-       Heading -> K1  (row 0, col 10)
-       1M -> L2       (row 1, col 11)
-       3M -> L3       (row 2, col 11)
-       6M -> L4       (row 3, col 11)
-       12M -> L5      (row 4, col 11)
-    */
+    /* Returns table between pie and chart */
     function drawReturnsTable(data) {
         const safeGet = (r, c) => (data[r] && typeof data[r][c] !== 'undefined') ? data[r][c] : '';
 
@@ -405,17 +396,22 @@
         const jokingValue = parseFloat(sheetData[1][3]).toLocaleString('en-US', { style: 'currency', currency: 'USD' }) || '$0';
         await typeText(loadingTextEl, `Relax guy, you have ${jokingValue}`);
 
+        /* NEW: Unit price line from E2 (row index 1, col index 4) */
+        const unitRaw = sheetData[1][4];
+        const unitPrice = (() => {
+            const n = parseFloat(unitRaw);
+            if (isNaN(n)) return unitRaw || '$0';
+            return n.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+        })();
+        await typeText(unitPriceTextEl, `Oh, you like Unit Prices SK? We'll, it's ${unitPrice}.`, 50);
+
         const tendiesValue = parseFloat(sheetData[1][5]).toLocaleString('en-US', { style: 'currency', currency: 'USD' }) || '$0';
         await typeText(tendiesTextEl, `Total tendies to date ${tendiesValue}`);
         
         drawTable(sheetData);
         drawPieChart(sheetData);
-
-        /* NEW call */
         drawReturnsTable(sheetData);
-
         drawLineGraph(sheetData);
-
         loadPortfolioUpdates(sheetData);
     }
 
