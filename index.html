@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Squad Investment Trust</title>
     <style>
         :root {
@@ -50,13 +50,20 @@
             word-break: break-word;
         }
 
+        /* NEW: side-by-side holdings layout */
+        .holdings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.25rem 2rem;
+        }
+
         .holding-item {
-            margin-bottom: 1rem;
+            margin: 0;                /* tighter, grid handles spacing */
             line-height: 1.4;
         }
         .holding-item strong {
             display: inline-block;
-            min-width: 60px;
+            min-width: 92px;          /* aligns labels like in your mock */
         }
 
         .chart-container {
@@ -86,7 +93,7 @@
             stroke: none;
             text-anchor: middle;
         }
-        
+
         .graph-label {
             font-size: 14px;
             fill: var(--main-color);
@@ -150,7 +157,7 @@
 
 <div class="container">
     <div id="loading-text" class="header-text"></div>
-    <!-- NEW: unit price line directly under the 'Relax guy...' line -->
+    <!-- unit price line directly under the 'Relax guy...' line -->
     <div id="unitprice-text" class="header-text"></div>
     <div id="tendies-text" class="header-text"></div>
 
@@ -203,6 +210,7 @@
             const response = await fetch(SPREADSHEET_URL);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const csvText = await response.text();
+            // simple CSV split (ok for your sheet)
             const rows = csvText.split('\n').map(row => row.trim().split(','));
             return rows;
         } catch (e) {
@@ -212,20 +220,32 @@
         }
     }
 
+    /* NEW: render holdings in a responsive two-column grid */
     function drawTable(data) {
-        const holdings = data.slice(2).filter(row => row[0]);
-        let tableString = '';
+        const holdings = data.slice(2).filter(row => row[0]); // from row 3 onward
+        let items = '';
+
         holdings.forEach(row => {
             const holdingName = row[0] || 'N/A';
-            const value = parseFloat(row[3]).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
-            const profitPercent = (row[6] || '0');
-            tableString += `<div class="holding-item">`;
-            tableString += `<strong>Holding:</strong> ${holdingName}\n`;
-            tableString += `<strong>Value:</strong> ${value}\n`;
-            tableString += `<strong>Profit:</strong> ${profitPercent}%\n`;
-            tableString += `</div>`;
+            const valueNum = parseFloat(row[3]);
+            const value = isNaN(valueNum)
+                ? (row[3] || '$0')
+                : valueNum.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+            const profitPercentRaw = (row[6] ?? '').toString().trim();
+            const profitPercent = profitPercentRaw.endsWith('%')
+                ? profitPercentRaw
+                : (profitPercentRaw === '' ? '0%' : `${parseFloat(profitPercentRaw).toFixed(2)}%`);
+
+            items += `
+                <div class="holding-item">
+                    <div><strong>Holding:</strong> ${holdingName}</div>
+                    <div><strong>Value:</strong> ${value}</div>
+                    <div><strong>Profit:</strong> ${profitPercent}</div>
+                </div>
+            `;
         });
-        typeText(tableContainerEl, tableString, 1);
+
+        tableContainerEl.innerHTML = `<div class="holdings-grid">${items}</div>`;
     }
 
     function drawPieChart(data) {
@@ -294,11 +314,9 @@
         const graphData = data.slice(1)
             .filter(row => row[7] && row[8])
             .map(row => {
-                const dateParts = row[7].split('/');
-                return {
-                    date: new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`),
-                    value: parseFloat(row[8])
-                };
+                const dateParts = row[7].split('/'); // dd/mm/yyyy
+                const d = new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`);
+                return { date: d, value: parseFloat(row[8]) };
             })
             .sort((a, b) => a.date - b.date);
 
@@ -314,13 +332,14 @@
         const maxValue = Math.max(...graphData.map(d => d.value));
         const yMax = Math.ceil(maxValue / 10000) * 10000;
         const startDate = new Date('2017-01-01');
-        theEndDate = new Date('2025-12-31');
+        const theEndDate = new Date('2025-12-31');
 
         const xScale = (date) => padding + ((date - startDate) / (theEndDate - startDate)) * (width - padding * 2);
         const yScale = (value) => height - padding - (value / yMax) * (height - padding * 2);
 
         let svgContent = `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet">`;
 
+        // y-axis and grid
         svgContent += `<line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" stroke-width="2"></line>`;
         for (let i = 0; i <= yMax; i += 10000) {
             const y = yScale(i);
@@ -328,15 +347,18 @@
             svgContent += `<text x="${padding - 10}" y="${y + 4}" class="graph-label graph-axis-label-y">$${i / 1000}K</text>`;
         }
 
+        // x-axis and year labels
         svgContent += `<line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke-width="2"></line>`;
         for (let year = 2017; year <= 2026; year++) {
             const x = xScale(new Date(`${year}-01-01`));
             svgContent += `<text x="${x}" y="${height - padding + 20}" class="graph-label">${year}</text>`;
         }
-        
+
+        // line
         const points = graphData.map(d => `${xScale(d.date)},${yScale(d.value)}`).join(' ');
         svgContent += `<polyline points="${points}" fill="none" stroke-width="3"></polyline>`;
         svgContent += `</svg>`;
+
         graphContainerEl.innerHTML = svgContent;
     }
 
@@ -344,11 +366,11 @@
     function drawReturnsTable(data) {
         const safeGet = (r, c) => (data[r] && typeof data[r][c] !== 'undefined') ? data[r][c] : '';
 
-        const heading = safeGet(0, 10) || 'Returns';
-        const oneM   = safeGet(1, 11);
-        const threeM = safeGet(2, 11);
-        const sixM   = safeGet(3, 11);
-        const twelveM= safeGet(4, 11);
+        const heading  = safeGet(0, 10) || 'Returns';
+        const oneM     = safeGet(1, 11);
+        const threeM   = safeGet(2, 11);
+        const sixM     = safeGet(3, 11);
+        const twelveM  = safeGet(4, 11);
 
         const fmtPct = (val) => {
             if (val === '' || val === null || typeof val === 'undefined') return 'N/A';
@@ -387,28 +409,35 @@
         await typeDots(loadingTextEl, 5, 250);
         await sleep(500);
 
-        await typeText(loadingTextEl, '.....and it\'s gone', 80);
+        await typeText(loadingTextEl, ".....and it's gone", 80);
         await sleep(1000);
 
         const sheetData = await getSheetData();
         if (!sheetData) return;
 
-        const jokingValue = parseFloat(sheetData[1][3]).toLocaleString('en-US', { style: 'currency', currency: 'USD' }) || '$0';
+        const jokingValueNum = parseFloat(sheetData[1][3]);
+        const jokingValue = isNaN(jokingValueNum)
+            ? '$0'
+            : jokingValueNum.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+
         await typeText(loadingTextEl, `Relax guy, you have ${jokingValue}`);
 
-        /* NEW: Unit price line from E2 (row index 1, col index 4) */
+        // Unit price from E2 (row index 1, col index 4)
         const unitRaw = sheetData[1][4];
         const unitPrice = (() => {
             const n = parseFloat(unitRaw);
             if (isNaN(n)) return unitRaw || '$0';
             return n.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
         })();
-        await typeText(unitPriceTextEl, `Oh, you like Unit Prices SK? We'll, it's ${unitPrice}`, 50);
+        await typeText(unitPriceTextEl, `Oh, you like Unit Prices? Well, it's ${unitPrice}`, 50);
 
-        const tendiesValue = parseFloat(sheetData[1][5]).toLocaleString('en-US', { style: 'currency', currency: 'USD' }) || '$0';
+        const tendiesNum = parseFloat(sheetData[1][5]);
+        const tendiesValue = isNaN(tendiesNum)
+            ? '$0'
+            : tendiesNum.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
         await typeText(tendiesTextEl, `Total tendies to date ${tendiesValue}`);
-        
-        drawTable(sheetData);
+
+        drawTable(sheetData);       // now grid-based
         drawPieChart(sheetData);
         drawReturnsTable(sheetData);
         drawLineGraph(sheetData);
@@ -417,6 +446,7 @@
 
     window.onload = main;
 
+    // header image reveal
     window.addEventListener('load', () => {
         const image = document.getElementById('headerImage');
         const container = document.getElementById('imageContainer');
