@@ -46,12 +46,25 @@
             flex: 1;
             min-width: 300px;
             font-size: 1.1rem;
-            white-space: pre-wrap;
             word-break: break-word;
+            white-space: normal;
+        }
+
+        /* NEW: two-column holdings grid */
+        .holdings-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem 2rem;
+            align-items: start;
+        }
+        @media (max-width: 640px) {
+            .holdings-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         .holding-item {
-            margin-bottom: 1rem;
+            margin-bottom: 0;
             line-height: 1.4;
         }
         .holding-item strong {
@@ -212,19 +225,28 @@
         }
     }
 
+    /* UPDATED: two-column holdings rendering */
     function drawTable(data) {
         const holdings = data.slice(2).filter(row => row[0]);
-        let tableString = '';
-        holdings.forEach(row => {
+
+        // Build each holding card
+        const items = holdings.map(row => {
             const holdingName = row[0] || 'N/A';
             const value = parseFloat(row[3]).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
             const profitPercent = (row[6] || '0');
-            tableString += `<div class="holding-item">`;
-            tableString += `<strong>Holding:</strong> ${holdingName}\n`;
-            tableString += `<strong>Value:</strong> ${value}\n`;
-            tableString += `<strong>Profit:</strong> ${profitPercent}%\n`;
-            tableString += `</div>`;
-        });
+            return `
+                <div class="holding-item">
+                    <strong>Holding:</strong> ${holdingName}<br>
+                    <strong>Value:</strong> ${value}<br>
+                    <strong>Profit:</strong> ${profitPercent}%
+                </div>
+            `;
+        }).join('');
+
+        // Wrap in a two-column grid container
+        const tableString = `<div class="holdings-grid">${items}</div>`;
+
+        // Keep the DOS typing vibe
         typeText(tableContainerEl, tableString, 1);
     }
 
