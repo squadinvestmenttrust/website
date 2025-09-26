@@ -42,26 +42,44 @@
             align-items: flex-start;
         }
 
-        /* MODIFIED FOR 2-COLUMN GRID LAYOUT */
         .table-container {
             flex: 1;
             min-width: 300px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1rem;
-        }
-
-        /* MODIFIED FOR CARD-LIKE APPEARANCE IN THE GRID */
-        .holding-item {
-            border: 1px solid var(--main-color);
-            padding: 1rem;
-            line-height: 1.4;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
+            white-space: normal;
             word-break: break-word;
         }
-        .holding-item strong {
-            display: inline-block;
-            min-width: 60px;
+
+        /* New: two-column holdings table */
+        .holdings-grid-table {
+            width: 100%;
+            table-layout: fixed;
+            border-collapse: separate;
+            border-spacing: 0.75rem;
+        }
+        .holdings-grid-table td {
+            width: 50%;
+            vertical-align: top;
+        }
+        .holding-card {
+            border: 1px solid var(--main-color);
+            padding: 0.6rem 0.7rem;
+            line-height: 1.35;
+            border-radius: 4px;
+        }
+        .holding-name {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 0.25rem;
+            word-wrap: break-word;
+        }
+        .holding-row {
+            display: grid;
+            grid-template-columns: 70px 1fr;
+            gap: 0.35rem;
+        }
+        .label {
+            opacity: 0.9;
         }
 
         .chart-container {
@@ -155,6 +173,7 @@
 
 <div class="container">
     <div id="loading-text" class="header-text"></div>
+    <!-- NEW: unit price line directly under the 'Relax guy...' line -->
     <div id="unitprice-text" class="header-text"></div>
     <div id="tendies-text" class="header-text"></div>
 
@@ -163,6 +182,7 @@
         <div id="pie-chart-container" class="chart-container"></div>
     </div>
 
+    <!-- RETURNS TABLE: between pie chart and the line chart -->
     <div id="returns-table-container" class="returns-table-wrapper"></div>
 
     <div id="graph-container" class="graph-container"></div>
@@ -215,21 +235,67 @@
         }
     }
 
-    // MODIFIED to build HTML with <br> tags directly for cleaner rendering
+    /* New: two-column table renderer for Holding / Value / Profit */
     function drawTable(data) {
         const holdings = data.slice(2).filter(row => row[0]);
-        let tableString = '';
-        holdings.forEach(row => {
-            const holdingName = row[0] || 'N/A';
-            const value = parseFloat(row[3]).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
-            const profitPercent = (row[6] || '0');
-            tableString += `<div class="holding-item">`;
-            tableString += `<strong>Holding:</strong> ${holdingName}<br>`;
-            tableString += `<strong>Value:</strong> ${value}<br>`;
-            tableString += `<strong>Profit:</strong> ${profitPercent}%`;
-            tableString += `</div>`;
-        });
-        typeText(tableContainerEl, tableString, 1);
+        const fmtUSD0 = (n) => {
+            const num = parseFloat(n);
+            if (isNaN(num)) return n || '$0';
+            return num.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+        };
+        const fmtPct = (v) => {
+            const raw = (v ?? '').toString().trim();
+            if (raw === '') return '0%';
+            if (raw.endsWith('%')) return raw;
+            const num = parseFloat(raw);
+            return isNaN(num) ? raw : `${num}%`;
+        };
+
+        let html = '<table class="holdings-grid-table" aria-label="Holdings two-column table"><tbody>';
+        for (let i = 0; i < holdings.length; i += 2) {
+            const left = holdings[i];
+            const right = holdings[i + 1];
+
+            html += '<tr>';
+
+            // Left cell
+            html += '<td>';
+            if (left) {
+                const holdingNameL = left[0] || 'N/A';
+                const valueL = fmtUSD0(left[3]);
+                const profitL = fmtPct(left[6]);
+                html += `
+                    <div class="holding-card">
+                        <span class="holding-name">${holdingNameL}</span>
+                        <div class="holding-row"><span class="label">Value</span><span>${valueL}</span></div>
+                        <div class="holding-row"><span class="label">Profit</span><span>${profitL}</span></div>
+                    </div>
+                `;
+            }
+            html += '</td>';
+
+            // Right cell
+            html += '<td>';
+            if (right) {
+                const holdingNameR = right[0] || 'N/A';
+                const valueR = fmtUSD0(right[3]);
+                const profitR = fmtPct(right[6]);
+                html += `
+                    <div class="holding-card">
+                        <span class="holding-name">${holdingNameR}</span>
+                        <div class="holding-row"><span class="label">Value</span><span>${valueR}</span></div>
+                        <div class="holding-row"><span class="label">Profit</span><span>${profitR}</span></div>
+                    </div>
+                `;
+            }
+            html += '</td>';
+
+            html += '</tr>';
+        }
+        html += '</tbody></table>';
+
+        // Direct inject (no typewriter) so the table renders correctly
+        tableContainerEl.innerHTML = html;
     }
 
     function drawPieChart(data) {
@@ -279,7 +345,7 @@
 
         if (holdingsData.length === 0 && data[2][0] && data[2][0].toLowerCase() === 'cash') {
             svgContent += `<circle cx="${cx}" cy="${cy}" r="${radius-1}" fill="none" stroke-width="2"></circle>`;
-            svgContent += `<text x="${cx}" y="${cy}" class="pie-chart-label">CASH 100%</text>`;
+            svgContent += `<text x="${cx}" y="${cy}" class="pie-chart-label">CASH 100%</</text>`;
         }
 
         svgContent += `</svg>`;
@@ -495,6 +561,7 @@
     }
 </script>
 
+<!-- Poll-Maker embed -->
 <div id="poll-container" style="width:100%; max-width:600px; margin:auto; background-color:#000000; color:#00FF41; font-family:'Courier New', monospace;">
     <script>
         (function(i,s,o,g,r,a,m){
