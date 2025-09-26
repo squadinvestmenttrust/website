@@ -42,17 +42,22 @@
             align-items: flex-start;
         }
 
+        /* --- MODIFIED CSS FOR TWO-COLUMN LAYOUT --- */
         .table-container {
-            flex: 1;
-            min-width: 300px;
+            flex: 2; /* Give this container more space than the pie chart */
+            min-width: 500px; /* Adjusted min-width for two columns */
             font-size: 1.1rem;
             white-space: pre-wrap;
             word-break: break-word;
+            display: grid; /* Use CSS Grid for the layout */
+            grid-template-columns: repeat(2, 1fr); /* Create two equal-width columns */
+            gap: 0.5rem 2rem; /* Add spacing between rows and columns */
         }
 
         .holding-item {
             margin-bottom: 1rem;
             line-height: 1.4;
+            /* No changes needed here, it becomes a grid item automatically */
         }
         .holding-item strong {
             display: inline-block;
@@ -108,6 +113,14 @@
             50% { opacity: 0; }
         }
 
+        /* --- NEW MEDIA QUERY FOR RESPONSIVENESS --- */
+        @media (max-width: 860px) {
+            .table-container {
+                grid-template-columns: 1fr; /* Switch to a single column on smaller screens */
+                min-width: 300px; /* Revert min-width */
+            }
+        }
+
         .returns-table-wrapper {
             width: 100%;
             display: flex;
@@ -150,7 +163,6 @@
 
 <div class="container">
     <div id="loading-text" class="header-text"></div>
-    <!-- NEW: unit price line directly under the 'Relax guy...' line -->
     <div id="unitprice-text" class="header-text"></div>
     <div id="tendies-text" class="header-text"></div>
 
@@ -159,7 +171,6 @@
         <div id="pie-chart-container" class="chart-container"></div>
     </div>
 
-    <!-- RETURNS TABLE: between pie chart and the line chart -->
     <div id="returns-table-container" class="returns-table-wrapper"></div>
 
     <div id="graph-container" class="graph-container"></div>
@@ -491,7 +502,6 @@
     }
 </script>
 
-<!-- Poll-Maker embed -->
 <div id="poll-container" style="width:100%; max-width:600px; margin:auto; background-color:#000000; color:#00FF41; font-family:'Courier New', monospace;">
     <script>
         (function(i,s,o,g,r,a,m){
