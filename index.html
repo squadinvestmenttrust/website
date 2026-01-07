@@ -606,15 +606,15 @@
     async function main() {
         await typeText(loadingTextEl, 'FETCHING SQUAD INVEST NUMBERS.', 30);
         await typeDots(loadingTextEl, 5, 100);
-        await sleep(600);
+        await sleep(300);
         
         const sheetData = await getSheetData();
         
         if (!sheetData) return;
 
         loadingTextEl.innerHTML = '';
-        await typeText(loadingTextEl, 'FOUND 6 and 7, ANALYSING', 30);
-        await sleep(600);
+        await typeText(loadingTextEl, 'FOUND 6 and 7, ANALYSING...', 30);
+        await sleep(700);
         loadingTextEl.innerHTML = ''; 
 
         const jokingValue = parseFloat(sheetData[1][3]).toLocaleString('en-US', { style: 'currency', currency: 'USD' }) || '$0';
