@@ -8,12 +8,12 @@
         :root {
             --main-color: #00FF41;
             --dim-color: #008F11;
-            --bg-color: #000000;
+            --bg-color: #0d1117;
             --panel-bg: #001505;
             --font-family: 'Courier New', Courier, monospace;
         }
 
-        /* --- CRT EFFECT OVERLAY (RESTORED) --- */
+        /* --- CRT EFFECT OVERLAY --- */
         body::before {
             content: " ";
             display: block;
@@ -33,7 +33,7 @@
             margin: 0;
             padding: 10px;
             font-size: 14px;
-            text-shadow: 0 0 5px var(--dim-color); /* The Glow */
+            text-shadow: 0 0 5px var(--dim-color);
             overflow-x: hidden;
             width: 100vw;
             box-sizing: border-box;
@@ -79,14 +79,15 @@
             font-weight: bold;
         }
 
+        /* Main Grid: 2 columns */
         .dashboard-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 1.5rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
 
-        /* Mobile Adjustments for Main Grid */
+        /* Mobile Adjustments */
         @media (max-width: 800px) {
             .dashboard-grid { grid-template-columns: 1fr; }
             body { padding: 5px; } 
@@ -100,8 +101,10 @@
             box-shadow: 0 0 15px rgba(0, 255, 65, 0.05);
             position: relative;
             border-radius: 4px;
+            margin-bottom: 1.5rem; /* Spacing between stacked panels */
         }
-        /* HUD Corners */
+        
+        /* Decorative Corners */
         .hud-panel::after {
             content: ''; position: absolute; top: -1px; left: -1px;
             width: 10px; height: 10px;
@@ -112,6 +115,7 @@
             width: 10px; height: 10px;
             border-bottom: 2px solid var(--main-color); border-right: 2px solid var(--main-color);
         }
+        
         .hud-title {
             position: absolute;
             top: -10px; left: 15px;
@@ -123,10 +127,10 @@
             color: var(--dim-color);
         }
 
-        /* --- HOLDINGS TABLE (STRICT 2-COLUMNS) --- */
+        /* --- HOLDINGS TABLE (2-COLUMNS) --- */
         .holdings-grid-container {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* Force 2 columns */
+            grid-template-columns: 1fr 1fr; 
             gap: 10px;
             width: 100%;
         }
@@ -136,7 +140,6 @@
             padding: 8px;
             border-radius: 2px;
             background: rgba(0, 255, 65, 0.02);
-            /* Ensure it doesn't break layout */
             min-width: 0; 
         }
 
@@ -148,7 +151,7 @@
             margin-bottom: 4px;
             white-space: nowrap;
             overflow: hidden;
-            text-overflow: ellipsis; /* ... if name is too long */
+            text-overflow: ellipsis;
         }
 
         .holding-row {
@@ -196,19 +199,31 @@
         }
         @keyframes drawLine { to { stroke-dashoffset: 0; } }
 
-        /* --- RETURNS TABLE --- */
+        /* --- RETURNS TABLE (UPDATED) --- */
         .returns-table {
             width: 100%;
-            border-collapse: collapse;
-            font-size: 0.9rem;
-            margin-top: 10px;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 1.1rem; /* Increased size */
         }
         .returns-table td, .returns-table th {
-            border: 1px solid var(--dim-color);
-            padding: 6px;
-            text-align: center;
+            border-bottom: 1px solid var(--dim-color);
+            padding: 12px; /* More breathing room */
+            text-align: left;
         }
-        .returns-table th { background-color: rgba(0, 255, 65, 0.1); }
+        .returns-table th { 
+            color: var(--dim-color);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid var(--main-color);
+        }
+        .returns-table td:last-child, .returns-table th:last-child {
+            text-align: right;
+        }
+        .returns-table tr:last-child td {
+            border-bottom: none;
+        }
 
         /* --- TYPING CURSOR --- */
         .cursor::after {
@@ -257,25 +272,27 @@
         <div id="tendies-text" class="header-text"></div>
     </div>
 
-    <div class="dashboard-grid">
+    <div class="dashboard-grid" style="margin-bottom: 1.5rem;">
         <div class="hud-panel">
             <div class="hud-title">ASSET ALLOCATION</div>
             <div id="table-container"></div>
         </div>
 
-        <div class="hud-panel" style="display:flex; align-items:center; justify-content:flex-start; flex-direction: column;">
+        <div class="hud-panel" style="display:flex; align-items:center; justify-content:center; flex-direction: column;">
             <div class="hud-title">DIVERSIFICATION</div>
             <div id="pie-chart-container" style="width: 80%; max-width: 300px;"></div>
-            <div id="returns-table-container"></div>
         </div>
+    </div>
+
+    <div class="hud-panel">
+        <div class="hud-title">PERIODIC RETURNS</div>
+        <div id="returns-table-container"></div>
     </div>
 
     <div class="hud-panel">
         <div class="hud-title">HISTORICAL PERFORMANCE</div>
         <div id="graph-container" class="graph-container"></div>
     </div>
-
-    <br>
 
     <div class="hud-panel">
         <div class="hud-title">SYSTEM LOGS</div>
@@ -387,11 +404,8 @@
             return isNaN(num) ? raw : `${num}%`;
         };
 
-        // Create a 2-column grid container
         let html = '<div class="holdings-grid-container">';
         
-        // Loop through pairs to maintain left/right structure from sheet
-        // But render them as individual items in the grid
         for (let i = 0; i < holdings.length; i += 2) {
             const left = holdings[i];
             const right = holdings[i + 1];
@@ -553,7 +567,7 @@
         ];
 
         let html = '<table class="returns-table">';
-        html += '<thead><tr><th>PERIOD</th><th>% RET</th></tr></thead><tbody>';
+        html += '<thead><tr><th>PERIOD</th><th>RETURN</th></tr></thead><tbody>';
         
         periods.forEach(p => {
             let color = '#00FF41';
@@ -565,7 +579,7 @@
                 if(!isNaN(f)) valStr = f.toFixed(2) + '%';
             }
 
-            html += `<tr><td>${p.label}</td><td style="color:${color}">${valStr}</td></tr>`;
+            html += `<tr><td>${p.label}</td><td style="color:${color}; font-weight:bold;">${valStr}</td></tr>`;
         });
         html += '</tbody></table>';
         returnsTableContainerEl.innerHTML = html;
