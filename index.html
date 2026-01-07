@@ -604,7 +604,7 @@
 
     // --- MAIN EXECUTION ---
     async function main() {
-        await typeText(loadingTextEl, 'INITIALIZING SQUAD PROTOCOL', 30);
+        await typeText(loadingTextEl, 'FETCHING SQUAD INVEST BALANCE.', 30);
         await typeDots(loadingTextEl, 5, 100);
         
         const sheetData = await getSheetData();
@@ -612,7 +612,7 @@
         if (!sheetData) return;
 
         loadingTextEl.innerHTML = '';
-        await typeText(loadingTextEl, 'ACCESS GRANTED.', 20);
+        await typeText(loadingTextEl, 'YOU'RE RICH BITCH', 20);
         await sleep(400);
         loadingTextEl.innerHTML = ''; 
 
