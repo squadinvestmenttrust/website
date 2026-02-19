@@ -23,6 +23,11 @@
             --negative-red: #ff4d4d;
         }
 
+        /* --- PREVENT HORIZONTAL SCROLLING --- */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
         /* --- ANIMATED BUBBLEGUM BACKGROUND --- */
         body {
             background: #ffffff;
@@ -32,8 +37,7 @@
             padding: 20px 10px;
             font-size: 15px;
             overflow-x: hidden;
-            width: 100vw;
-            box-sizing: border-box;
+            width: 100%; /* Changed from 100vw to avoid scrollbar width issues */
         }
 
         .main-container {
@@ -41,6 +45,7 @@
             margin: auto;
             position: relative;
             z-index: 1;
+            width: 100%;
         }
 
         /* --- CUTSIE ANIMATIONS --- */
@@ -67,15 +72,14 @@
 
         /* --- HEADER & IMAGES --- */
         #imageContainer {
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(255, 105, 180, 0.3);
-            background: white;
-            padding: 10px;
+            background: transparent; /* Removed white background for seamless PNG */
+            box-shadow: none; /* Removed the pink shadow */
+            padding: 0;
             margin-bottom: 20px;
+            width: 100%;
         }
         
         #imageContainer img {
-            border-radius: 15px;
             display: block;
             margin: auto;
             max-width: 100% !important;
@@ -86,6 +90,7 @@
             text-align: center;
             margin-top: 10px;
             perspective: 1000px;
+            padding: 0 10px;
         }
         .tagline {
             display: inline-block;
@@ -111,6 +116,7 @@
             padding: 20px;
             box-shadow: 0 8px 32px rgba(255, 105, 180, 0.15);
             border: 2px solid var(--light-pink);
+            width: 100%;
         }
 
         .header-text {
@@ -119,16 +125,18 @@
             font-weight: 700;
             margin: 8px 0;
             color: var(--deep-purple);
+            word-wrap: break-word;
         }
 
         /* --- NEW METRICS HEADER --- */
         .metrics-container {
             display: none; /* Hidden until loaded */
             justify-content: space-around;
-            align-items: center;
+            align-items: stretch;
             margin-bottom: 2rem;
             flex-wrap: wrap;
             gap: 15px;
+            width: 100%;
         }
 
         .metric-item {
@@ -140,6 +148,9 @@
             background: linear-gradient(135deg, var(--pastel-purple) 0%, #f8f8ff 100%);
             border: 2px solid var(--light-pink);
             box-shadow: 0 5px 20px rgba(230, 230, 250, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .metric-label {
@@ -155,6 +166,7 @@
             font-size: 1.3rem;
             font-weight: 800;
             color: var(--deep-purple);
+            word-wrap: break-word;
         }
 
         /* Center AUM Styling */
@@ -184,13 +196,7 @@
             grid-template-columns: 1fr 1fr;
             gap: 2rem;
             margin-bottom: 2rem;
-        }
-
-        /* Mobile Adjustments */
-        @media (max-width: 800px) {
-            .dashboard-grid { grid-template-columns: 1fr; gap: 2.5rem; }
-            body { padding: 10px 5px; } 
-            .metric-main { transform: scale(1); }
+            width: 100%;
         }
 
         /* --- HUD PANELS (GLASSMORPHISM) --- */
@@ -201,6 +207,8 @@
             box-shadow: 0 8px 32px rgba(255, 105, 180, 0.15);
             border: 2px solid var(--light-pink);
             position: relative;
+            width: 100%;
+            overflow-x: auto; /* Ensures tables inside don't break the container */
         }
         
         .hud-title {
@@ -216,6 +224,7 @@
             border-radius: 20px;
             box-shadow: 0 4px 15px rgba(255, 117, 140, 0.4);
             border: 2px solid white;
+            white-space: nowrap;
         }
 
         /* --- HOLDINGS TABLE (HEATMAP CARDS) --- */
@@ -234,6 +243,7 @@
             border-radius: 16px;
             min-width: 0; 
             cursor: pointer;
+            width: 100%;
         }
 
         .holding-name {
@@ -255,13 +265,6 @@
             font-weight: 700;
             margin-bottom: 3px;
         }
-
-        @media (max-width: 450px) {
-            .holdings-grid-container { gap: 8px; }
-            .holding-card { padding: 10px; border-radius: 12px; }
-            .holding-name { font-size: 0.95rem; }
-            .holding-row { font-size: 0.85rem; }
-        }
         
         /* --- CHART STYLING --- */
         svg {
@@ -282,6 +285,7 @@
             display: none;
             z-index: 100;
             box-shadow: 0 4px 15px rgba(255, 20, 147, 0.4);
+            white-space: nowrap;
         }
         .pie-slice {
             cursor: pointer;
@@ -357,9 +361,10 @@
             font-weight: 700;
             box-shadow: 0 4px 10px rgba(0,0,0,0.08);
             display: inline-block;
-            max-width: 90%;
+            max-width: 100%;
             position: relative;
             cursor: pointer;
+            word-wrap: break-word;
         }
         
         /* Log Color Codes */
@@ -388,6 +393,49 @@
             border: 2px solid white;
             text-align: center;
             margin-top: 2rem;
+            width: 100%;
+        }
+
+        /* =========================================
+           📱 MOBILE RESPONSIVE MEDIA QUERIES 📱 
+           ========================================= */
+        @media (max-width: 800px) {
+            .dashboard-grid { 
+                grid-template-columns: 1fr; 
+                gap: 2.5rem; 
+            }
+            body { 
+                padding: 15px 10px; 
+            } 
+            .metric-main { 
+                transform: scale(1); 
+            }
+        }
+
+        @media (max-width: 600px) {
+            .metrics-container {
+                flex-direction: column; /* Stack the main 3 metrics completely on phones */
+                gap: 10px;
+            }
+            .metric-item {
+                width: 100%;
+            }
+            .metric-main .metric-value {
+                font-size: 1.8rem; /* Smaller AUM text on tiny screens to prevent overflow */
+            }
+            .holdings-grid-container {
+                grid-template-columns: 1fr; /* Stack holding cards */
+            }
+            .returns-table td, .returns-table th {
+                padding: 10px 5px; /* Less padding in tables to ensure they fit */
+                font-size: 0.85rem;
+            }
+            .hud-panel {
+                padding: 25px 15px 15px 15px; /* Slight padding reduction */
+            }
+            #pie-chart-container {
+                width: 100% !important; /* Allow pie chart to fill space evenly */
+            }
         }
 
     </style>
@@ -397,7 +445,7 @@
 <div id="tooltip" class="chart-tooltip"></div>
 
 <div class="main-container">
-    <div id="imageContainer" style="overflow: hidden; height: 0; width: 100%; text-align: center; box-sizing: border-box;">
+    <div id="imageContainer" style="overflow: hidden; height: 0; text-align: center; box-sizing: border-box;">
       <img id="headerImage" src="https://i.ibb.co/tPvYwKPZ/SIT.png" alt="Header Image">
     </div>
     
@@ -452,7 +500,7 @@
         <!-- Line Chart -->
         <div class="hud-panel">
             <div class="hud-title">📈 SQUIGGLY LINE</div>
-            <div id="graph-container" style="margin-top: 15px;"></div>
+            <div id="graph-container" style="margin-top: 15px; width: 100%; overflow-x: auto;"></div>
         </div>
 
         <!-- System Logs -->
@@ -462,7 +510,7 @@
         </div>
     </div>
         
-    <div class="poll-wrapper wiggle-hover" id="poll-container" style="width:100%; max-width:600px; margin:auto;">
+    <div class="poll-wrapper wiggle-hover" id="poll-container" style="max-width:600px; margin:auto;">
         <div style="text-align:center; font-size: 0.95rem; font-weight:900; letter-spacing: 2px; color: var(--hot-pink); margin-bottom: 15px;">
             IN SQUAD WE TRUST
         </div>
@@ -878,3 +926,4 @@
 </script>
 </body>
 </html>
+
