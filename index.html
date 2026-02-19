@@ -208,7 +208,6 @@
             border: 2px solid var(--light-pink);
             position: relative;
             width: 100%;
-            /* Removed overflow-x: auto so titles aren't cut off */
         }
         
         .hud-title {
@@ -319,7 +318,7 @@
             border-spacing: 0;
             font-size: 0.95rem;
             margin-top: 10px;
-            min-width: 250px; /* Make sure it can scroll if needed */
+            min-width: 250px; 
         }
         .returns-table td, .returns-table th {
             border-bottom: 2px dotted var(--light-pink);
@@ -445,26 +444,53 @@
         }
 
         @media (max-width: 600px) {
+            body {
+                font-size: 13px; /* Slightly smaller overall font */
+                padding: 10px 5px; /* Tighter body padding */
+            }
+            .tagline {
+                font-size: 0.95rem; /* Scale down tagline */
+            }
             .metrics-container {
                 flex-direction: column; 
                 gap: 10px;
             }
             .metric-item {
                 width: 100%;
+                min-width: unset; /* Remove min-width restriction on mobile */
+                padding: 10px 8px; /* Slightly tighter metrics boxes */
+            }
+            .metric-label {
+                font-size: 0.75rem;
+            }
+            .metric-value {
+                font-size: 1.15rem; /* Smaller sub-metrics */
             }
             .metric-main .metric-value {
-                font-size: 1.8rem; 
+                font-size: 1.6rem; /* Smaller AUM text so large numbers fit */
             }
-            /* Note: .holdings-grid-container is kept at 2 columns now */
+            .hud-panel {
+                padding: 25px 10px 15px 10px; /* Thinner padding on panels */
+            }
+            .hud-title {
+                font-size: 0.8rem; /* Smaller headings */
+                padding: 5px 12px;
+                left: 10px; /* Align slightly more to the left on small screens */
+            }
             .returns-table td, .returns-table th {
                 padding: 10px 5px; 
                 font-size: 0.85rem;
             }
-            .hud-panel {
-                padding: 25px 15px 15px 15px; 
-            }
             #pie-chart-container {
                 width: 100% !important; 
+            }
+            .update-entry {
+                font-size: 0.85rem; /* Smaller chat logs */
+                padding: 10px 12px;
+            }
+            .squad-btn {
+                font-size: 0.95rem; /* Smaller button text */
+                padding: 10px 20px;
             }
         }
 
@@ -481,7 +507,7 @@
     
     <div class="tagline-container">
         <div class="tagline">
-            BUY HIGH, SELL DOWN
+            BUY CUTE, SELL UGLY
         </div>
     </div>
 
@@ -798,7 +824,8 @@
         const xScale = (date) => padding + ((date - startDate) / (theEndDate - startDate)) * (width - padding * 2);
         const yScale = (value) => height - padding - (value / yMax) * (height - padding * 2);
 
-        let svgContent = `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet" style="margin-top: 15px; min-width: 400px;">`;
+        // REMOVED `min-width: 400px;` so it scales perfectly on phones
+        let svgContent = `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet" style="margin-top: 15px;">`;
 
         // Axes and Grids
         svgContent += `<line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" stroke="var(--light-pink)" stroke-width="3" stroke-linecap="round"></line>`;
@@ -914,7 +941,7 @@
 
     // --- MAIN EXECUTION ---
     async function main() {
-        await typeText(loadingTextEl, 'FETCHING SQUAD INVEST NUMBERS ~', 30);
+        await typeText(loadingTextEl, 'FINDING BIG BOY NUMBERS 🥰', 30);
         await typeDots(loadingTextEl, 4, 150);
         await sleep(200);
         
@@ -923,7 +950,7 @@
         if (!sheetData) return;
 
         loadingTextEl.innerHTML = '';
-        await typeText(loadingTextEl, 'FOUND 6 and 7, ANALYSING 🌸', 30);
+        await typeText(loadingTextEl, 'FOUND 6 and 7!, ANALYSING 🥸', 30);
         await typeDots(loadingTextEl, 4, 150);
         await sleep(300);
         
