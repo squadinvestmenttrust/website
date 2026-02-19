@@ -37,7 +37,7 @@
             padding: 20px 10px;
             font-size: 15px;
             overflow-x: hidden;
-            width: 100%; /* Changed from 100vw to avoid scrollbar width issues */
+            width: 100%; 
         }
 
         .main-container {
@@ -72,8 +72,8 @@
 
         /* --- HEADER & IMAGES --- */
         #imageContainer {
-            background: transparent; /* Removed white background for seamless PNG */
-            box-shadow: none; /* Removed the pink shadow */
+            background: transparent; 
+            box-shadow: none; 
             padding: 0;
             margin-bottom: 20px;
             width: 100%;
@@ -130,7 +130,7 @@
 
         /* --- NEW METRICS HEADER --- */
         .metrics-container {
-            display: none; /* Hidden until loaded */
+            display: none; 
             justify-content: space-around;
             align-items: stretch;
             margin-bottom: 2rem;
@@ -208,7 +208,7 @@
             border: 2px solid var(--light-pink);
             position: relative;
             width: 100%;
-            overflow-x: auto; /* Ensures tables inside don't break the container */
+            /* Removed overflow-x: auto so titles aren't cut off */
         }
         
         .hud-title {
@@ -225,13 +225,20 @@
             box-shadow: 0 4px 15px rgba(255, 117, 140, 0.4);
             border: 2px solid white;
             white-space: nowrap;
+            z-index: 2; /* Ensure it stays on top */
+        }
+
+        /* Add scrolling directly to contents to protect the layout */
+        #returns-table-container, #graph-container {
+            width: 100%;
+            overflow-x: auto;
         }
 
         /* --- HOLDINGS TABLE (HEATMAP CARDS) --- */
         .holdings-grid-container {
             display: grid;
-            grid-template-columns: 1fr 1fr; 
-            gap: 12px;
+            grid-template-columns: repeat(2, 1fr); /* Enforce 2 columns */
+            gap: 8px; /* Tighter gap */
             width: 100%;
             margin-top: 10px;
         }
@@ -239,8 +246,8 @@
         .holding-card {
             background: #fff0f5;
             border: 2px dashed var(--light-pink);
-            padding: 12px;
-            border-radius: 16px;
+            padding: 8px 10px; /* Reduced padding */
+            border-radius: 12px; /* Slightly tighter curves */
             min-width: 0; 
             cursor: pointer;
             width: 100%;
@@ -248,10 +255,10 @@
 
         .holding-name {
             font-weight: 900;
-            font-size: 1.05rem;
+            font-size: 0.9rem; /* Smaller font */
             color: var(--deep-purple);
             display: block;
-            margin-bottom: 6px;
+            margin-bottom: 4px; /* Reduced margin */
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -261,9 +268,9 @@
         .holding-row {
             display: flex;
             justify-content: space-between;
-            font-size: 0.9rem;
+            font-size: 0.8rem; /* Smaller text */
             font-weight: 700;
-            margin-bottom: 3px;
+            margin-bottom: 2px; /* Reduced spacing */
         }
         
         /* --- CHART STYLING --- */
@@ -312,6 +319,7 @@
             border-spacing: 0;
             font-size: 0.95rem;
             margin-top: 10px;
+            min-width: 250px; /* Make sure it can scroll if needed */
         }
         .returns-table td, .returns-table th {
             border-bottom: 2px dotted var(--light-pink);
@@ -357,7 +365,7 @@
             color: var(--deep-purple);
             padding: 12px 16px;
             border-radius: 20px;
-            border-bottom-left-radius: 5px; /* Chat bubble effect */
+            border-bottom-left-radius: 5px;
             font-weight: 700;
             box-shadow: 0 4px 10px rgba(0,0,0,0.08);
             display: inline-block;
@@ -367,24 +375,11 @@
             word-wrap: break-word;
         }
         
-        /* Log Color Codes */
-        .log-buy {
-            background: #d4edda;
-            color: #155724;
-            border: 2px solid #c3e6cb;
-        }
-        .log-sell {
-            background: #ffe0e6;
-            color: var(--negative-red);
-            border: 2px solid var(--hot-pink);
-        }
-        .log-paid {
-            background: #fff3cd;
-            color: #856404;
-            border: 2px solid #ffeeba;
-        }
+        .log-buy { background: #d4edda; color: #155724; border: 2px solid #c3e6cb; }
+        .log-sell { background: #ffe0e6; color: var(--negative-red); border: 2px solid var(--hot-pink); }
+        .log-paid { background: #fff3cd; color: #856404; border: 2px solid #ffeeba; }
 
-        /* Poll Container */
+        /* Poll Container & Button */
         .poll-wrapper {
             background: linear-gradient(135deg, var(--bg-gradient-4) 0%, var(--bg-gradient-3) 100%);
             border-radius: 24px;
@@ -394,6 +389,43 @@
             text-align: center;
             margin-top: 2rem;
             width: 100%;
+        }
+
+        .squad-btn {
+            background: linear-gradient(135deg, var(--main-pink) 0%, var(--hot-pink) 100%);
+            color: white;
+            border: 2px solid white;
+            border-radius: 20px;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 20, 147, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 15px;
+            font-family: var(--font-family);
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .squad-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 8px rgba(255, 20, 147, 0.4);
+        }
+
+        /* --- EMOJI RAIN ANIMATION --- */
+        @keyframes fallAndSpin {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+        }
+
+        .emoji-drop {
+            position: fixed;
+            top: -10vh;
+            z-index: 9999;
+            pointer-events: none;
+            animation: fallAndSpin linear forwards;
         }
 
         /* =========================================
@@ -414,27 +446,25 @@
 
         @media (max-width: 600px) {
             .metrics-container {
-                flex-direction: column; /* Stack the main 3 metrics completely on phones */
+                flex-direction: column; 
                 gap: 10px;
             }
             .metric-item {
                 width: 100%;
             }
             .metric-main .metric-value {
-                font-size: 1.8rem; /* Smaller AUM text on tiny screens to prevent overflow */
+                font-size: 1.8rem; 
             }
-            .holdings-grid-container {
-                grid-template-columns: 1fr; /* Stack holding cards */
-            }
+            /* Note: .holdings-grid-container is kept at 2 columns now */
             .returns-table td, .returns-table th {
-                padding: 10px 5px; /* Less padding in tables to ensure they fit */
+                padding: 10px 5px; 
                 font-size: 0.85rem;
             }
             .hud-panel {
-                padding: 25px 15px 15px 15px; /* Slight padding reduction */
+                padding: 25px 15px 15px 15px; 
             }
             #pie-chart-container {
-                width: 100% !important; /* Allow pie chart to fill space evenly */
+                width: 100% !important; 
             }
         }
 
@@ -500,7 +530,7 @@
         <!-- Line Chart -->
         <div class="hud-panel">
             <div class="hud-title">📈 SQUIGGLY LINE</div>
-            <div id="graph-container" style="margin-top: 15px; width: 100%; overflow-x: auto;"></div>
+            <div id="graph-container"></div>
         </div>
 
         <!-- System Logs -->
@@ -511,9 +541,10 @@
     </div>
         
     <div class="poll-wrapper wiggle-hover" id="poll-container" style="max-width:600px; margin:auto;">
-        <div style="text-align:center; font-size: 0.95rem; font-weight:900; letter-spacing: 2px; color: var(--hot-pink); margin-bottom: 15px;">
-            IN SQUAD WE TRUST
-        </div>
+        
+        <!-- Interactive Button -->
+        <button id="emojiRainBtn" class="squad-btn">IN SQUAD WE TRUST</button>
+
         <script>
             (function(i,s,o,g,r,a,m){
                 i['QP']=r;
@@ -630,7 +661,6 @@
                 if(!item) return '';
                 const name = item[0] || 'N/A';
                 const value = fmtUSD0(item[3]); 
-                // Pulling daily change percent/value from column N (index 13)
                 const dailyChange = fmtPct(item[13]); 
                 const profit = fmtPct(item[6]);
                 
@@ -641,7 +671,6 @@
                 let bgStyle = 'background: #fff0f5; border-color: var(--light-pink);'; // default
                 if (!isNaN(dailyVal) && dailyChange !== '0%') {
                     if (dailyVal > 0) {
-                        // Max opacity capped at 0.5 for aesthetic reasons
                         const intensity = Math.min(0.05 + (dailyVal / 10), 0.5); 
                         bgStyle = `background: rgba(0, 200, 83, ${intensity}); border-color: var(--positive-green); border-style: solid;`;
                     } else if (dailyVal < 0) {
@@ -650,7 +679,6 @@
                     }
                 }
 
-                // Text coloring
                 const profitColor = profitVal < 0 ? 'var(--negative-red)' : 'var(--positive-green)';
                 const dailyColor = dailyVal < 0 ? 'var(--negative-red)' : (dailyVal > 0 ? 'var(--positive-green)' : 'var(--deep-purple)');
 
@@ -770,9 +798,9 @@
         const xScale = (date) => padding + ((date - startDate) / (theEndDate - startDate)) * (width - padding * 2);
         const yScale = (value) => height - padding - (value / yMax) * (height - padding * 2);
 
-        let svgContent = `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet">`;
+        let svgContent = `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet" style="margin-top: 15px; min-width: 400px;">`;
 
-        // Axes and Grids (Pastel pink/purple tones)
+        // Axes and Grids
         svgContent += `<line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" stroke="var(--light-pink)" stroke-width="3" stroke-linecap="round"></line>`;
         svgContent += `<line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke="var(--light-pink)" stroke-width="3" stroke-linecap="round"></line>`;
 
@@ -789,7 +817,6 @@
         
         const points = graphData.map(d => `${xScale(d.date)},${yScale(d.value)}`).join(' ');
         
-        // The main chart line - Bright hot pink
         svgContent += `<polyline points="${points}" fill="none" stroke="var(--hot-pink)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" class="line-path"></polyline>`;
         
         svgContent += `</svg>`;
@@ -839,21 +866,16 @@
 
         updates.forEach((update) => {
             const div = document.createElement('div');
-            
-            // Log Color Coding Logic
             let extraClass = '';
             let emoji = '✨';
             const upperText = update.toUpperCase();
             
             if (upperText.includes('BUY')) {
-                extraClass = 'log-buy';
-                emoji = '🛍️';
+                extraClass = 'log-buy'; emoji = '🛍️';
             } else if (upperText.includes('SELL')) {
-                extraClass = 'log-sell';
-                emoji = '💸';
+                extraClass = 'log-sell'; emoji = '💸';
             } else if (upperText.includes('PAID')) {
-                extraClass = 'log-paid';
-                emoji = '💰';
+                extraClass = 'log-paid'; emoji = '💰';
             }
 
             div.className = `update-entry wiggle-hover ${extraClass}`;
@@ -861,6 +883,34 @@
             container.appendChild(div);
         });
     }
+
+    // --- EMOJI RAIN EFFECT ---
+    document.getElementById('emojiRainBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        const emojis = ['💖', '✨', '🚀', '💎', '🦄', '💸', '🍭', '🎀', '🧸', '📈'];
+        
+        // Create 50 emojis
+        for (let i = 0; i < 50; i++) {
+            setTimeout(() => {
+                const drop = document.createElement('div');
+                drop.classList.add('emoji-drop');
+                drop.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                
+                // Randomize position, size, and fall speed
+                drop.style.left = Math.random() * 100 + 'vw';
+                drop.style.fontSize = (Math.random() * 2 + 1.5) + 'rem';
+                
+                const duration = Math.random() * 2 + 2; // Between 2 and 4 seconds
+                drop.style.animationDuration = duration + 's';
+                
+                document.body.appendChild(drop);
+                
+                // Remove the element after the animation finishes
+                setTimeout(() => drop.remove(), duration * 1000);
+            }, i * 40); // Stagger the drops
+        }
+    });
 
     // --- MAIN EXECUTION ---
     async function main() {
@@ -877,7 +927,6 @@
         await typeDots(loadingTextEl, 4, 150);
         await sleep(300);
         
-        // Hide initial loading screen, show awesome new metrics container
         loadingContainerEl.style.display = 'none';
         metricsContainerEl.style.display = 'flex';
 
@@ -886,7 +935,6 @@
         const unitPrice = parseFloat(unitRaw).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
         const tendiesValue = parseFloat(sheetData[1][5]).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }) || '$0';
 
-        // Load Header Values 
         aumTextEl.textContent = jokingValue;
         unitPriceTextEl.textContent = unitPrice;
         tendiesTextEl.textContent = tendiesValue;
@@ -908,7 +956,6 @@
         const fps = 60;
         const reveal = () => {
             let height = 0;
-            // Pad the height slightly to account for the container padding
             const targetHeight = (image.naturalHeight || 400) + 20; 
             const interval = setInterval(() => {
                 height += step;
@@ -926,4 +973,5 @@
 </script>
 </body>
 </html>
+
 
