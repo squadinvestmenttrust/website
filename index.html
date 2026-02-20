@@ -70,6 +70,19 @@
             100% { transform: scale(1); }
         }
 
+        /* --- RANDOM SPONTANEOUS POP ANIMATION --- */
+        @keyframes randomPop {
+            0% { transform: scale(1) rotate(0deg); }
+            30% { transform: scale(1.08) rotate(2deg); }
+            50% { transform: scale(0.95) rotate(-2deg); }
+            70% { transform: scale(1.04) rotate(1deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+        .random-pop {
+            animation: randomPop 0.8s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+            z-index: 50;
+        }
+
         /* --- HEADER & IMAGES --- */
         #imageContainer {
             background: transparent; 
@@ -428,8 +441,8 @@
         }
 
         /* =========================================
-           📱 MOBILE RESPONSIVE MEDIA QUERIES 📱 
-           ========================================= */
+            📱 MOBILE RESPONSIVE MEDIA QUERIES 📱 
+            ========================================= */
         @media (max-width: 800px) {
             .dashboard-grid { 
                 grid-template-columns: 1fr; 
@@ -679,48 +692,62 @@
 
         let html = '<div class="holdings-grid-container">';
         
-        for (let i = 0; i < holdings.length; i += 2) {
-            const left = holdings[i];
-            const right = holdings[i + 1];
+        // Helper function for standard cards
+        const createCard = (item) => {
+            if(!item) return '';
+            const name = item[0] || 'N/A';
+            const value = fmtUSD0(item[3]); 
+            const dailyChange = fmtPct(item[13]); 
+            const profit = fmtPct(item[6]);
+            
+            const dailyVal = parseFloat(dailyChange);
+            const profitVal = parseFloat(profit);
 
-            const createCard = (item) => {
-                if(!item) return '';
-                const name = item[0] || 'N/A';
-                const value = fmtUSD0(item[3]); 
-                const dailyChange = fmtPct(item[13]); 
-                const profit = fmtPct(item[6]);
-                
-                const dailyVal = parseFloat(dailyChange);
-                const profitVal = parseFloat(profit);
-
-                // --- HEATMAP LOGIC BASED ON DAILY CHANGE ---
-                let bgStyle = 'background: #fff0f5; border-color: var(--light-pink);'; // default
-                if (!isNaN(dailyVal) && dailyChange !== '0%') {
-                    if (dailyVal > 0) {
-                        const intensity = Math.min(0.05 + (dailyVal / 10), 0.5); 
-                        bgStyle = `background: rgba(0, 200, 83, ${intensity}); border-color: var(--positive-green); border-style: solid;`;
-                    } else if (dailyVal < 0) {
-                        const intensity = Math.min(0.05 + (Math.abs(dailyVal) / 10), 0.5);
-                        bgStyle = `background: rgba(255, 77, 77, ${intensity}); border-color: var(--negative-red); border-style: solid;`;
-                    }
+            // --- HEATMAP LOGIC BASED ON DAILY CHANGE ---
+            let bgStyle = 'background: #fff0f5; border-color: var(--light-pink);'; // default
+            if (!isNaN(dailyVal) && dailyChange !== '0%') {
+                if (dailyVal > 0) {
+                    const intensity = Math.min(0.05 + (dailyVal / 10), 0.5); 
+                    bgStyle = `background: rgba(0, 200, 83, ${intensity}); border-color: var(--positive-green); border-style: solid;`;
+                } else if (dailyVal < 0) {
+                    const intensity = Math.min(0.05 + (Math.abs(dailyVal) / 10), 0.5);
+                    bgStyle = `background: rgba(255, 77, 77, ${intensity}); border-color: var(--negative-red); border-style: solid;`;
                 }
-
-                const profitColor = profitVal < 0 ? 'var(--negative-red)' : 'var(--positive-green)';
-                const dailyColor = dailyVal < 0 ? 'var(--negative-red)' : (dailyVal > 0 ? 'var(--positive-green)' : 'var(--deep-purple)');
-
-                return `
-                    <div class="holding-card wiggle-hover" style="${bgStyle}">
-                        <span class="holding-name" title="${name}">${name}</span>
-                        <div class="holding-row"><span>Val:</span><span>${value}</span></div>
-                        <div class="holding-row"><span>P/L:</span><span style="color:${profitColor}">${profit}</span></div>
-                        <div class="holding-row"><span>Day:</span><span style="color:${dailyColor}; font-weight:900;">${dailyChange}</span></div>
-                    </div>
-                `;
             }
 
-            if(left && left[0]) html += createCard(left);
-            if(right && right[0]) html += createCard(right);
+            const profitColor = profitVal < 0 ? 'var(--negative-red)' : 'var(--positive-green)';
+            const dailyColor = dailyVal < 0 ? 'var(--negative-red)' : (dailyVal > 0 ? 'var(--positive-green)' : 'var(--deep-purple)');
+
+            return `
+                <div class="holding-card wiggle-hover" style="${bgStyle}">
+                    <span class="holding-name" title="${name}">${name}</span>
+                    <div class="holding-row"><span>Val:</span><span>${value}</span></div>
+                    <div class="holding-row"><span>P/L:</span><span style="color:${profitColor}">${profit}</span></div>
+                    <div class="holding-row"><span>Day:</span><span style="color:${dailyColor}; font-weight:900;">${dailyChange}</span></div>
+                </div>
+            `;
         }
+
+        // Special handling for the very first item (Cash)
+        if (holdings.length > 0) {
+            const cashItem = holdings[0];
+            const name = cashItem[0] || 'Cash';
+            const value = fmtUSD0(cashItem[3]); // Cell D3 value
+
+            // Add the cash card spanning 2 columns
+            html += `
+                <div class="holding-card wiggle-hover" style="grid-column: 1 / -1; background: linear-gradient(135deg, var(--pastel-purple) 0%, #fff 100%); border: 2px dashed #c781ff; text-align: center; padding: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(230,230,250,0.8);">
+                    <span class="holding-name" title="${name}" style="font-size: 1.1rem; color: var(--hot-pink); margin-bottom: 2px;">${name}</span>
+                    <div style="font-size: 1.7rem; font-weight: 900; color: var(--deep-purple); text-shadow: 1px 1px 2px rgba(0,0,0,0.05);">${value}</div>
+                </div>
+            `;
+        }
+        
+        // Loop through the remaining holdings standardly
+        for (let i = 1; i < holdings.length; i++) {
+            if(holdings[i] && holdings[i][0]) html += createCard(holdings[i]);
+        }
+
         html += '</div>';
         tableContainerEl.innerHTML = html;
     }
@@ -911,6 +938,25 @@
         });
     }
 
+    // --- RANDOM SPONTANEOUS WOBBLES & POPS ---
+    function startRandomWobbles() {
+        const elements = document.querySelectorAll('.hud-panel, .metric-item, .holding-card, .poll-wrapper');
+        if (elements.length > 0) {
+            // Pick 1 to 2 random elements to pop
+            const numToAnimate = Math.floor(Math.random() * 2) + 1;
+            for(let i=0; i<numToAnimate; i++) {
+                const el = elements[Math.floor(Math.random() * elements.length)];
+                if(!el.classList.contains('random-pop')) {
+                    el.classList.add('random-pop');
+                    setTimeout(() => el.classList.remove('random-pop'), 800);
+                }
+            }
+        }
+        // Trigger again in a random interval between 1.5s and 4.5s
+        const nextTime = Math.random() * 3000 + 1500;
+        setTimeout(startRandomWobbles, nextTime);
+    }
+
     // --- EMOJI RAIN EFFECT ---
     document.getElementById('emojiRainBtn').addEventListener('click', function(e) {
         e.preventDefault();
@@ -971,6 +1017,9 @@
         drawReturnsTable(sheetData);
         drawLineGraph(sheetData);
         loadPortfolioUpdates(sheetData);
+
+        // Start random ambient wobble animations once content has loaded
+        setTimeout(startRandomWobbles, 2000);
     }
 
     window.onload = main;
@@ -1000,5 +1049,3 @@
 </script>
 </body>
 </html>
-
-
