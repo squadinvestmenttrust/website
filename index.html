@@ -748,6 +748,18 @@
             if(holdings[i] && holdings[i][0]) html += createCard(holdings[i]);
         }
 
+        // --- NEW: DEBT CARD AT THE BOTTOM ---
+        // Pulls from Cell G2 (Row Index 1, Column Index 6)
+        const debtRaw = data[1] ? data[1][6] : undefined;
+        const debtValue = debtRaw ? fmtUSD0(debtRaw) : '$0';
+        
+        html += `
+            <div class="holding-card wiggle-hover" style="grid-column: 1 / -1; background: linear-gradient(135deg, var(--pastel-purple) 0%, #fff 100%); border: 2px dashed #c781ff; text-align: center; padding: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(230,230,250,0.8); margin-top: 4px;">
+                <span class="holding-name" title="DEBT" style="font-size: 1.1rem; color: var(--hot-pink); margin-bottom: 2px;">DEBT</span>
+                <div style="font-size: 1.7rem; font-weight: 900; color: var(--deep-purple); text-shadow: 1px 1px 2px rgba(0,0,0,0.05);">${debtValue}</div>
+            </div>
+        `;
+
         html += '</div>';
         tableContainerEl.innerHTML = html;
     }
@@ -1049,3 +1061,4 @@
 </script>
 </body>
 </html>
+
