@@ -203,6 +203,13 @@
             animation: pulse 2.5s infinite ease-in-out;
         }
 
+        /* Cell O1 'TODAY' styles */
+        #aum-today {
+            font-size: 1.2rem;
+            font-weight: 900;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+        }
+
         /* Main Grid: 2 columns */
         .dashboard-grid {
             display: grid;
@@ -482,6 +489,9 @@
             .metric-main .metric-value {
                 font-size: 1.6rem; /* Smaller AUM text so large numbers fit */
             }
+            #aum-today {
+                font-size: 0.95rem; /* Smaller sub-metric scale */
+            }
             .hud-panel {
                 padding: 25px 10px 15px 10px; /* Thinner padding on panels */
             }
@@ -539,7 +549,11 @@
         </div>
         <div class="metric-item metric-main wiggle-hover">
             <div class="metric-label">Total AUM</div>
-            <div id="aum-text" class="metric-value">...</div>
+            <!-- Flex container dynamically positions 'TODAY' next to the 'Total AUM' text -->
+            <div style="display: flex; align-items: baseline; justify-content: center; gap: 10px;">
+                <div id="aum-text" class="metric-value">...</div>
+                <div id="aum-today"></div>
+            </div>
         </div>
         <div class="metric-item wiggle-hover">
             <div class="metric-label">Net Tendies</div>
@@ -604,6 +618,7 @@
     const metricsContainerEl = document.getElementById('metrics-container');
     
     const aumTextEl = document.getElementById('aum-text');
+    const aumTodayEl = document.getElementById('aum-today');
     const unitPriceTextEl = document.getElementById('unitprice-text');
     const tendiesTextEl = document.getElementById('tendies-text');
     
@@ -1021,6 +1036,42 @@
         const tendiesValue = parseFloat(sheetData[1][5]).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }) || '$0';
 
         aumTextEl.textContent = jokingValue;
+
+        // --- NEW: TODAY PERCENTAGE (Cell O1) ---
+        // Grab Cell O1 (Row Index 0, Column Index 14). Fallback to O2 (Row Index 1) if O1 is missing/text.
+        let cellO1 = sheetData[0] && sheetData[0].length > 14 ? sheetData[0][14] : '';
+        if ((!cellO1 || !cellO1.match(/\d/)) && sheetData[1] && sheetData[1].length > 14) {
+            cellO1 = sheetData[1][14];
+        }
+
+        if (cellO1) {
+            let todayStr = cellO1.trim();
+            let valNum = parseFloat(todayStr.replace(/[^\d.-]/g, '')); // parse the numeric part
+
+            if (!isNaN(valNum)) {
+                // Formatting handler (e.g., if Sheets outputs a decimal 0.05 rather than "5%")
+                if (!todayStr.includes('%') && Math.abs(valNum) < 2) {
+                    valNum = valNum * 100;
+                    todayStr = valNum.toFixed(2) + '%';
+                } else if (!todayStr.includes('%')) {
+                    todayStr = todayStr + '%';
+                }
+
+                let color = 'white';
+                let prefix = '';
+
+                if (valNum > 0) {
+                    color = '#00ff66'; // Bright green contrasts well over pink
+                    if (!todayStr.startsWith('+')) prefix = '+';
+                } else if (valNum < 0) {
+                    color = '#ff3333'; // Deep bright red
+                }
+
+                aumTodayEl.style.color = color;
+                aumTodayEl.textContent = `${prefix}${todayStr} TODAY`;
+            }
+        }
+
         unitPriceTextEl.textContent = unitPrice;
         tendiesTextEl.textContent = tendiesValue;
         
@@ -1061,4 +1112,3 @@
 </script>
 </body>
 </html>
-
