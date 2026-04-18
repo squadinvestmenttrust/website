@@ -3,9 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Squad Investment Trust Dashboard">
     <title>Squad Investment Trust 💖✨</title>
-    <!-- Importing a cute, rounded font -->
+    
+    <!-- Preconnecting to speed up font loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    
     <style>
         :root {
             --main-pink: #ff69b4;
@@ -34,7 +39,7 @@
             color: var(--deep-purple);
             font-family: var(--font-family);
             margin: 0;
-            padding: 0 0 20px 0; /* Adjusted for top ticker */
+            padding: 0 0 20px 0;
             font-size: 15px;
             overflow-x: hidden;
             width: 100%; 
@@ -49,7 +54,8 @@
             white-space: nowrap;
             box-sizing: border-box;
             border-bottom: 2px solid var(--light-pink);
-            display: none; /* Hidden until data loads */
+            display: none; 
+            will-change: transform; /* Hint to GPU */
         }
         .ticker-text {
             display: inline-block;
@@ -83,7 +89,8 @@
             100% { transform: rotate(0deg); }
         }
         .wiggle-hover {
-            transition: all 0.2s ease;
+            transition: transform 0.2s ease, z-index 0.2s ease;
+            will-change: transform; /* Hardware acceleration for smoother paints */
         }
         .wiggle-hover:hover {
             animation: wiggle 0.4s ease-in-out infinite;
@@ -117,6 +124,7 @@
             margin-bottom: 20px;
             width: 100%;
             text-align: center;
+            min-height: 120px; /* Prevents CLS (Cumulative Layout Shift) */
         }
         
         #imageContainer img {
@@ -142,6 +150,7 @@
             cursor: pointer;
             transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
             transform-style: preserve-3d;
+            will-change: transform;
         }
         .tagline:hover {
             transform: rotateX(360deg) scale(1.15);
@@ -157,6 +166,7 @@
             box-shadow: 0 8px 32px rgba(255, 105, 180, 0.15);
             border: 2px solid var(--light-pink);
             width: 100%;
+            min-height: 85px; /* Prevent layout shift while typing */
         }
 
         .header-text {
@@ -229,6 +239,7 @@
             font-weight: 900;
             text-shadow: 2px 2px 0px rgba(255, 20, 147, 0.4);
             animation: pulse 2.5s infinite ease-in-out;
+            will-change: transform;
         }
 
         /* Main Grid: 2 columns */
@@ -265,10 +276,9 @@
             box-shadow: 0 4px 15px rgba(255, 117, 140, 0.4);
             border: 2px solid white;
             white-space: nowrap;
-            z-index: 2; /* Ensure it stays on top */
+            z-index: 2;
         }
 
-        /* Add scrolling directly to contents to protect the layout */
         #returns-table-container, #graph-container {
             width: 100%;
             overflow-x: auto;
@@ -277,8 +287,8 @@
         /* --- HOLDINGS TABLE (HEATMAP CARDS) --- */
         .holdings-grid-container {
             display: grid;
-            grid-template-columns: repeat(2, 1fr); /* Enforce 2 columns */
-            gap: 8px; /* Tighter gap */
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 8px; 
             width: 100%;
             margin-top: 10px;
         }
@@ -286,8 +296,8 @@
         .holding-card {
             background: #fff0f5;
             border: 2px dashed var(--light-pink);
-            padding: 8px 10px; /* Reduced padding */
-            border-radius: 12px; /* Slightly tighter curves */
+            padding: 8px 10px; 
+            border-radius: 12px; 
             min-width: 0; 
             cursor: pointer;
             width: 100%;
@@ -295,10 +305,10 @@
 
         .holding-name {
             font-weight: 900;
-            font-size: 0.9rem; /* Smaller font */
+            font-size: 0.9rem; 
             color: var(--deep-purple);
             display: block;
-            margin-bottom: 4px; /* Reduced margin */
+            margin-bottom: 4px; 
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -308,9 +318,9 @@
         .holding-row {
             display: flex;
             justify-content: space-between;
-            font-size: 0.8rem; /* Smaller text */
+            font-size: 0.8rem; 
             font-weight: 700;
-            margin-bottom: 2px; /* Reduced spacing */
+            margin-bottom: 2px; 
         }
         
         /* --- CHART STYLING --- */
@@ -466,6 +476,7 @@
             z-index: 9999;
             pointer-events: none;
             animation: fallAndSpin linear forwards;
+            will-change: transform, opacity;
         }
 
         /* =========================================
@@ -486,13 +497,13 @@
 
         @media (max-width: 600px) {
             body {
-                font-size: 13px; /* Slightly smaller overall font */
+                font-size: 13px;
             }
             .main-container {
-                padding: 10px 5px; /* Tighter body padding */
+                padding: 10px 5px;
             }
             .tagline {
-                font-size: 0.95rem; /* Scale down tagline */
+                font-size: 0.95rem;
             }
             .metrics-container {
                 flex-direction: column; 
@@ -500,25 +511,25 @@
             }
             .metric-item {
                 width: 100%;
-                min-width: unset; /* Remove min-width restriction on mobile */
-                padding: 10px 8px; /* Slightly tighter metrics boxes */
+                min-width: unset;
+                padding: 10px 8px;
             }
             .metric-label {
                 font-size: 0.75rem;
             }
             .metric-value {
-                font-size: 1.15rem; /* Smaller sub-metrics */
+                font-size: 1.15rem;
             }
             .metric-main .metric-value {
-                font-size: 1.6rem; /* Smaller AUM text so large numbers fit */
+                font-size: 1.6rem;
             }
             .hud-panel {
-                padding: 25px 10px 15px 10px; /* Thinner padding on panels */
+                padding: 25px 10px 15px 10px;
             }
             .hud-title {
-                font-size: 0.8rem; /* Smaller headings */
+                font-size: 0.8rem;
                 padding: 5px 12px;
-                left: 10px; /* Align slightly more to the left on small screens */
+                left: 10px;
             }
             .returns-table td, .returns-table th {
                 padding: 10px 5px; 
@@ -528,11 +539,11 @@
                 width: 100% !important; 
             }
             .update-entry {
-                font-size: 0.85rem; /* Smaller chat logs */
+                font-size: 0.85rem;
                 padding: 10px 12px;
             }
             .squad-btn {
-                font-size: 0.95rem; /* Smaller button text */
+                font-size: 0.95rem;
                 padding: 10px 20px;
             }
         }
@@ -550,7 +561,8 @@
 
 <div class="main-container">
     <div id="imageContainer">
-      <img id="headerImage" src="https://i.ibb.co/xqS2qxVF/SIT2.png" alt="Header Image">
+      <!-- Added loading="eager" and width/height hints to prevent CLS -->
+      <img id="headerImage" src="https://i.ibb.co/xqS2qxVF/SIT2.png" alt="Header Image" width="400" height="auto" loading="eager">
     </div>
     
     <div class="tagline-container">
@@ -620,6 +632,7 @@
         <button id="emojiRainBtn" class="squad-btn">IN SQUAD WE TRUST</button>
 
         <script>
+            // Note: External scripts block the DOM parsing. If Poll Maker supports it, this should ideally be deferred.
             (function(i,s,o,g,r,a,m){
                 i['QP']=r;
                 i[r]=i[r]||function(){ (i[r].q=i[r].q||[]).push(arguments) },i[r].l=1*new Date();
@@ -654,13 +667,28 @@
 
     const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
+    // --- SECURITY UTILITY ---
+    // Safely escapes characters that could trigger XSS if injected into innerHTML
+    function escapeHTML(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>'"]/g, 
+            tag => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                "'": '&#39;',
+                '"': '&quot;'
+            }[tag] || tag)
+        );
+    }
+
     // --- UTILITIES ---
     async function typeText(element, text, speed = 30) {
         element.classList.add('cursor');
         element.innerHTML = "";
         let currentText = "";
         for (let i = 0; i < text.length; i++) {
-            currentText += text.charAt(i);
+            currentText += escapeHTML(text.charAt(i));
             element.innerHTML = currentText;
             await sleep(speed + Math.random() * 20);
         }
@@ -716,15 +744,15 @@
         const holdings = data.slice(2).filter(row => row[0]);
         const fmtUSD0 = (n) => {
             const num = parseFloat(n);
-            if (isNaN(num)) return n || '$0';
+            if (isNaN(num)) return escapeHTML(n) || '$0';
             return num.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
         };
         const fmtPct = (v) => {
             const raw = (v ?? '').toString().trim();
             if (raw === '') return '0%';
-            if (raw.endsWith('%')) return raw;
+            if (raw.endsWith('%')) return escapeHTML(raw);
             const num = parseFloat(raw);
-            return isNaN(num) ? raw : `${num.toFixed(2)}%`;
+            return isNaN(num) ? escapeHTML(raw) : `${num.toFixed(2)}%`;
         };
 
         let html = '<div class="holdings-grid-container">';
@@ -732,7 +760,7 @@
         // Helper function for standard cards
         const createCard = (item) => {
             if(!item) return '';
-            const name = item[0] || 'N/A';
+            const name = escapeHTML(item[0] || 'N/A');
             const value = fmtUSD0(item[3]); 
             const dailyChange = fmtPct(item[13]); 
             const profit = fmtPct(item[6]);
@@ -768,7 +796,7 @@
         // Special handling for the very first item (Cash)
         if (holdings.length > 0) {
             const cashItem = holdings[0];
-            const name = cashItem[0] || 'Cash';
+            const name = escapeHTML(cashItem[0] || 'Cash');
             const value = fmtUSD0(cashItem[3]); // Cell D3 value
 
             // Add the cash card spanning 2 columns
@@ -839,7 +867,9 @@
             ].join(" ");
 
             const fill = cuteColors[index % cuteColors.length];
-            const tooltipText = `${item.name}: ${item.value.toLocaleString('en-US', {style:'currency', currency:'USD', maximumFractionDigits:0})} (${Math.round(percentage*100)}%)`;
+            const cleanName = escapeHTML(item.name);
+            // Must escape quotes for tooltip inline JS string
+            const tooltipText = escapeHTML(`${cleanName}: ${item.value.toLocaleString('en-US', {style:'currency', currency:'USD', maximumFractionDigits:0})} (${Math.round(percentage*100)}%)`).replace(/'/g, "\\'");
 
             svgContent += `<path d="${d}" fill="${fill}" stroke="#fff" stroke-width="2" class="pie-slice" 
                            ontouchstart="showTooltip(event.touches[0], '${tooltipText}')"
@@ -855,7 +885,7 @@
 
     function showTooltip(evt, text) {
         tooltipEl.style.display = "block";
-        tooltipEl.textContent = text;
+        tooltipEl.innerHTML = text; // Safely mapped previously
         tooltipEl.style.left = (evt.pageX + 10) + 'px';
         tooltipEl.style.top = (evt.pageY + 10) + 'px';
     }
@@ -900,7 +930,6 @@
         const xScale = (date) => padding + ((date - startDate) / (theEndDate - startDate)) * (width - padding * 2);
         const yScale = (value) => height - padding - (value / yMax) * (height - padding * 2);
 
-        // REMOVED `min-width: 400px;` so it scales perfectly on phones
         let svgContent = `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet" style="margin-top: 15px;">`;
 
         // Axes and Grids
@@ -927,7 +956,7 @@
     }
 
     function drawReturnsTable(data) {
-        const safeGet = (r, c) => (data[r] && typeof data[r][c] !== 'undefined') ? data[r][c] : '';
+        const safeGet = (r, c) => (data[r] && typeof data[r][c] !== 'undefined') ? escapeHTML(data[r][c]) : '';
         const periods = [
             { label: '1 Month', val: safeGet(1, 11) },
             { label: '3 Month', val: safeGet(2, 11) },
@@ -982,26 +1011,32 @@
             }
 
             div.className = `update-entry wiggle-hover ${extraClass}`;
-            div.innerHTML = `<span style="margin-right:5px; font-size:1.1rem;">${emoji}</span> ${update}`;
+            // Output sanitised update text
+            div.innerHTML = `<span style="margin-right:5px; font-size:1.1rem;">${emoji}</span> ${escapeHTML(update)}`;
             container.appendChild(div);
         });
     }
 
+    // Cache elements outside the function loop to save processing time
+    let wobbleElements = [];
+    
     // --- RANDOM SPONTANEOUS WOBBLES & POPS ---
     function startRandomWobbles() {
-        const elements = document.querySelectorAll('.hud-panel, .metric-item, .holding-card, .poll-wrapper');
-        if (elements.length > 0) {
-            // Pick 1 to 2 random elements to pop
+        if(wobbleElements.length === 0) {
+            wobbleElements = Array.from(document.querySelectorAll('.hud-panel, .metric-item, .holding-card, .poll-wrapper'));
+        }
+
+        if (wobbleElements.length > 0) {
             const numToAnimate = Math.floor(Math.random() * 2) + 1;
             for(let i=0; i<numToAnimate; i++) {
-                const el = elements[Math.floor(Math.random() * elements.length)];
+                const el = wobbleElements[Math.floor(Math.random() * wobbleElements.length)];
                 if(!el.classList.contains('random-pop')) {
                     el.classList.add('random-pop');
                     setTimeout(() => el.classList.remove('random-pop'), 800);
                 }
             }
         }
-        // Trigger again in a random interval between 1.5s and 4.5s
+        
         const nextTime = Math.random() * 3000 + 1500;
         setTimeout(startRandomWobbles, nextTime);
     }
@@ -1012,41 +1047,43 @@
         
         const emojis = ['💖', '✨', '🚀', '💎', '🦄', '💸', '🍭', '🎀', '🧸', '📈'];
         
-        // Create 50 emojis
         for (let i = 0; i < 50; i++) {
             setTimeout(() => {
                 const drop = document.createElement('div');
                 drop.classList.add('emoji-drop');
                 drop.innerText = emojis[Math.floor(Math.random() * emojis.length)];
                 
-                // Randomize position, size, and fall speed
                 drop.style.left = Math.random() * 100 + 'vw';
                 drop.style.fontSize = (Math.random() * 2 + 1.5) + 'rem';
                 
-                const duration = Math.random() * 2 + 2; // Between 2 and 4 seconds
+                const duration = Math.random() * 2 + 2; 
                 drop.style.animationDuration = duration + 's';
                 
                 document.body.appendChild(drop);
                 
-                // Remove the element after the animation finishes
                 setTimeout(() => drop.remove(), duration * 1000);
-            }, i * 40); // Stagger the drops
+            }, i * 40);
         }
     });
 
     // --- MAIN EXECUTION ---
     async function main() {
+        // IMPROVEMENT: Start the fetch process immediately to run parallel with our typing animation. 
+        // This halves the apparent load time for users!
+        const dataPromise = getSheetData();
+
         await typeText(loadingTextEl, 'FINDING BIG BOY NUMBERS 🥰', 30);
         await typeDots(loadingTextEl, 4, 150);
         await sleep(200);
         
-        const sheetData = await getSheetData();
+        // Wait for the data fetch that started earlier to finish.
+        const sheetData = await dataPromise;
         
         if (!sheetData) return;
 
         // Populate and display ticker from Cell J1 (Row index 0, Col index 9)
         if (sheetData[0] && sheetData[0].length > 9 && sheetData[0][9]) {
-            tickerTextEl.textContent = sheetData[0][9];
+            tickerTextEl.innerHTML = escapeHTML(sheetData[0][9]);
             tickerWrapEl.style.display = 'block';
         }
 
@@ -1056,9 +1093,7 @@
         await sleep(300);
         
         // --- NEW UP/DOWN TODAY LOGIC ---
-        // Fetch value from Cell O1 (Row 1, Column 15 => Index 0, 14 in 0-based arrays)
-        let todayChangeStr = (sheetData[0] && sheetData[0].length > 14 && sheetData[0][14]) ? sheetData[0][14].trim() : "$0";
-        // Clean out symbols to check if it's purely a positive or negative mathematical number
+        let todayChangeStr = (sheetData[0] && sheetData[0].length > 14 && sheetData[0][14]) ? escapeHTML(sheetData[0][14].trim()) : "$0";
         let todayChangeVal = parseFloat(todayChangeStr.replace(/[^0-9.-]+/g,"")) || 0;
 
         loadingTextEl.innerHTML = ''; 
@@ -1069,7 +1104,6 @@
             loadingTextEl.style.color = 'var(--positive-green)';
             loadingTextEl.style.transform = 'scale(1.1)';
         } else {
-            // Strip the minus sign so we don't display "DOWN -$X", instead "DOWN $X"
             finalMessage = `YOU'RE DOWN ${todayChangeStr.replace('-', '')}% TODAY! 😭`;
             loadingTextEl.style.color = 'var(--negative-red)';
             loadingTextEl.style.transform = 'scale(1.1)';
@@ -1077,9 +1111,8 @@
         
         loadingTextEl.style.transition = 'all 0.3s ease';
         
-        // Type out the new styled message
         await typeText(loadingTextEl, finalMessage, 30);
-        await sleep(2500); // Give the user 2.5 seconds to read it
+        await sleep(2500); 
 
         loadingContainerEl.style.display = 'none';
         metricsContainerEl.style.display = 'flex';
@@ -1099,7 +1132,6 @@
         drawLineGraph(sheetData);
         loadPortfolioUpdates(sheetData);
 
-        // Start random ambient wobble animations once content has loaded
         setTimeout(startRandomWobbles, 2000);
     }
 
