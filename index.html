@@ -416,7 +416,7 @@
         }
         
         .log-buy { background: #d4edda; color: #155724; border: 2px solid #c3e6cb; }
-        .log-sell { background: #ff9ba2; color: #8cc6ff; border: 2px solid #ff3937; }
+        .log-sell { background: #ff9ba2; color: #4a0e4d; border: 2px solid #ff3937; }
         .log-paid { background: #fff3cd; color: #856404; border: 2px solid #ffeeba; }
 
         /* Poll Container & Button */
@@ -975,7 +975,7 @@
             
             if (upperText.includes('BUY')) {
                 extraClass = 'log-buy'; emoji = '🛍️';
-            } else if (upperText.includes('SELL')) {
+            } else if (upperText.includes('SELL') || upperText.includes('SOLD')) {
                 extraClass = 'log-sell'; emoji = '💸';
             } else if (upperText.includes('PAID')) {
                 extraClass = 'log-paid'; emoji = '💰';
