@@ -34,10 +34,35 @@
             color: var(--deep-purple);
             font-family: var(--font-family);
             margin: 0;
-            padding: 20px 10px;
+            padding: 0 0 20px 0; /* Adjusted for top ticker */
             font-size: 15px;
             overflow-x: hidden;
             width: 100%; 
+        }
+
+        /* --- TICKER --- */
+        .ticker-wrap {
+            width: 100%;
+            background-color: #ffebf7;
+            padding: 8px 0;
+            overflow: hidden;
+            white-space: nowrap;
+            box-sizing: border-box;
+            border-bottom: 2px solid var(--light-pink);
+            display: none; /* Hidden until data loads */
+        }
+        .ticker-text {
+            display: inline-block;
+            color: #c781ff;
+            font-weight: 900;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            padding-left: 100%;
+            animation: ticker 20s linear infinite;
+        }
+        @keyframes ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
         }
 
         .main-container {
@@ -46,6 +71,7 @@
             position: relative;
             z-index: 1;
             width: 100%;
+            padding: 20px 10px;
         }
 
         /* --- CUTSIE ANIMATIONS --- */
@@ -90,6 +116,7 @@
             padding: 0;
             margin-bottom: 20px;
             width: 100%;
+            text-align: center;
         }
         
         #imageContainer img {
@@ -389,7 +416,7 @@
         }
         
         .log-buy { background: #d4edda; color: #155724; border: 2px solid #c3e6cb; }
-        .log-sell { background: #ffe0e6; color: var(--negative-red); border: 2px solid var(--hot-pink); }
+        .log-sell { background: #ff9ba2; color: #8cc6ff; border: 2px solid #ff3937; }
         .log-paid { background: #fff3cd; color: #856404; border: 2px solid #ffeeba; }
 
         /* Poll Container & Button */
@@ -449,7 +476,7 @@
                 grid-template-columns: 1fr; 
                 gap: 2.5rem; 
             }
-            body { 
+            .main-container { 
                 padding: 15px 10px; 
             } 
             .metric-main { 
@@ -460,6 +487,8 @@
         @media (max-width: 600px) {
             body {
                 font-size: 13px; /* Slightly smaller overall font */
+            }
+            .main-container {
                 padding: 10px 5px; /* Tighter body padding */
             }
             .tagline {
@@ -512,10 +541,15 @@
 </head>
 <body>
 
+<!-- NEW SCROLLING TICKER -->
+<div class="ticker-wrap" id="ticker-wrap">
+    <div class="ticker-text" id="ticker-text">...</div>
+</div>
+
 <div id="tooltip" class="chart-tooltip"></div>
 
 <div class="main-container">
-    <div id="imageContainer" style="overflow: hidden; height: 0; text-align: center; box-sizing: border-box;">
+    <div id="imageContainer">
       <img id="headerImage" src="https://i.ibb.co/xqS2qxVF/SIT2.png" alt="Header Image">
     </div>
     
@@ -600,6 +634,8 @@
 
 <script>
     // --- DOM ELEMENTS ---
+    const tickerWrapEl = document.getElementById('ticker-wrap');
+    const tickerTextEl = document.getElementById('ticker-text');
     const loadingContainerEl = document.getElementById('loading-container');
     const loadingTextEl = document.getElementById('loading-text');
     const metricsContainerEl = document.getElementById('metrics-container');
@@ -1008,6 +1044,12 @@
         
         if (!sheetData) return;
 
+        // Populate and display ticker from Cell J1 (Row index 0, Col index 9)
+        if (sheetData[0] && sheetData[0].length > 9 && sheetData[0][9]) {
+            tickerTextEl.textContent = sheetData[0][9];
+            tickerWrapEl.style.display = 'block';
+        }
+
         loadingTextEl.innerHTML = '';
         await typeText(loadingTextEl, 'FOUND 6 and 7!, ANALYSING 🥸', 30);
         await typeDots(loadingTextEl, 4, 150);
@@ -1062,28 +1104,6 @@
     }
 
     window.onload = main;
-
-    // Soft reveal for the image instead of the CRT wipe
-    window.addEventListener('load', () => {
-        const image = document.getElementById('headerImage');
-        const container = document.getElementById('imageContainer');
-        const step = 8;
-        const fps = 60;
-        const reveal = () => {
-            let height = 0;
-            const targetHeight = (image.naturalHeight || 400) + 20; 
-            const interval = setInterval(() => {
-                height += step;
-                container.style.height = height + 'px';
-                if (height >= targetHeight) {
-                    container.style.height = 'auto';
-                    clearInterval(interval);
-                }
-            }, 1000 / fps);
-        };
-        if (image.complete) reveal();
-        else image.onload = reveal;
-    });
 
 </script>
 </body>
