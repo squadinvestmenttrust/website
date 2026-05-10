@@ -6,43 +6,59 @@
     <meta name="description" content="Squad Investment Trust Dashboard">
     <title>Squad Investment Trust 🤘⚡</title>
     
-    <!-- Preconnecting to speed up font loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- Adding a Glam Metal font for headers, keeping Nunito for readable data -->
     <link href="https://fonts.googleapis.com/css2?family=Metal+Mania&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            /* Neon/Dark Palette for Glam Metal Theme */
+            /* Intense Neon Palette for Glam Metal Theme */
             --neon-pink: #ff007f;
             --hot-pink: #ff1493;
             --neon-blue: #00f0ff;
             --neon-purple: #b000ff;
-            --dark-bg: #000000; /* Pure black for seamless logo integration */
+            --neon-yellow: #ffea00;
+            --dark-bg: #000000; 
             --panel-bg: #0a0a0a;
             --panel-bg-light: #111111;
             
-            --border-glow-pink: 0 0 10px var(--neon-pink), inset 0 0 5px var(--neon-pink);
-            --border-glow-blue: 0 0 10px var(--neon-blue), inset 0 0 5px var(--neon-blue);
-            --border-glow-purple: 0 0 15px var(--neon-purple);
+            /* Enhanced Glowing Borders */
+            --border-glow-pink: 0 0 15px rgba(255,0,127,0.6), inset 0 0 10px rgba(255,0,127,0.3);
+            --border-glow-blue: 0 0 15px rgba(0,240,255,0.6), inset 0 0 10px rgba(0,240,255,0.3);
+            --border-glow-purple: 0 0 20px rgba(176,0,255,0.7), inset 0 0 10px rgba(176,0,255,0.3);
             
             --font-family: 'Nunito', sans-serif;
             --font-metal: 'Metal Mania', cursive;
             
-            --positive-green: #39ff14; /* Electric/Neon Green */
-            --negative-red: #ff003c; /* Neon Red */
+            --positive-green: #39ff14; 
+            --negative-red: #ff003c; 
             --text-light: #e0e0e0;
         }
 
-        /* --- PREVENT HORIZONTAL SCROLLING --- */
         *, *::before, *::after {
             box-sizing: border-box;
         }
 
-        /* --- GLAM ROCK BACKGROUND --- */
+        /* Custom Neon Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #050505;
+            border-left: 1px solid #222;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--neon-purple);
+            border-radius: 5px;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.8);
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--neon-pink);
+        }
+
+        /* GLAM ROCK BACKGROUND with subtle stage spotlights */
         body {
-            /* Removed radial gradient to ensure absolute seamless logo integration */
             background-color: var(--dark-bg);
             color: var(--text-light);
             font-family: var(--font-family);
@@ -52,31 +68,43 @@
             overflow-x: hidden;
             width: 100%; 
             min-height: 100vh;
+            position: relative;
         }
 
-        /* --- TICKER --- */
+        /* Stage Lights Effect */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                radial-gradient(circle at 15% 30%, rgba(255, 0, 127, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 85% 70%, rgba(0, 240, 255, 0.08) 0%, transparent 40%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
         .ticker-wrap {
             width: 100%;
-            background-color: #000;
-            padding: 8px 0;
+            background: repeating-linear-gradient(90deg, #000, #000 10px, #0a0a0a 10px, #0a0a0a 20px);
+            padding: 10px 0;
             overflow: hidden;
             white-space: nowrap;
             box-sizing: border-box;
             border-bottom: 2px solid var(--neon-pink);
-            box-shadow: 0 0 15px var(--neon-pink);
+            box-shadow: 0 0 20px var(--neon-pink);
             display: none; 
             will-change: transform; 
         }
         .ticker-text {
             display: inline-block;
-            color: var(--neon-blue);
+            color: var(--neon-yellow);
             font-weight: 900;
-            font-size: 1.1rem;
-            letter-spacing: 2px;
+            font-size: 1.2rem;
+            letter-spacing: 3px;
             text-transform: uppercase;
-            text-shadow: 0 0 5px var(--neon-blue);
+            text-shadow: 0 0 8px var(--neon-yellow), 0 0 15px #ff8800;
             padding-left: 100%;
-            animation: ticker 20s linear infinite;
+            animation: ticker 25s linear infinite;
         }
         @keyframes ticker {
             0% { transform: translateX(0); }
@@ -89,19 +117,18 @@
             position: relative;
             z-index: 1;
             width: 100%;
-            padding: 20px 10px;
+            padding: 20px 15px;
         }
 
-        /* --- EDGY ANIMATIONS --- */
         @keyframes electric-wiggle {
             0% { transform: rotate(0deg); }
-            25% { transform: rotate(2deg) scale(1.02); }
+            25% { transform: rotate(1.5deg) scale(1.02); }
             50% { transform: rotate(0deg) scale(1.02); }
-            75% { transform: rotate(-2deg) scale(1.02); }
+            75% { transform: rotate(-1.5deg) scale(1.02); }
             100% { transform: rotate(0deg); }
         }
         .wiggle-hover {
-            transition: transform 0.1s ease, box-shadow 0.2s ease, z-index 0.2s ease;
+            transition: transform 0.15s ease, box-shadow 0.2s ease, z-index 0.2s ease, border-color 0.2s;
             will-change: transform;
         }
         .wiggle-hover:hover {
@@ -112,26 +139,30 @@
         }
 
         @keyframes neon-pulse {
-            0% { transform: scale(1); text-shadow: 0 0 10px var(--neon-pink); }
-            50% { transform: scale(1.06); text-shadow: 0 0 25px var(--neon-pink), 0 0 10px white; }
-            100% { transform: scale(1); text-shadow: 0 0 10px var(--neon-pink); }
+            0% { transform: scale(1); text-shadow: 0 0 10px var(--neon-pink), 0 0 20px var(--neon-pink); }
+            50% { transform: scale(1.06); text-shadow: 0 0 25px var(--neon-pink), 0 0 40px var(--hot-pink), 0 0 10px white; }
+            100% { transform: scale(1); text-shadow: 0 0 10px var(--neon-pink), 0 0 20px var(--neon-pink); }
+        }
+
+        @keyframes text-flicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; text-shadow: 0 0 10px currentColor, 0 0 20px currentColor; }
+            20%, 24%, 55% { opacity: 0.5; text-shadow: none; }
         }
 
         @keyframes randomPop {
-            0% { transform: scale(1) rotate(0deg); }
-            30% { transform: scale(1.05) rotate(1deg); filter: brightness(1.5); }
-            50% { transform: scale(0.98) rotate(-1deg); }
-            70% { transform: scale(1.03) rotate(1deg); filter: brightness(1.2); }
-            100% { transform: scale(1) rotate(0deg); }
+            0% { transform: scale(1) rotate(0deg); filter: brightness(1); }
+            30% { transform: scale(1.05) rotate(2deg); filter: brightness(1.5) contrast(1.2); box-shadow: 0 0 30px #fff; }
+            50% { transform: scale(0.96) rotate(-2deg); filter: brightness(0.8); }
+            70% { transform: scale(1.03) rotate(1deg); filter: brightness(1.3); }
+            100% { transform: scale(1) rotate(0deg); filter: brightness(1); }
         }
         .random-pop {
-            animation: randomPop 0.6s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+            animation: randomPop 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
             z-index: 50;
             border-color: #fff !important;
-            box-shadow: 0 0 20px #fff !important;
+            box-shadow: 0 0 25px #fff !important;
         }
 
-        /* --- HEADER & IMAGES --- */
         #imageContainer {
             background: transparent; 
             box-shadow: none; 
@@ -147,7 +178,6 @@
             margin: auto;
             max-width: 100% !important;
             height: auto !important;
-            /* Removed drop-shadow to ensure a completely clean, seamless integration with the black background */
         }
 
         .tagline-container {
@@ -159,28 +189,28 @@
         .tagline {
             display: inline-block;
             font-family: var(--font-metal);
-            font-size: 1.5rem;
-            letter-spacing: 3px;
+            font-size: 1.8rem;
+            letter-spacing: 4px;
             color: #fff;
-            text-shadow: 0 0 10px var(--neon-purple), 0 0 20px var(--neon-purple);
+            text-shadow: 0 0 10px var(--neon-purple), 0 0 20px var(--neon-purple), 0 0 40px #5000ff;
             cursor: pointer;
             transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
             transform-style: preserve-3d;
             will-change: transform;
+            animation: text-flicker 5s infinite;
         }
         .tagline:hover {
-            transform: rotateX(360deg) scale(1.15);
+            transform: rotateX(360deg) scale(1.2);
             color: var(--neon-pink);
-            text-shadow: 0 0 10px var(--neon-pink), 0 0 20px var(--neon-pink);
+            text-shadow: 0 0 15px var(--neon-pink), 0 0 30px var(--neon-pink);
         }
 
-        /* --- LAYOUT UTILS --- */
         .loading-section {
             text-align: center;
             margin-bottom: 2rem;
-            background: var(--panel-bg);
+            background: repeating-linear-gradient(45deg, #111, #111 10px, #0a0a0a 10px, #0a0a0a 20px);
             border-radius: 10px;
-            padding: 20px;
+            padding: 25px;
             box-shadow: var(--border-glow-pink);
             border: 2px solid var(--neon-pink);
             width: 100%;
@@ -190,24 +220,23 @@
 
         .header-text {
             min-height: 1.2em;
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             font-family: var(--font-metal);
-            letter-spacing: 2px;
+            letter-spacing: 3px;
             margin: 8px 0;
             color: var(--neon-blue);
             word-wrap: break-word;
             transition: color 0.3s ease, transform 0.3s ease;
-            text-shadow: 0 0 8px rgba(0, 240, 255, 0.5);
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.8);
         }
 
-        /* --- NEW METRICS HEADER --- */
         .metrics-container {
             display: none; 
             justify-content: space-around;
             align-items: stretch;
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 20px;
             width: 100%;
         }
 
@@ -215,90 +244,111 @@
             text-align: center;
             flex: 1;
             min-width: 120px;
-            padding: 15px 10px;
+            padding: 20px 15px;
             border-radius: 12px;
             background: var(--panel-bg);
+            /* Amp Grille Texture */
+            background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 4px 4px;
             border: 2px solid var(--neon-purple);
-            box-shadow: 0 0 10px rgba(176, 0, 255, 0.3);
+            box-shadow: var(--border-glow-purple);
             display: flex;
             flex-direction: column;
             justify-content: center;
+            position: relative;
+            overflow: hidden;
         }
 
         .metric-label {
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             font-weight: 900;
             color: var(--neon-blue);
             text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 5px;
+            letter-spacing: 3px;
+            margin-bottom: 8px;
+            text-shadow: 0 0 5px var(--neon-blue);
         }
 
         .metric-value {
-            font-size: 1.3rem;
-            font-weight: 800;
+            font-size: 1.5rem;
+            font-weight: 900;
             color: #fff;
             word-wrap: break-word;
+            text-shadow: 0 0 5px #fff;
         }
 
-        /* Center AUM Styling */
+        /* Guitar Stripe Background for AUM */
         .metric-main {
             flex: 1.5;
-            background: #000;
+            background: repeating-linear-gradient(
+                -45deg,
+                #000,
+                #000 15px,
+                #1a0005 15px,
+                #1a0005 30px
+            );
             border: 3px solid var(--neon-pink);
-            transform: scale(1.05);
+            transform: scale(1.08);
             box-shadow: var(--border-glow-pink);
+            z-index: 2;
         }
         .metric-main .metric-label {
-            font-size: 1rem;
+            font-size: 1.1rem;
             color: var(--neon-pink);
-            text-shadow: 0 0 5px var(--neon-pink);
+            text-shadow: 0 0 8px var(--neon-pink);
         }
         .metric-main .metric-value {
-            font-size: 2.2rem;
+            font-size: 2.5rem;
             color: #fff;
             font-weight: 900;
-            text-shadow: 0 0 10px var(--neon-pink);
-            animation: neon-pulse 2.5s infinite ease-in-out;
+            text-shadow: 0 0 15px var(--neon-pink), 0 0 30px var(--neon-pink);
+            animation: neon-pulse 2s infinite ease-in-out;
             will-change: transform;
         }
 
-        /* Main Grid: 2 columns */
         .dashboard-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin-bottom: 2rem;
+            gap: 2.5rem;
+            margin-bottom: 2.5rem;
             width: 100%;
         }
 
-        /* --- HUD PANELS (DARK MODE) --- */
         .hud-panel {
-            background: var(--panel-bg);
+            background-color: var(--panel-bg);
+            /* Speaker Mesh Texture */
+            background-image: radial-gradient(rgba(255,255,255,0.03) 2px, transparent 2px);
+            background-size: 8px 8px;
             border-radius: 12px;
-            padding: 25px 20px 20px 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.8);
-            border: 2px solid #333; /* Default dark border, glows on hover via wiggle-hover */
+            padding: 30px 20px 20px 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.9), inset 0 0 15px rgba(0,0,0,0.8);
+            border: 2px solid #2a2a2a; 
             position: relative;
             width: 100%;
         }
         
         .hud-title {
             position: absolute;
-            top: -18px;
+            top: -20px;
             left: 20px;
             background: #000;
             color: var(--neon-blue);
-            padding: 4px 16px;
+            padding: 6px 20px;
             font-family: var(--font-metal);
-            font-size: 1.1rem;
-            letter-spacing: 2px;
+            font-size: 1.3rem;
+            letter-spacing: 3px;
             border-radius: 4px;
-            box-shadow: 0 0 10px var(--neon-blue);
-            border: 1px solid var(--neon-blue);
+            box-shadow: 0 0 15px var(--neon-blue);
+            border: 2px solid var(--neon-blue);
             white-space: nowrap;
             z-index: 2;
             text-transform: uppercase;
+            animation: text-flicker 4s infinite alternate;
+            transform: skewX(-10deg);
+        }
+        .hud-title span {
+            display: inline-block;
+            transform: skewX(10deg); /* Counter skew for text */
         }
 
         #returns-table-container, #graph-container {
@@ -306,49 +356,50 @@
             overflow-x: auto;
         }
 
-        /* --- HOLDINGS TABLE (HEATMAP CARDS) --- */
         .holdings-grid-container {
             display: grid;
             grid-template-columns: repeat(2, 1fr); 
-            gap: 8px; 
+            gap: 10px; 
             width: 100%;
-            margin-top: 10px;
+            margin-top: 15px;
         }
 
         .holding-card {
-            background: var(--panel-bg-light);
+            background: linear-gradient(145deg, #151515, #0a0a0a);
             border: 1px solid #444;
-            padding: 8px 10px; 
-            border-radius: 6px; 
+            padding: 10px 12px; 
+            border-radius: 8px; 
             min-width: 0; 
             cursor: pointer;
             width: 100%;
             color: #ddd;
+            box-shadow: 3px 3px 10px rgba(0,0,0,0.5);
+            transition: all 0.2s;
         }
 
         .holding-name {
             font-weight: 900;
-            font-size: 0.95rem; 
+            font-size: 1rem; 
             color: #fff;
             display: block;
-            margin-bottom: 4px; 
+            margin-bottom: 6px; 
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             letter-spacing: 1px;
             text-transform: uppercase;
+            text-shadow: 0 0 3px rgba(255,255,255,0.3);
         }
 
         .holding-row {
             display: flex;
             justify-content: space-between;
-            font-size: 0.8rem; 
+            font-size: 0.85rem; 
             font-weight: 700;
-            margin-bottom: 2px; 
+            margin-bottom: 4px; 
             color: #aaa;
         }
         
-        /* --- CHART STYLING --- */
         svg {
             width: 100%;
             height: auto;
@@ -360,15 +411,16 @@
             color: #fff;
             border: 2px solid var(--neon-pink);
             border-radius: 4px;
-            padding: 8px 12px;
-            font-size: 13px;
-            font-weight: bold;
+            padding: 10px 15px;
+            font-size: 14px;
+            font-weight: 900;
             pointer-events: none;
             display: none;
             z-index: 100;
-            box-shadow: 0 0 15px var(--neon-pink);
+            box-shadow: 0 0 20px var(--neon-pink);
             white-space: nowrap;
             text-transform: uppercase;
+            letter-spacing: 1px;
         }
         .pie-slice {
             cursor: pointer;
@@ -376,48 +428,51 @@
             transform-origin: center;
         }
         .pie-slice:hover { 
-            opacity: 0.8; 
-            transform: scale(1.05);
+            opacity: 0.9; 
+            transform: scale(1.08);
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));
         }
         
         .line-path {
             stroke-dasharray: 2000;
             stroke-dashoffset: 2000;
-            animation: drawLine 2.5s ease-out forwards;
-            filter: drop-shadow(0px 0px 8px var(--neon-pink));
+            animation: drawLine 2s ease-out forwards;
+            filter: drop-shadow(0px 0px 10px var(--neon-pink)) drop-shadow(0px 0px 5px var(--neon-purple));
         }
         @keyframes drawLine { to { stroke-dashoffset: 0; } }
 
-        /* --- RETURNS TABLE --- */
         .returns-table {
             width: 100%;
             border-collapse: separate;
             border-spacing: 0;
-            font-size: 0.95rem;
-            margin-top: 10px;
+            font-size: 1rem;
+            margin-top: 15px;
             min-width: 250px; 
         }
         .returns-table td, .returns-table th {
             border-bottom: 1px solid #333;
-            padding: 14px; 
+            padding: 16px 10px; 
             text-align: left;
             font-weight: 700;
         }
         .returns-table th { 
             color: var(--neon-purple);
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
             border-bottom: 2px solid var(--neon-purple);
+            text-shadow: 0 0 5px rgba(176,0,255,0.5);
         }
         .returns-table td:last-child, .returns-table th:last-child {
             text-align: right;
+        }
+        .returns-table tr:hover td {
+            background: rgba(255,255,255,0.05);
         }
         .returns-table tr:last-child td {
             border-bottom: none;
         }
 
-        /* --- TYPING CURSOR (⚡) --- */
         .cursor::after {
             content: ' ⚡';
             color: var(--neon-blue);
@@ -425,84 +480,89 @@
             display: inline-block;
             vertical-align: middle;
             margin-bottom: 2px;
-            text-shadow: 0 0 5px var(--neon-blue);
+            text-shadow: 0 0 8px var(--neon-blue);
         }
         @keyframes blink { 50% { opacity: 0; } }
 
-        /* --- LOGS (CHAT BUBBLES) --- */
         #updatesContainer {
-            font-size: 0.95rem;
-            line-height: 1.5;
-            margin-top: 10px;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-top: 15px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 15px;
         }
         .update-entry {
-            background: #111;
-            color: #ddd;
-            padding: 12px 16px;
+            background: linear-gradient(90deg, #111, #0a0a0a);
+            color: #eee;
+            padding: 15px 20px;
             border-radius: 8px;
-            border-left: 4px solid #fff; /* Replaced in JS by dynamic classes */
+            border-left: 5px solid #fff; 
             font-weight: 700;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.6);
             display: inline-block;
             max-width: 100%;
             position: relative;
             cursor: pointer;
             word-wrap: break-word;
+            letter-spacing: 0.5px;
         }
         
-        /* Neon variants for logs */
-        .log-buy { border-left-color: var(--positive-green); box-shadow: -2px 0 10px rgba(57,255,20,0.2); }
-        .log-sell { border-left-color: var(--negative-red); box-shadow: -2px 0 10px rgba(255,0,60,0.2); }
-        .log-paid { border-left-color: #ffd700; box-shadow: -2px 0 10px rgba(255,215,0,0.2); }
+        .log-buy { border-left-color: var(--positive-green); box-shadow: -3px 0 15px rgba(57,255,20,0.3), 0 5px 15px rgba(0,0,0,0.6); }
+        .log-sell { border-left-color: var(--negative-red); box-shadow: -3px 0 15px rgba(255,0,60,0.3), 0 5px 15px rgba(0,0,0,0.6); }
+        .log-paid { border-left-color: var(--neon-yellow); box-shadow: -3px 0 15px rgba(255,234,0,0.3), 0 5px 15px rgba(0,0,0,0.6); }
 
-        /* Poll Container & Button */
         .poll-wrapper {
             background: var(--panel-bg);
+            background-image: radial-gradient(rgba(255,255,255,0.03) 2px, transparent 2px);
+            background-size: 8px 8px;
             border-radius: 12px;
-            padding: 20px;
+            padding: 25px;
             box-shadow: var(--border-glow-blue);
             border: 2px solid var(--neon-blue);
             text-align: center;
-            margin-top: 2rem;
+            margin-top: 2.5rem;
             width: 100%;
+            position: relative;
+            overflow: hidden;
         }
 
         .squad-btn {
-            background: #000;
+            background: linear-gradient(45deg, #000, #1a000d);
             color: var(--neon-pink);
             border: 2px solid var(--neon-pink);
             border-radius: 6px;
-            padding: 12px 25px;
-            font-size: 1.3rem;
+            padding: 15px 30px;
+            font-size: 1.5rem;
             font-family: var(--font-metal);
-            letter-spacing: 3px;
+            letter-spacing: 4px;
             cursor: pointer;
-            box-shadow: 0 0 15px rgba(255, 0, 127, 0.6);
-            transition: transform 0.2s, box-shadow 0.2s, background 0.2s, color 0.2s;
-            margin-bottom: 15px;
+            box-shadow: 0 0 20px rgba(255, 0, 127, 0.6), inset 0 0 10px rgba(255, 0, 127, 0.2);
+            transition: all 0.2s ease;
+            margin-bottom: 20px;
             width: 100%;
-            max-width: 350px;
+            max-width: 400px;
             text-transform: uppercase;
+            text-shadow: 0 0 5px var(--neon-pink);
         }
 
         .squad-btn:hover {
             background: var(--neon-pink);
             color: #000;
-            box-shadow: 0 0 25px var(--neon-pink);
+            box-shadow: 0 0 30px var(--neon-pink), 0 0 60px var(--hot-pink);
+            text-shadow: none;
+            transform: translateY(-2px);
         }
 
         .squad-btn:active {
-            transform: scale(0.95);
+            transform: scale(0.95) translateY(0);
             box-shadow: 0 0 10px var(--neon-pink);
         }
 
-        /* --- EMOJI RAIN ANIMATION --- */
         @keyframes fallAndSpin {
-            0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+            0% { transform: translateY(-10vh) rotate(0deg) scale(1); opacity: 1; }
+            50% { transform: translateY(40vh) rotate(360deg) scale(1.5); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(720deg) scale(1); opacity: 0; }
         }
 
         .emoji-drop {
@@ -512,16 +572,13 @@
             pointer-events: none;
             animation: fallAndSpin linear forwards;
             will-change: transform, opacity;
-            filter: drop-shadow(0 0 5px rgba(255,255,255,0.5));
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.8));
         }
 
-        /* =========================================
-            📱 MOBILE RESPONSIVE MEDIA QUERIES 📱 
-            ========================================= */
         @media (max-width: 800px) {
             .dashboard-grid { 
                 grid-template-columns: 1fr; 
-                gap: 2.5rem; 
+                gap: 3rem; 
             }
             .main-container { 
                 padding: 15px 10px; 
@@ -533,62 +590,61 @@
 
         @media (max-width: 600px) {
             body {
-                font-size: 13px;
+                font-size: 14px;
             }
             .main-container {
                 padding: 10px 5px;
             }
             .tagline {
-                font-size: 1.2rem;
+                font-size: 1.4rem;
             }
             .metrics-container {
                 flex-direction: column; 
-                gap: 10px;
+                gap: 15px;
             }
             .metric-item {
                 width: 100%;
                 min-width: unset;
-                padding: 10px 8px;
+                padding: 15px 10px;
             }
             .metric-label {
-                font-size: 0.75rem;
+                font-size: 0.8rem;
             }
             .metric-value {
-                font-size: 1.15rem;
+                font-size: 1.3rem;
             }
             .metric-main .metric-value {
-                font-size: 1.6rem;
+                font-size: 1.8rem;
             }
             .hud-panel {
-                padding: 25px 10px 15px 10px;
+                padding: 35px 15px 20px 15px;
             }
             .hud-title {
-                font-size: 0.9rem;
-                padding: 4px 12px;
+                font-size: 1rem;
+                padding: 6px 15px;
                 left: 10px;
+                top: -16px;
             }
             .returns-table td, .returns-table th {
-                padding: 10px 5px; 
-                font-size: 0.85rem;
+                padding: 12px 5px; 
+                font-size: 0.9rem;
             }
             #pie-chart-container {
                 width: 100% !important; 
             }
             .update-entry {
-                font-size: 0.85rem;
-                padding: 10px 12px;
+                font-size: 0.9rem;
+                padding: 12px 15px;
             }
             .squad-btn {
-                font-size: 1.1rem;
-                padding: 10px 20px;
+                font-size: 1.2rem;
+                padding: 12px 20px;
             }
         }
-
     </style>
 </head>
 <body>
 
-<!-- NEW SCROLLING TICKER -->
 <div class="ticker-wrap" id="ticker-wrap">
     <div class="ticker-text" id="ticker-text">...</div>
 </div>
@@ -597,7 +653,6 @@
 
 <div class="main-container">
     <div id="imageContainer">
-      <!-- Replaced original Logo with the user-provided Glam Metal Logo -->
       <img id="headerImage" src="https://i.ibb.co/B5ttkNtT/gladsquad.png" alt="Glam Squad Logo" width="400" height="auto" loading="eager">
     </div>
     
@@ -609,12 +664,10 @@
 
     <br>
 
-    <!-- Initial Loading Screen -->
     <div id="loading-container" class="loading-section">
         <div id="loading-text" class="header-text"></div>
     </div>
 
-    <!-- The New Reordered Metrics Dashboard -->
     <div id="metrics-container" class="metrics-container">
         <div class="metric-item wiggle-hover">
             <div class="metric-label">Unit Price</div>
@@ -631,44 +684,36 @@
     </div>
 
     <div class="dashboard-grid">
-        <!-- Holdings -->
         <div class="hud-panel">
-            <div class="hud-title">🤘 OUR STONKS</div>
+            <div class="hud-title"><span>🤘 OUR STONKS</span></div>
             <div id="table-container"></div>
         </div>
 
-        <!-- Asset Allocation -->
         <div class="hud-panel" style="display:flex; align-items:center; justify-content:center; flex-direction: column;">
-            <div class="hud-title">🎸 HEAVY METAL PIE</div>
-            <div id="pie-chart-container" style="width: 80%; max-width: 300px; margin-top: 15px;"></div>
+            <div class="hud-title"><span>🎸 HEAVY METAL PIE</span></div>
+            <div id="pie-chart-container" style="width: 80%; max-width: 320px; margin-top: 25px;"></div>
         </div>
 
-        <!-- Returns -->
         <div class="hud-panel">
-            <div class="hud-title">⚡ WINS TO 30 APR</div>
+            <div class="hud-title"><span>⚡ WINS TO 30 APR</span></div>
             <div id="returns-table-container"></div>
         </div>
 
-        <!-- Line Chart -->
         <div class="hud-panel">
-            <div class="hud-title">📈 VOLTMETER</div>
+            <div class="hud-title"><span>📈 VOLTMETER</span></div>
             <div id="graph-container"></div>
         </div>
 
-        <!-- System Logs -->
         <div class="hud-panel" style="grid-column: 1 / -1;">
-            <div class="hud-title">💬 SCREAM BOX</div>
+            <div class="hud-title"><span>💬 SCREAM BOX</span></div>
             <div id="updatesContainer"></div>
         </div>
     </div>
         
     <div class="poll-wrapper wiggle-hover" id="poll-container" style="max-width:600px; margin:auto;">
-        
-        <!-- Interactive Button -->
         <button id="emojiRainBtn" class="squad-btn">IN SQUAD WE TRUST</button>
 
         <script>
-            // Note: External scripts block the DOM parsing. If Poll Maker supports it, this should ideally be deferred.
             (function(i,s,o,g,r,a,m){
                 i['QP']=r;
                 i[r]=i[r]||function(){ (i[r].q=i[r].q||[]).push(arguments) },i[r].l=1*new Date();
@@ -682,7 +727,6 @@
 </div>
 
 <script>
-    // --- DOM ELEMENTS ---
     const tickerWrapEl = document.getElementById('ticker-wrap');
     const tickerTextEl = document.getElementById('ticker-text');
     const loadingContainerEl = document.getElementById('loading-container');
@@ -703,8 +747,6 @@
 
     const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-    // --- SECURITY UTILITY ---
-    // Safely escapes characters that could trigger XSS if injected into innerHTML
     function escapeHTML(str) {
         if (!str) return '';
         return String(str).replace(/[&<>'"]/g, 
@@ -718,7 +760,6 @@
         );
     }
 
-    // --- UTILITIES ---
     async function typeText(element, text, speed = 30) {
         element.classList.add('cursor');
         element.innerHTML = "";
@@ -774,8 +815,6 @@
         }
     }
 
-    // --- RENDERERS ---
-
     function drawTable(data) {
         const holdings = data.slice(2).filter(row => row[0]);
         const fmtUSD0 = (n) => {
@@ -793,7 +832,6 @@
 
         let html = '<div class="holdings-grid-container">';
         
-        // Helper function for standard cards
         const createCard = (item) => {
             if(!item) return '';
             const name = escapeHTML(item[0] || 'N/A');
@@ -804,15 +842,14 @@
             const dailyVal = parseFloat(dailyChange);
             const profitVal = parseFloat(profit);
 
-            // --- HEATMAP LOGIC BASED ON DAILY CHANGE (DARK MODE ADAPTED) ---
-            let bgStyle = 'background: var(--panel-bg-light); border-color: #444;'; // default
+            let bgStyle = ''; 
             if (!isNaN(dailyVal) && dailyChange !== '0%') {
                 if (dailyVal > 0) {
                     const intensity = Math.min(0.05 + (dailyVal / 10), 0.3); 
-                    bgStyle = `background: rgba(57, 255, 20, ${intensity}); border-color: var(--positive-green); border-style: solid; box-shadow: inset 0 0 10px rgba(57,255,20,0.2);`;
+                    bgStyle = `background: linear-gradient(145deg, rgba(57, 255, 20, ${intensity}), #0a0a0a); border-color: var(--positive-green); box-shadow: inset 0 0 15px rgba(57,255,20,0.2), 3px 3px 10px rgba(0,0,0,0.5);`;
                 } else if (dailyVal < 0) {
                     const intensity = Math.min(0.05 + (Math.abs(dailyVal) / 10), 0.3);
-                    bgStyle = `background: rgba(255, 0, 60, ${intensity}); border-color: var(--negative-red); border-style: solid; box-shadow: inset 0 0 10px rgba(255,0,60,0.2);`;
+                    bgStyle = `background: linear-gradient(145deg, rgba(255, 0, 60, ${intensity}), #0a0a0a); border-color: var(--negative-red); box-shadow: inset 0 0 15px rgba(255,0,60,0.2), 3px 3px 10px rgba(0,0,0,0.5);`;
                 }
             }
 
@@ -822,42 +859,37 @@
             return `
                 <div class="holding-card wiggle-hover" style="${bgStyle}">
                     <span class="holding-name" title="${name}">${name}</span>
-                    <div class="holding-row"><span>Val:</span><span style="color:#fff">${value}</span></div>
-                    <div class="holding-row"><span>P/L:</span><span style="color:${profitColor}">${profit}</span></div>
-                    <div class="holding-row"><span>Day:</span><span style="color:${dailyColor}; font-weight:900; text-shadow: 0 0 5px ${dailyColor};">${dailyChange}</span></div>
+                    <div class="holding-row"><span>Val:</span><span style="color:#fff; text-shadow:0 0 3px #fff;">${value}</span></div>
+                    <div class="holding-row"><span>P/L:</span><span style="color:${profitColor}; text-shadow:0 0 5px ${profitColor};">${profit}</span></div>
+                    <div class="holding-row"><span>Day:</span><span style="color:${dailyColor}; font-weight:900; text-shadow: 0 0 8px ${dailyColor};">${dailyChange}</span></div>
                 </div>
             `;
         }
 
-        // Special handling for the very first item (Cash)
         if (holdings.length > 0) {
             const cashItem = holdings[0];
             const name = escapeHTML(cashItem[0] || 'Cash');
-            const value = fmtUSD0(cashItem[3]); // Cell D3 value
+            const value = fmtUSD0(cashItem[3]); 
 
-            // Add the cash card spanning 2 columns with neon styling
             html += `
-                <div class="holding-card wiggle-hover" style="grid-column: 1 / -1; background: #0a0a0a; border: 1px solid var(--neon-blue); text-align: center; padding: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 0 10px rgba(0,240,255,0.2);">
-                    <span class="holding-name" title="${name}" style="font-size: 1.1rem; color: var(--neon-blue); margin-bottom: 2px;">${name}</span>
-                    <div style="font-size: 1.7rem; font-weight: 900; color: #fff; text-shadow: 0 0 8px rgba(0,240,255,0.5);">${value}</div>
+                <div class="holding-card wiggle-hover" style="grid-column: 1 / -1; background: #050505; border: 2px solid var(--neon-blue); text-align: center; padding: 15px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 0 15px rgba(0,240,255,0.3), inset 0 0 10px rgba(0,240,255,0.1);">
+                    <span class="holding-name" title="${name}" style="font-size: 1.2rem; color: var(--neon-blue); margin-bottom: 4px; text-shadow: 0 0 5px var(--neon-blue);">${name}</span>
+                    <div style="font-size: 1.9rem; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(0,240,255,0.8);">${value}</div>
                 </div>
             `;
         }
         
-        // Loop through the remaining holdings standardly
         for (let i = 1; i < holdings.length; i++) {
             if(holdings[i] && holdings[i][0]) html += createCard(holdings[i]);
         }
 
-        // --- NEW: DEBT CARD AT THE BOTTOM ---
-        // Pulls from Cell G2 (Row Index 1, Column Index 6)
         const debtRaw = data[1] ? data[1][6] : undefined;
         const debtValue = debtRaw ? fmtUSD0(debtRaw) : '$0';
         
         html += `
-            <div class="holding-card wiggle-hover" style="grid-column: 1 / -1; background: #0a0a0a; border: 1px solid var(--negative-red); text-align: center; padding: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 0 10px rgba(255,0,60,0.2); margin-top: 4px;">
-                <span class="holding-name" title="DEBT" style="font-size: 1.1rem; color: var(--negative-red); margin-bottom: 2px;">DEBT</span>
-                <div style="font-size: 1.7rem; font-weight: 900; color: #fff; text-shadow: 0 0 8px rgba(255,0,60,0.5);">${debtValue}</div>
+            <div class="holding-card wiggle-hover" style="grid-column: 1 / -1; background: #050505; border: 2px solid var(--negative-red); text-align: center; padding: 15px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 0 15px rgba(255,0,60,0.3), inset 0 0 10px rgba(255,0,60,0.1); margin-top: 5px;">
+                <span class="holding-name" title="DEBT" style="font-size: 1.2rem; color: var(--negative-red); margin-bottom: 4px; text-shadow: 0 0 5px var(--negative-red);">DEBT</span>
+                <div style="font-size: 1.9rem; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255,0,60,0.8);">${debtValue}</div>
             </div>
         `;
 
@@ -881,9 +913,9 @@
         const cy = radius;
         let startAngle = -90;
 
-        let svgContent = `<svg viewBox="-5 -5 ${radius * 2 + 10} ${radius * 2 + 10}" preserveAspectRatio="xMidYMid meet">`;
+        let svgContent = `<svg viewBox="-10 -10 ${radius * 2 + 20} ${radius * 2 + 20}" preserveAspectRatio="xMidYMid meet">`;
 
-        // Glam Rock Metal Neon Palette
+        // Bright Neon Array
         const glamColors = ['#ff007f', '#00f0ff', '#39ff14', '#b000ff', '#ffea00', '#ff003c', '#ff00ff', '#00ffff', '#a8ff00'];
 
         holdingsData.forEach((item, index) => {
@@ -904,11 +936,9 @@
 
             const fill = glamColors[index % glamColors.length];
             const cleanName = escapeHTML(item.name);
-            // Must escape quotes for tooltip inline JS string
             const tooltipText = escapeHTML(`${cleanName}: ${item.value.toLocaleString('en-US', {style:'currency', currency:'USD', maximumFractionDigits:0})} (${Math.round(percentage*100)}%)`).replace(/'/g, "\\'");
 
-            // Changed stroke to pure black for edgy look
-            svgContent += `<path d="${d}" fill="${fill}" stroke="#000" stroke-width="2" class="pie-slice" 
+            svgContent += `<path d="${d}" fill="${fill}" stroke="#000" stroke-width="3" class="pie-slice" 
                            ontouchstart="showTooltip(event.touches[0], '${tooltipText}')"
                            onmousemove="showTooltip(evt, '${tooltipText}')" 
                            onmouseout="hideTooltip()"></path>`;
@@ -916,15 +946,18 @@
             startAngle = endAngle;
         });
 
+        // Add a dark circle in the middle for a "donut/vinyl record" look
+        svgContent += `<circle cx="${cx}" cy="${cy}" r="25" fill="#000" stroke="#222" stroke-width="2" />`;
+
         svgContent += `</svg>`;
         pieChartContainerEl.innerHTML = svgContent;
     }
 
     function showTooltip(evt, text) {
         tooltipEl.style.display = "block";
-        tooltipEl.innerHTML = text; // Safely mapped previously
-        tooltipEl.style.left = (evt.pageX + 10) + 'px';
-        tooltipEl.style.top = (evt.pageY + 10) + 'px';
+        tooltipEl.innerHTML = text; 
+        tooltipEl.style.left = (evt.pageX + 15) + 'px';
+        tooltipEl.style.top = (evt.pageY + 15) + 'px';
     }
 
     function hideTooltip() {
@@ -955,7 +988,7 @@
 
         const width = 800;
         const height = 400;
-        const padding = 60;
+        const padding = 65;
 
         const maxValue = Math.max(...graphData.map(d => d.value));
         const yMax = Math.ceil(maxValue / 10000) * 10000;
@@ -969,25 +1002,23 @@
 
         let svgContent = `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet" style="margin-top: 15px;">`;
 
-        // Axes and Grids (Dark Mode style)
-        svgContent += `<line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" stroke="#444" stroke-width="3" stroke-linecap="round"></line>`;
-        svgContent += `<line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke="#444" stroke-width="3" stroke-linecap="round"></line>`;
+        svgContent += `<line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" stroke="#555" stroke-width="3" stroke-linecap="round"></line>`;
+        svgContent += `<line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke="#555" stroke-width="3" stroke-linecap="round"></line>`;
 
         for (let i = 0; i <= yMax; i += 10000) {
             const y = yScale(i);
-            svgContent += `<line x1="${padding}" y1="${y}" x2="${width - padding}" y2="${y}" stroke="#222" stroke-width="2" stroke-dasharray="6,6"></line>`;
-            svgContent += `<text x="${padding - 15}" y="${y + 5}" fill="#aaa" text-anchor="end" font-size="16" font-weight="bold">$${i / 1000}K</text>`;
+            svgContent += `<line x1="${padding}" y1="${y}" x2="${width - padding}" y2="${y}" stroke="#222" stroke-width="2" stroke-dasharray="8,8"></line>`;
+            svgContent += `<text x="${padding - 15}" y="${y + 6}" fill="#ccc" text-anchor="end" font-size="16" font-weight="900" style="text-shadow: 0 0 5px #000;">$${i / 1000}K</text>`;
         }
 
         for (let year = 2017; year <= today.getFullYear() + 1; year++) {
             const x = xScale(new Date(`${year}-01-01`));
-            svgContent += `<text x="${x}" y="${height - padding + 25}" fill="#aaa" text-anchor="middle" font-size="16" font-weight="bold">${year}</text>`;
+            svgContent += `<text x="${x}" y="${height - padding + 30}" fill="#ccc" text-anchor="middle" font-size="16" font-weight="900" style="text-shadow: 0 0 5px #000;">${year}</text>`;
         }
         
         const points = graphData.map(d => `${xScale(d.date)},${yScale(d.value)}`).join(' ');
         
-        // Bright neon pink line for chart
-        svgContent += `<polyline points="${points}" fill="none" stroke="var(--neon-pink)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" class="line-path"></polyline>`;
+        svgContent += `<polyline points="${points}" fill="none" stroke="var(--neon-pink)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" class="line-path"></polyline>`;
         
         svgContent += `</svg>`;
         graphContainerEl.innerHTML = svgContent;
@@ -1016,7 +1047,7 @@
                 if(!isNaN(f)) valStr = f.toFixed(2) + '%';
             }
 
-            html += `<tr><td>${p.label}</td><td style="color:${color}; font-weight:900; font-size:1.1rem; text-shadow:0 0 5px ${color};">${valStr}</td></tr>`;
+            html += `<tr><td style="color:#ddd;">${p.label}</td><td style="color:${color}; font-weight:900; font-size:1.2rem; text-shadow:0 0 8px ${color};">${valStr}</td></tr>`;
         });
         html += '</tbody></table>';
         returnsTableContainerEl.innerHTML = html;
@@ -1038,7 +1069,7 @@
         updates.forEach((update) => {
             const div = document.createElement('div');
             let extraClass = '';
-            let emoji = '⚡'; // default
+            let emoji = '⚡'; 
             const upperText = update.toUpperCase();
             
             if (upperText.includes('BUY')) {
@@ -1050,16 +1081,13 @@
             }
 
             div.className = `update-entry wiggle-hover ${extraClass}`;
-            // Output sanitised update text
-            div.innerHTML = `<span style="margin-right:5px; font-size:1.1rem;">${emoji}</span> ${escapeHTML(update)}`;
+            div.innerHTML = `<span style="margin-right:8px; font-size:1.2rem; text-shadow:0 0 5px #fff;">${emoji}</span> ${escapeHTML(update)}`;
             container.appendChild(div);
         });
     }
 
-    // Cache elements outside the function loop to save processing time
     let wobbleElements = [];
     
-    // --- RANDOM SPONTANEOUS WOBBLES & POPS ---
     function startRandomWobbles() {
         if(wobbleElements.length === 0) {
             wobbleElements = Array.from(document.querySelectorAll('.hud-panel, .metric-item, .holding-card, .poll-wrapper'));
@@ -1071,7 +1099,7 @@
                 const el = wobbleElements[Math.floor(Math.random() * wobbleElements.length)];
                 if(!el.classList.contains('random-pop')) {
                     el.classList.add('random-pop');
-                    setTimeout(() => el.classList.remove('random-pop'), 600);
+                    setTimeout(() => el.classList.remove('random-pop'), 500);
                 }
             }
         }
@@ -1080,20 +1108,19 @@
         setTimeout(startRandomWobbles, nextTime);
     }
 
-    // --- ROCK/METAL EMOJI RAIN EFFECT ---
     document.getElementById('emojiRainBtn').addEventListener('click', function(e) {
         e.preventDefault();
         
         const emojis = ['🤘', '⚡', '🎸', '🦇', '🖤', '💀', '💥', '🎤', '🥁', '🎶'];
         
-        for (let i = 0; i < 50; i++) {
+        for (let i = 0; i < 60; i++) {
             setTimeout(() => {
                 const drop = document.createElement('div');
                 drop.classList.add('emoji-drop');
                 drop.innerText = emojis[Math.floor(Math.random() * emojis.length)];
                 
                 drop.style.left = Math.random() * 100 + 'vw';
-                drop.style.fontSize = (Math.random() * 2 + 1.5) + 'rem';
+                drop.style.fontSize = (Math.random() * 2.5 + 1.5) + 'rem';
                 
                 const duration = Math.random() * 2 + 2; 
                 drop.style.animationDuration = duration + 's';
@@ -1101,25 +1128,21 @@
                 document.body.appendChild(drop);
                 
                 setTimeout(() => drop.remove(), duration * 1000);
-            }, i * 40);
+            }, i * 35);
         }
     });
 
-    // --- MAIN EXECUTION ---
     async function main() {
-        // Start the fetch process immediately to run parallel with our typing animation. 
         const dataPromise = getSheetData();
 
         await typeText(loadingTextEl, 'CRANKING AMPS TO 11 🎸', 30);
         await typeDots(loadingTextEl, 4, 150);
         await sleep(200);
         
-        // Wait for the data fetch that started earlier to finish.
         const sheetData = await dataPromise;
         
         if (!sheetData) return;
 
-        // Populate and display ticker from Cell J1 (Row index 0, Col index 9)
         if (sheetData[0] && sheetData[0].length > 9 && sheetData[0][9]) {
             tickerTextEl.innerHTML = escapeHTML(sheetData[0][9]);
             tickerWrapEl.style.display = 'block';
@@ -1130,7 +1153,6 @@
         await typeDots(loadingTextEl, 4, 150);
         await sleep(300);
         
-        // --- UP/DOWN TODAY LOGIC ---
         let todayChangeStr = (sheetData[0] && sheetData[0].length > 14 && sheetData[0][14]) ? escapeHTML(sheetData[0][14].trim()) : "$0";
         let todayChangeVal = parseFloat(todayChangeStr.replace(/[^0-9.-]+/g,"")) || 0;
 
@@ -1140,12 +1162,12 @@
         if (todayChangeVal >= 0) {
             finalMessage = `YOU'RE UP ${todayChangeStr}% TODAY! 🔥`;
             loadingTextEl.style.color = 'var(--positive-green)';
-            loadingTextEl.style.textShadow = '0 0 10px var(--positive-green)';
+            loadingTextEl.style.textShadow = '0 0 15px var(--positive-green), 0 0 30px #fff';
             loadingTextEl.style.transform = 'scale(1.1)';
         } else {
             finalMessage = `YOU'RE DOWN ${todayChangeStr.replace('-', '')}% TODAY! 💀`;
             loadingTextEl.style.color = 'var(--negative-red)';
-            loadingTextEl.style.textShadow = '0 0 10px var(--negative-red)';
+            loadingTextEl.style.textShadow = '0 0 15px var(--negative-red), 0 0 30px #fff';
             loadingTextEl.style.transform = 'scale(1.1)';
         }
         
