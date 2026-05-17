@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="Squad Investment Trust Dashboard">
-    <title>Squad Investment Trust 💖✨</title>
+    <title>Squad Investment Trust 🪩🕺</title>
     
     <!-- Preconnecting to speed up font loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,16 +13,17 @@
     
     <style>
         :root {
-            --main-pink: #ff69b4;
-            --hot-pink: #ff1493;
-            --light-pink: #ffb6c1;
-            --pastel-purple: #e6e6fa;
-            --deep-purple: #4a0e4e;
-            --bg-gradient-1: #ff9a9e;
-            --bg-gradient-2: #fecfef;
-            --bg-gradient-3: #a1c4fd;
-            --bg-gradient-4: #c2e9fb;
-            --panel-bg: rgba(255, 255, 255, 0.85);
+            /* DISCO PALETTE */
+            --main-color: #9400D3;      /* Deep Violet */
+            --neon-magenta: #FF00FF;    /* Neon Pink/Magenta */
+            --neon-cyan: #00FFFF;       /* Bright Cyan */
+            --silver: #E0E0E0;          /* Silver/Grey */
+            --night-blue: #191970;      /* Midnight Blue for contrast */
+            --bg-gradient-1: #00FFFF;   /* Cyan */
+            --bg-gradient-2: #FF00FF;   /* Magenta */
+            --bg-gradient-3: #FFD700;   /* Gold */
+            --bg-gradient-4: #39FF14;   /* Lime Green */
+            --panel-bg: rgba(255, 255, 255, 0.9);
             --font-family: 'Nunito', sans-serif;
             --positive-green: #00c853;
             --negative-red: #ff4d4d;
@@ -33,10 +34,10 @@
             box-sizing: border-box;
         }
 
-        /* --- ANIMATED BUBBLEGUM BACKGROUND --- */
+        /* --- BACKGROUND --- */
         body {
-            background: #ffffff;
-            color: var(--deep-purple);
+            background: #ffffff; /* STRICTLY FFFFFF AS REQUESTED */
+            color: var(--night-blue);
             font-family: var(--font-family);
             margin: 0;
             padding: 0 0 20px 0;
@@ -48,21 +49,23 @@
         /* --- TICKER --- */
         .ticker-wrap {
             width: 100%;
-            background-color: #ffebf7;
-            padding: 8px 0;
+            background-color: var(--night-blue); /* Dark background for neon ticker */
+            padding: 10px 0;
             overflow: hidden;
             white-space: nowrap;
             box-sizing: border-box;
-            border-bottom: 2px solid var(--light-pink);
+            border-bottom: 3px solid var(--neon-magenta);
             display: none; 
-            will-change: transform; /* Hint to GPU */
+            will-change: transform;
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.5);
         }
         .ticker-text {
             display: inline-block;
-            color: #c781ff;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 8px var(--neon-cyan);
             font-weight: 900;
             font-size: 1.1rem;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
             padding-left: 100%;
             animation: ticker 20s linear infinite;
         }
@@ -80,7 +83,7 @@
             padding: 20px 10px;
         }
 
-        /* --- CUTSIE ANIMATIONS --- */
+        /* --- DISCO ANIMATIONS --- */
         @keyframes wiggle {
             0% { transform: rotate(0deg); }
             25% { transform: rotate(3deg) scale(1.03); }
@@ -90,7 +93,7 @@
         }
         .wiggle-hover {
             transition: transform 0.2s ease, z-index 0.2s ease;
-            will-change: transform; /* Hardware acceleration for smoother paints */
+            will-change: transform;
         }
         .wiggle-hover:hover {
             animation: wiggle 0.4s ease-in-out infinite;
@@ -103,7 +106,6 @@
             100% { transform: scale(1); }
         }
 
-        /* --- RANDOM SPONTANEOUS POP ANIMATION --- */
         @keyframes randomPop {
             0% { transform: scale(1) rotate(0deg); }
             30% { transform: scale(1.08) rotate(2deg); }
@@ -118,20 +120,26 @@
 
         /* --- HEADER & IMAGES --- */
         #imageContainer {
-            background: transparent; 
-            box-shadow: none; 
+            background: #ffffff; /* Matching exact background */
+            box-shadow: none !important; 
             padding: 0;
             margin-bottom: 20px;
             width: 100%;
             text-align: center;
-            min-height: 120px; /* Prevents CLS (Cumulative Layout Shift) */
+            min-height: 120px; 
+            border: none !important;
         }
         
+        /* Strict adherence to no glow/border/shadow */
         #imageContainer img {
             display: block;
             margin: auto;
             max-width: 100% !important;
             height: auto !important;
+            box-shadow: none !important;
+            border: none !important;
+            outline: none !important;
+            filter: none !important;
         }
 
         .tagline-container {
@@ -142,44 +150,46 @@
         }
         .tagline {
             display: inline-block;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: 900;
             letter-spacing: 2px;
-            color: var(--hot-pink);
-            text-shadow: 2px 2px 0px rgba(255,255,255,0.7);
+            color: var(--main-color);
+            text-shadow: 2px 2px 0px var(--neon-cyan);
             cursor: pointer;
             transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
             transform-style: preserve-3d;
             will-change: transform;
+            text-transform: uppercase;
         }
         .tagline:hover {
             transform: rotateX(360deg) scale(1.15);
+            text-shadow: 2px 2px 0px var(--neon-magenta);
         }
 
         /* --- LAYOUT UTILS --- */
         .loading-section {
             text-align: center;
             margin-bottom: 2rem;
-            background: linear-gradient(135deg, var(--bg-gradient-2) 0%, #fff0f5 100%);
+            background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
             border-radius: 20px;
             padding: 20px;
-            box-shadow: 0 8px 32px rgba(255, 105, 180, 0.15);
-            border: 2px solid var(--light-pink);
+            box-shadow: 0 8px 32px rgba(0, 255, 255, 0.2);
+            border: 2px solid var(--neon-cyan);
             width: 100%;
-            min-height: 85px; /* Prevent layout shift while typing */
+            min-height: 85px; 
         }
 
         .header-text {
             min-height: 1.2em;
             font-size: 1.2rem;
-            font-weight: 700;
+            font-weight: 900;
             margin: 8px 0;
-            color: var(--deep-purple);
+            color: var(--night-blue);
             word-wrap: break-word;
             transition: color 0.3s ease, transform 0.3s ease;
         }
 
-        /* --- NEW METRICS HEADER --- */
+        /* --- METRICS HEADER --- */
         .metrics-container {
             display: none; 
             justify-content: space-around;
@@ -196,9 +206,9 @@
             min-width: 120px;
             padding: 15px 10px;
             border-radius: 20px;
-            background: linear-gradient(135deg, var(--pastel-purple) 0%, #f8f8ff 100%);
-            border: 2px solid var(--light-pink);
-            box-shadow: 0 5px 20px rgba(230, 230, 250, 0.8);
+            background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+            border: 2px solid var(--neon-cyan);
+            box-shadow: 0 5px 20px rgba(0, 255, 255, 0.15);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -207,7 +217,7 @@
         .metric-label {
             font-size: 0.85rem;
             font-weight: 900;
-            color: var(--hot-pink);
+            color: var(--neon-magenta);
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-bottom: 5px;
@@ -215,34 +225,33 @@
 
         .metric-value {
             font-size: 1.3rem;
-            font-weight: 800;
-            color: var(--deep-purple);
+            font-weight: 900;
+            color: var(--night-blue);
             word-wrap: break-word;
         }
 
-        /* Center AUM Styling */
+        /* Center AUM Styling - Disco Variant */
         .metric-main {
             flex: 1.5;
-            background: linear-gradient(135deg, var(--bg-gradient-2) 0%, var(--bg-gradient-1) 100%);
-            border: 3px solid var(--main-pink);
+            background: linear-gradient(135deg, var(--night-blue) 0%, var(--main-color) 100%);
+            border: 3px solid var(--neon-cyan);
             transform: scale(1.05);
-            box-shadow: 0 8px 25px rgba(255, 105, 180, 0.4);
+            box-shadow: 0 8px 25px rgba(0, 255, 255, 0.4);
         }
         .metric-main .metric-label {
             font-size: 1rem;
-            color: white;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            color: var(--neon-cyan);
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
         }
         .metric-main .metric-value {
             font-size: 2.2rem;
             color: white;
             font-weight: 900;
-            text-shadow: 2px 2px 0px rgba(255, 20, 147, 0.4);
+            text-shadow: 2px 2px 0px var(--neon-magenta);
             animation: pulse 2.5s infinite ease-in-out;
             will-change: transform;
         }
 
-        /* Main Grid: 2 columns */
         .dashboard-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -251,13 +260,13 @@
             width: 100%;
         }
 
-        /* --- HUD PANELS (GLASSMORPHISM) --- */
+        /* --- HUD PANELS --- */
         .hud-panel {
-            background: linear-gradient(135deg, #fffafa 0%, var(--bg-gradient-2) 100%);
+            background: var(--panel-bg);
             border-radius: 24px;
             padding: 25px 20px 20px 20px;
-            box-shadow: 0 8px 32px rgba(255, 105, 180, 0.15);
-            border: 2px solid var(--light-pink);
+            box-shadow: 0 8px 32px rgba(255, 0, 255, 0.1);
+            border: 2px solid var(--neon-magenta);
             position: relative;
             width: 100%;
         }
@@ -266,17 +275,18 @@
             position: absolute;
             top: -18px;
             left: 20px;
-            background: linear-gradient(135deg, #ff7eb3 0%, #ff758c 100%);
+            background: linear-gradient(135deg, var(--neon-cyan) 0%, var(--neon-magenta) 100%);
             color: white;
             padding: 6px 16px;
             font-weight: 900;
             font-size: 0.9rem;
             letter-spacing: 1px;
             border-radius: 20px;
-            box-shadow: 0 4px 15px rgba(255, 117, 140, 0.4);
+            box-shadow: 0 4px 15px rgba(255, 0, 255, 0.4);
             border: 2px solid white;
             white-space: nowrap;
             z-index: 2;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
         }
 
         #returns-table-container, #graph-container {
@@ -284,7 +294,7 @@
             overflow-x: auto;
         }
 
-        /* --- HOLDINGS TABLE (HEATMAP CARDS) --- */
+        /* --- HOLDINGS TABLE --- */
         .holdings-grid-container {
             display: grid;
             grid-template-columns: repeat(2, 1fr); 
@@ -294,25 +304,25 @@
         }
 
         .holding-card {
-            background: #fff0f5;
-            border: 2px dashed var(--light-pink);
+            background: #fafafa;
+            border: 2px dashed var(--silver);
             padding: 8px 10px; 
             border-radius: 12px; 
             min-width: 0; 
             cursor: pointer;
             width: 100%;
+            transition: all 0.2s ease;
         }
 
         .holding-name {
             font-weight: 900;
             font-size: 0.9rem; 
-            color: var(--deep-purple);
+            color: var(--night-blue);
             display: block;
             margin-bottom: 4px; 
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
         }
 
         .holding-row {
@@ -331,9 +341,9 @@
         }
         .chart-tooltip {
             position: absolute;
-            background: var(--hot-pink);
-            color: white;
-            border: 2px solid white;
+            background: var(--night-blue);
+            color: var(--neon-cyan);
+            border: 2px solid var(--neon-magenta);
             border-radius: 10px;
             padding: 8px 12px;
             font-size: 13px;
@@ -341,7 +351,7 @@
             pointer-events: none;
             display: none;
             z-index: 100;
-            box-shadow: 0 4px 15px rgba(255, 20, 147, 0.4);
+            box-shadow: 0 4px 15px rgba(0, 255, 255, 0.4);
             white-space: nowrap;
         }
         .pie-slice {
@@ -351,14 +361,14 @@
         }
         .pie-slice:hover { 
             opacity: 0.8; 
-            transform: scale(1.03);
+            transform: scale(1.05);
         }
         
         .line-path {
             stroke-dasharray: 2000;
             stroke-dashoffset: 2000;
             animation: drawLine 2.5s ease-out forwards;
-            filter: drop-shadow(0px 4px 6px rgba(255, 20, 147, 0.3));
+            filter: drop-shadow(0px 4px 6px rgba(0, 255, 255, 0.4));
         }
         @keyframes drawLine { to { stroke-dashoffset: 0; } }
 
@@ -372,17 +382,18 @@
             min-width: 250px; 
         }
         .returns-table td, .returns-table th {
-            border-bottom: 2px dotted var(--light-pink);
+            border-bottom: 2px dotted var(--silver);
             padding: 14px; 
             text-align: left;
             font-weight: 700;
+            color: var(--night-blue);
         }
         .returns-table th { 
-            color: var(--hot-pink);
+            color: var(--neon-magenta);
             font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 1px;
-            border-bottom: 3px solid var(--main-pink);
+            border-bottom: 3px solid var(--neon-cyan);
         }
         .returns-table td:last-child, .returns-table th:last-child {
             text-align: right;
@@ -391,9 +402,9 @@
             border-bottom: none;
         }
 
-        /* --- TYPING CURSOR (💖) --- */
+        /* --- TYPING CURSOR (🪩) --- */
         .cursor::after {
-            content: ' 💖';
+            content: ' 🪩';
             animation: blink 1s step-end infinite;
             display: inline-block;
             vertical-align: middle;
@@ -411,8 +422,8 @@
             gap: 12px;
         }
         .update-entry {
-            background: var(--pastel-purple);
-            color: var(--deep-purple);
+            background: #f4f4f9;
+            color: var(--night-blue);
             padding: 12px 16px;
             border-radius: 20px;
             border-bottom-left-radius: 5px;
@@ -425,24 +436,24 @@
             word-wrap: break-word;
         }
         
-        .log-buy { background: #d4edda; color: #155724; border: 2px solid #c3e6cb; }
-        .log-sell { background: #ff9ba2; color: #6d2947; border: 2px solid #ff6672; }
-        .log-paid { background: #fff3cd; color: #856404; border: 2px solid #ffeeba; }
+        .log-buy { background: #e0ffe0; color: #006400; border: 2px solid #39FF14; }
+        .log-sell { background: #ffe6e6; color: #8b0000; border: 2px solid #FF00FF; }
+        .log-paid { background: #fffacd; color: #8b8000; border: 2px solid #FFD700; }
 
         /* Poll Container & Button */
         .poll-wrapper {
-            background: linear-gradient(135deg, var(--bg-gradient-4) 0%, var(--bg-gradient-3) 100%);
+            background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
             border-radius: 24px;
             padding: 20px;
-            box-shadow: 0 8px 32px rgba(161, 196, 253, 0.4);
-            border: 2px solid white;
+            box-shadow: 0 8px 32px rgba(255, 215, 0, 0.2);
+            border: 2px solid var(--bg-gradient-3);
             text-align: center;
             margin-top: 2rem;
             width: 100%;
         }
 
         .squad-btn {
-            background: linear-gradient(135deg, var(--main-pink) 0%, var(--hot-pink) 100%);
+            background: linear-gradient(135deg, var(--neon-cyan) 0%, var(--neon-magenta) 100%);
             color: white;
             border: 2px solid white;
             border-radius: 20px;
@@ -451,17 +462,18 @@
             font-weight: 900;
             letter-spacing: 2px;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(255, 20, 147, 0.4);
+            box-shadow: 0 4px 15px rgba(255, 0, 255, 0.4);
             transition: transform 0.2s, box-shadow 0.2s;
             margin-bottom: 15px;
             font-family: var(--font-family);
             width: 100%;
             max-width: 300px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
         }
 
         .squad-btn:active {
             transform: scale(0.95);
-            box-shadow: 0 2px 8px rgba(255, 20, 147, 0.4);
+            box-shadow: 0 2px 8px rgba(0, 255, 255, 0.4);
         }
 
         /* --- EMOJI RAIN ANIMATION --- */
@@ -503,7 +515,7 @@
                 padding: 10px 5px;
             }
             .tagline {
-                font-size: 0.95rem;
+                font-size: 1rem;
             }
             .metrics-container {
                 flex-direction: column; 
@@ -552,7 +564,7 @@
 </head>
 <body>
 
-<!-- NEW SCROLLING TICKER -->
+<!-- SCROLLING TICKER -->
 <div class="ticker-wrap" id="ticker-wrap">
     <div class="ticker-text" id="ticker-text">...</div>
 </div>
@@ -561,13 +573,13 @@
 
 <div class="main-container">
     <div id="imageContainer">
-      <!-- Added loading="eager" and width/height hints to prevent CLS -->
-      <img id="headerImage" src="https://i.ibb.co/XZCZkQwX/New-SQQQ.jpg" alt="Header Image" width="400" height="auto" loading="eager">
+      <!-- Image URL Updated to Disco, with safeguards to prevent shadow/border -->
+      <img id="headerImage" src="https://i.ibb.co/4wxnFm7M/Disco.jpg" alt="Header Image" width="400" height="auto" loading="eager" style="box-shadow: none !important; border: none !important; outline: none !important;">
     </div>
     
     <div class="tagline-container">
         <div class="tagline">
-            BUY CUTESY, SELL UGLY
+            BUY DISCO, SELL FEVER
         </div>
     </div>
 
@@ -578,7 +590,7 @@
         <div id="loading-text" class="header-text"></div>
     </div>
 
-    <!-- The New Reordered Metrics Dashboard -->
+    <!-- Metrics Dashboard -->
     <div id="metrics-container" class="metrics-container">
         <div class="metric-item wiggle-hover">
             <div class="metric-label">Unit Price</div>
@@ -597,31 +609,31 @@
     <div class="dashboard-grid">
         <!-- Holdings -->
         <div class="hud-panel">
-            <div class="hud-title">💖 OUR STONKS</div>
+            <div class="hud-title">🪩 OUR STONKS</div>
             <div id="table-container"></div>
         </div>
 
         <!-- Asset Allocation -->
         <div class="hud-panel" style="display:flex; align-items:center; justify-content:center; flex-direction: column;">
-            <div class="hud-title">🍭 YUMMY PIE</div>
+            <div class="hud-title">📀 DISCO BALL</div>
             <div id="pie-chart-container" style="width: 80%; max-width: 300px; margin-top: 15px;"></div>
         </div>
 
         <!-- Returns -->
         <div class="hud-panel">
-            <div class="hud-title">🎀 WINS TO 30 APR</div>
+            <div class="hud-title">🕺 WINS TO 30 APR</div>
             <div id="returns-table-container"></div>
         </div>
 
         <!-- Line Chart -->
         <div class="hud-panel">
-            <div class="hud-title">📈 SQUIGGLY LINE</div>
+            <div class="hud-title">📈 PARTY LINES</div>
             <div id="graph-container"></div>
         </div>
 
         <!-- System Logs -->
         <div class="hud-panel" style="grid-column: 1 / -1;">
-            <div class="hud-title">💬 BOYS CHAT</div>
+            <div class="hud-title">💬 BOOTH SEATS</div>
             <div id="updatesContainer"></div>
         </div>
     </div>
@@ -629,7 +641,7 @@
     <div class="poll-wrapper wiggle-hover" id="poll-container" style="max-width:600px; margin:auto;">
         
         <!-- Interactive Button -->
-        <button id="emojiRainBtn" class="squad-btn">IN SQUAD WE TRUST</button>
+        <button id="emojiRainBtn" class="squad-btn">LET'S BOOGIE</button>
 
         <script>
             // Note: External scripts block the DOM parsing. If Poll Maker supports it, this should ideally be deferred.
@@ -640,7 +652,7 @@
                 a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
             })(window,document,'script','//scripts.poll-maker.com/3012/pollembed.js','qp');
         </script>
-        <a href="#" data-poll="5551770xfDF94E9a-164" style="width:100%; display:block; text-align:center; color:#ff1493; font-family:'Nunito', sans-serif; font-weight:bold; text-decoration:none;"></a>
+        <a href="#" data-poll="5551770xfDF94E9a-164" style="width:100%; display:block; text-align:center; color:#FF00FF; font-family:'Nunito', sans-serif; font-weight:bold; text-decoration:none;"></a>
     </div>
 
 </div>
@@ -733,7 +745,7 @@
             return parseCSV(csvText);
         } catch (e) {
             console.error("Error:", e);
-            loadingTextEl.textContent = "🥺 Oopsie! Data link severed~ 💔";
+            loadingTextEl.textContent = "🥺 Oopsie! Record scratched~ 💔";
             return null;
         }
     }
@@ -769,19 +781,19 @@
             const profitVal = parseFloat(profit);
 
             // --- HEATMAP LOGIC BASED ON DAILY CHANGE ---
-            let bgStyle = 'background: #fff0f5; border-color: var(--light-pink);'; // default
+            let bgStyle = 'background: #fafafa; border-color: var(--silver);'; // default
             if (!isNaN(dailyVal) && dailyChange !== '0%') {
                 if (dailyVal > 0) {
-                    const intensity = Math.min(0.05 + (dailyVal / 10), 0.5); 
-                    bgStyle = `background: rgba(0, 200, 83, ${intensity}); border-color: var(--positive-green); border-style: solid;`;
+                    const intensity = Math.min(0.05 + (dailyVal / 10), 0.4); 
+                    bgStyle = `background: rgba(57, 255, 20, ${intensity}); border-color: var(--positive-green); border-style: solid;`;
                 } else if (dailyVal < 0) {
-                    const intensity = Math.min(0.05 + (Math.abs(dailyVal) / 10), 0.5);
-                    bgStyle = `background: rgba(255, 77, 77, ${intensity}); border-color: var(--negative-red); border-style: solid;`;
+                    const intensity = Math.min(0.05 + (Math.abs(dailyVal) / 10), 0.4);
+                    bgStyle = `background: rgba(255, 0, 255, ${intensity}); border-color: var(--neon-magenta); border-style: solid;`;
                 }
             }
 
             const profitColor = profitVal < 0 ? 'var(--negative-red)' : 'var(--positive-green)';
-            const dailyColor = dailyVal < 0 ? 'var(--negative-red)' : (dailyVal > 0 ? 'var(--positive-green)' : 'var(--deep-purple)');
+            const dailyColor = dailyVal < 0 ? 'var(--negative-red)' : (dailyVal > 0 ? 'var(--positive-green)' : 'var(--night-blue)');
 
             return `
                 <div class="holding-card wiggle-hover" style="${bgStyle}">
@@ -797,13 +809,12 @@
         if (holdings.length > 0) {
             const cashItem = holdings[0];
             const name = escapeHTML(cashItem[0] || 'Cash');
-            const value = fmtUSD0(cashItem[3]); // Cell D3 value
+            const value = fmtUSD0(cashItem[3]);
 
-            // Add the cash card spanning 2 columns
             html += `
-                <div class="holding-card wiggle-hover" style="grid-column: 1 / -1; background: linear-gradient(135deg, var(--pastel-purple) 0%, #fff 100%); border: 2px dashed #c781ff; text-align: center; padding: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(230,230,250,0.8);">
-                    <span class="holding-name" title="${name}" style="font-size: 1.1rem; color: var(--hot-pink); margin-bottom: 2px;">${name}</span>
-                    <div style="font-size: 1.7rem; font-weight: 900; color: var(--deep-purple); text-shadow: 1px 1px 2px rgba(0,0,0,0.05);">${value}</div>
+                <div class="holding-card wiggle-hover" style="grid-column: 1 / -1; background: linear-gradient(135deg, #e0ffff 0%, #ffffff 100%); border: 2px dashed var(--neon-cyan); text-align: center; padding: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0, 255, 255, 0.2);">
+                    <span class="holding-name" title="${name}" style="font-size: 1.1rem; color: var(--neon-magenta); margin-bottom: 2px;">${name}</span>
+                    <div style="font-size: 1.7rem; font-weight: 900; color: var(--night-blue); text-shadow: 1px 1px 2px rgba(0,0,0,0.05);">${value}</div>
                 </div>
             `;
         }
@@ -813,15 +824,14 @@
             if(holdings[i] && holdings[i][0]) html += createCard(holdings[i]);
         }
 
-        // --- NEW: DEBT CARD AT THE BOTTOM ---
-        // Pulls from Cell G2 (Row Index 1, Column Index 6)
+        // --- DEBT CARD AT THE BOTTOM ---
         const debtRaw = data[1] ? data[1][6] : undefined;
         const debtValue = debtRaw ? fmtUSD0(debtRaw) : '$0';
         
         html += `
-            <div class="holding-card wiggle-hover" style="grid-column: 1 / -1; background: linear-gradient(135deg, var(--pastel-purple) 0%, #fff 100%); border: 2px dashed #c781ff; text-align: center; padding: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(230,230,250,0.8); margin-top: 4px;">
-                <span class="holding-name" title="DEBT" style="font-size: 1.1rem; color: var(--hot-pink); margin-bottom: 2px;">DEBT</span>
-                <div style="font-size: 1.7rem; font-weight: 900; color: var(--deep-purple); text-shadow: 1px 1px 2px rgba(0,0,0,0.05);">${debtValue}</div>
+            <div class="holding-card wiggle-hover" style="grid-column: 1 / -1; background: linear-gradient(135deg, #ffe6e6 0%, #ffffff 100%); border: 2px dashed var(--neon-magenta); text-align: center; padding: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(255, 0, 255, 0.2); margin-top: 4px;">
+                <span class="holding-name" title="DEBT" style="font-size: 1.1rem; color: var(--neon-magenta); margin-bottom: 2px;">DEBT</span>
+                <div style="font-size: 1.7rem; font-weight: 900; color: var(--night-blue); text-shadow: 1px 1px 2px rgba(0,0,0,0.05);">${debtValue}</div>
             </div>
         `;
 
@@ -836,7 +846,7 @@
 
         const totalValue = holdingsData.reduce((sum, item) => sum + item.value, 0);
         if (totalValue === 0) {
-            pieChartContainerEl.innerHTML = '<div style="text-align:center; font-weight:bold;">NO ASSETS 🥺</div>';
+            pieChartContainerEl.innerHTML = '<div style="text-align:center; font-weight:bold;">NO ASSETS 🪩</div>';
             return;
         }
 
@@ -847,8 +857,8 @@
 
         let svgContent = `<svg viewBox="-5 -5 ${radius * 2 + 10} ${radius * 2 + 10}" preserveAspectRatio="xMidYMid meet">`;
 
-        // K-Pop Bubblegum Palette
-        const cuteColors = ['#ff758c', '#ff7eb3', '#ffa6c9', '#c781ff', '#8cc6ff', '#8cf0ff', '#ffe18c', '#ffb58c', '#d8bfd8'];
+        // Disco Vibrant Palette
+        const discoColors = ['#FF00FF', '#00FFFF', '#FFD700', '#39FF14', '#FF4500', '#8A2BE2', '#FF1493', '#00BFFF', '#ADFF2F'];
 
         holdingsData.forEach((item, index) => {
             const percentage = item.value / totalValue;
@@ -866,9 +876,8 @@
                 "Z"
             ].join(" ");
 
-            const fill = cuteColors[index % cuteColors.length];
+            const fill = discoColors[index % discoColors.length];
             const cleanName = escapeHTML(item.name);
-            // Must escape quotes for tooltip inline JS string
             const tooltipText = escapeHTML(`${cleanName}: ${item.value.toLocaleString('en-US', {style:'currency', currency:'USD', maximumFractionDigits:0})} (${Math.round(percentage*100)}%)`).replace(/'/g, "\\'");
 
             svgContent += `<path d="${d}" fill="${fill}" stroke="#fff" stroke-width="2" class="pie-slice" 
@@ -885,7 +894,7 @@
 
     function showTooltip(evt, text) {
         tooltipEl.style.display = "block";
-        tooltipEl.innerHTML = text; // Safely mapped previously
+        tooltipEl.innerHTML = text; 
         tooltipEl.style.left = (evt.pageX + 10) + 'px';
         tooltipEl.style.top = (evt.pageY + 10) + 'px';
     }
@@ -933,23 +942,23 @@
         let svgContent = `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet" style="margin-top: 15px;">`;
 
         // Axes and Grids
-        svgContent += `<line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" stroke="var(--light-pink)" stroke-width="3" stroke-linecap="round"></line>`;
-        svgContent += `<line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke="var(--light-pink)" stroke-width="3" stroke-linecap="round"></line>`;
+        svgContent += `<line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" stroke="var(--silver)" stroke-width="3" stroke-linecap="round"></line>`;
+        svgContent += `<line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke="var(--silver)" stroke-width="3" stroke-linecap="round"></line>`;
 
         for (let i = 0; i <= yMax; i += 10000) {
             const y = yScale(i);
-            svgContent += `<line x1="${padding}" y1="${y}" x2="${width - padding}" y2="${y}" stroke="var(--pastel-purple)" stroke-width="2" stroke-dasharray="6,6"></line>`;
-            svgContent += `<text x="${padding - 15}" y="${y + 5}" fill="var(--deep-purple)" text-anchor="end" font-size="16" font-weight="bold">$${i / 1000}K</text>`;
+            svgContent += `<line x1="${padding}" y1="${y}" x2="${width - padding}" y2="${y}" stroke="var(--silver)" stroke-width="2" stroke-dasharray="6,6"></line>`;
+            svgContent += `<text x="${padding - 15}" y="${y + 5}" fill="var(--night-blue)" text-anchor="end" font-size="16" font-weight="bold">$${i / 1000}K</text>`;
         }
 
         for (let year = 2017; year <= today.getFullYear() + 1; year++) {
             const x = xScale(new Date(`${year}-01-01`));
-            svgContent += `<text x="${x}" y="${height - padding + 25}" fill="var(--deep-purple)" text-anchor="middle" font-size="16" font-weight="bold">${year}</text>`;
+            svgContent += `<text x="${x}" y="${height - padding + 25}" fill="var(--night-blue)" text-anchor="middle" font-size="16" font-weight="bold">${year}</text>`;
         }
         
         const points = graphData.map(d => `${xScale(d.date)},${yScale(d.value)}`).join(' ');
         
-        svgContent += `<polyline points="${points}" fill="none" stroke="var(--hot-pink)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" class="line-path"></polyline>`;
+        svgContent += `<polyline points="${points}" fill="none" stroke="var(--neon-cyan)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" class="line-path"></polyline>`;
         
         svgContent += `</svg>`;
         graphContainerEl.innerHTML = svgContent;
@@ -993,14 +1002,14 @@
         container.innerHTML = '';
 
         if (updates.length === 0) {
-            container.innerHTML = '<div style="text-align:center; opacity:0.6; font-weight:bold;">No recent updates 🌸</div>';
+            container.innerHTML = '<div style="text-align:center; opacity:0.6; font-weight:bold;">No recent updates 🪩</div>';
             return;
         }
 
         updates.forEach((update) => {
             const div = document.createElement('div');
             let extraClass = '';
-            let emoji = '✨';
+            let emoji = '⚡';
             const upperText = update.toUpperCase();
             
             if (upperText.includes('BUY')) {
@@ -1012,13 +1021,11 @@
             }
 
             div.className = `update-entry wiggle-hover ${extraClass}`;
-            // Output sanitised update text
             div.innerHTML = `<span style="margin-right:5px; font-size:1.1rem;">${emoji}</span> ${escapeHTML(update)}`;
             container.appendChild(div);
         });
     }
 
-    // Cache elements outside the function loop to save processing time
     let wobbleElements = [];
     
     // --- RANDOM SPONTANEOUS WOBBLES & POPS ---
@@ -1046,7 +1053,8 @@
     document.getElementById('emojiRainBtn').addEventListener('click', function(e) {
         e.preventDefault();
         
-        const emojis = ['💖', '✨', '🚀', '💎', '🦄', '💸', '🍭', '🎀', '🧸', '📈'];
+        // Disco themed emojis
+        const emojis = ['🪩', '🕺', '💃', '🎶', '🎧', '✨', '⚡', '🎵', '🍸', '🌟'];
         
         for (let i = 0; i < 50; i++) {
             setTimeout(() => {
@@ -1069,31 +1077,27 @@
 
     // --- MAIN EXECUTION ---
     async function main() {
-        // IMPROVEMENT: Start the fetch process immediately to run parallel with our typing animation. 
-        // This halves the apparent load time for users!
         const dataPromise = getSheetData();
 
-        await typeText(loadingTextEl, 'FINDING BIG BOY NUMBERS 🥰', 30);
+        await typeText(loadingTextEl, 'FINDING MY GROOVE 🕺', 30);
         await typeDots(loadingTextEl, 4, 150);
         await sleep(200);
         
-        // Wait for the data fetch that started earlier to finish.
         const sheetData = await dataPromise;
         
         if (!sheetData) return;
 
-        // Populate and display ticker from Cell J1 (Row index 0, Col index 9)
+        // Populate and display ticker
         if (sheetData[0] && sheetData[0].length > 9 && sheetData[0][9]) {
             tickerTextEl.innerHTML = escapeHTML(sheetData[0][9]);
             tickerWrapEl.style.display = 'block';
         }
 
         loadingTextEl.innerHTML = '';
-        await typeText(loadingTextEl, 'FOUND 6 and 7!, ANALYSING 🥸', 30);
+        await typeText(loadingTextEl, 'CAUGHT SATURDAY NIGHT FEVER 🪩', 30);
         await typeDots(loadingTextEl, 4, 150);
         await sleep(300);
         
-        // --- NEW UP/DOWN TODAY LOGIC ---
         let todayChangeStr = (sheetData[0] && sheetData[0].length > 14 && sheetData[0][14]) ? escapeHTML(sheetData[0][14].trim()) : "$0";
         let todayChangeVal = parseFloat(todayChangeStr.replace(/[^0-9.-]+/g,"")) || 0;
 
