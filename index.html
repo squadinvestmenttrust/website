@@ -17,7 +17,7 @@
             --main-dirt: #7c644d; /* Cardboard brown */
             --dark-grime: #3e3125; /* Dark shadow/dirt */
             --light-rubbish: #c4b7a5; /* Lighter beige/grey */
-            --dirty-white: #FFFFFF; /* Off-white/grey background */
+            --dirty-white: #ffffff; /* UPDATED: Pure white background as requested */
             --accent-rust: #9c3b2b; /* Rust/red-brown */
             --muted-green: #5a7247; /* Moldy green for 'positive' */
             
@@ -51,7 +51,7 @@
             content: "";
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(224, 216, 201, 0.9); /* Overlay to dampen the bg image */
+            background: rgba(255, 255, 255, 0.85); /* UPDATED: Lighter white overlay */
             pointer-events: none;
             z-index: -1;
         }
@@ -75,7 +75,7 @@
             font-size: 1.1rem;
             letter-spacing: 1px;
             padding-left: 100%;
-            animation: ticker 30s linear infinite; /* Slower ticker for a tired feel */
+            animation: ticker 20s linear infinite; /* UPDATED: Faster ticker speed */
         }
         @keyframes ticker {
             0% { transform: translateX(0); }
@@ -1161,3 +1161,4 @@
 </script>
 </body>
 </html>
+```eof
