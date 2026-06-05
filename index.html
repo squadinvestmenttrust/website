@@ -3,29 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="description" content="Squad Investment Trust Dashboard">
-    <title>Squad Investment Trust 💖✨</title>
+    <meta name="description" content="Squad Investment Trust Dashboard - Broke Edition">
+    <title>Squad Investment Trust 🗑️🏚️</title>
     
     <!-- Preconnecting to speed up font loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=VT323&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Courier+New:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            /* --- GRIM THEME COLOUR SCHEME (from Broke.jpg) --- */
-            --main-ink: #000000;         /* Deep ink from the sign */
-            --dull-gray: #666666;        /* Common dirt, sidewalk gray */
-            --grime-text: #333333;       /* Smudged grim text */
-            --grime-faint: #999999;       /* Barely visible grimy details */
-            --dirt-bg: #FFFFFF;         /* Stark white background, per explicit instruction for seamless blending */
+            /* --- BROKE & GROSS THEME PALETTE --- */
+            --main-dirt: #7c644d; /* Cardboard brown */
+            --dark-grime: #3e3125; /* Dark shadow/dirt */
+            --light-rubbish: #c4b7a5; /* Lighter beige/grey */
+            --dirty-white: #e0d8c9; /* Off-white/grey background */
+            --accent-rust: #9c3b2b; /* Rust/red-brown */
+            --muted-green: #5a7247; /* Moldy green for 'positive' */
             
-            --positive-grim: #226633;    /* Sickly copper/mold green (oxidized) */
-            --negative-rust: #552200;    /* Rusted metal/dried blood brown */
+            --bg-gradient-1: #9c9182;
+            --bg-gradient-2: #b8ad9e;
             
-            --font-fancy: 'Special Elite', cursive; /* Rough, hand-drawn sign look */
-            --font-data: 'VT323', monospace;      /* Basic, rudementary data monospaced */
-            --font-body: sans-serif;                /* Simple body font, no fuss */
+            --font-family: 'Courier New', monospace; /* Monospace for typewriter/hand-scrawled look */
         }
 
         /* --- PREVENT HORIZONTAL SCROLLING --- */
@@ -33,39 +32,50 @@
             box-sizing: border-box;
         }
 
-        /* --- GRIM PAGE BACKGROUND & GLOBAL STYLES --- */
+        /* --- GRIMY BACKGROUND & TEXTURE --- */
         body {
-            background: #FFFFFF; /* Stark FFFFFF per user instruction for blending */
-            color: var(--main-ink);
-            font-family: var(--font-body);
+            background: var(--dirty-white);
+            background-image: url('https://i.ibb.co/M0bq2Hr/Broke.jpg'); /* Fallback/Texture hint */
+            background-size: cover;
+            background-blend-mode: overlay;
+            background-attachment: fixed;
+            color: var(--dark-grime);
+            font-family: var(--font-family);
             margin: 0;
             padding: 0 0 20px 0;
             font-size: 15px;
             overflow-x: hidden;
             width: 100%; 
         }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(224, 216, 201, 0.9); /* Overlay to dampen the bg image */
+            pointer-events: none;
+            z-index: -1;
+        }
 
-        /* --- GRIM TICKER --- */
+        /* --- TICKER --- */
         .ticker-wrap {
             width: 100%;
-            background-color: #FFFFFF; /* Stark white ongrim theme, blends into page */
+            background-color: var(--light-rubbish);
             padding: 8px 0;
             overflow: hidden;
             white-space: nowrap;
             box-sizing: border-box;
-            border-bottom: 3px solid var(--grime-faint); /* Rough, smudged border */
+            border-bottom: 2px solid var(--main-dirt);
             display: none; 
-            will-change: transform; /* Hint to GPU */
+            will-change: transform;
         }
         .ticker-text {
             display: inline-block;
-            color: var(--grime-text);
-            font-family: var(--font-fancy); /* Typewriter look */
-            font-weight: 700;
+            color: var(--dark-grime);
+            font-weight: 900;
             font-size: 1.1rem;
-            letter-spacing: 0px;
+            letter-spacing: 1px;
             padding-left: 100%;
-            animation: ticker 25s linear infinite;
+            animation: ticker 30s linear infinite; /* Slower ticker for a tired feel */
         }
         @keyframes ticker {
             0% { transform: translateX(0); }
@@ -81,51 +91,52 @@
             padding: 20px 10px;
         }
 
-        /* --- FUNCTIONAL ANIMATIONS --- */
+        /* --- JANKY ANIMATIONS --- */
         @keyframes wiggle {
             0% { transform: rotate(0deg); }
-            25% { transform: rotate(1.5deg) scale(1.02); } /* Nervous wiggle */
-            50% { transform: rotate(0deg) scale(1.02); }
-            75% { transform: rotate(-1.5deg) scale(1.02); }
+            25% { transform: rotate(1deg) scale(1.01); }
+            50% { transform: rotate(0deg) scale(1.01); }
+            75% { transform: rotate(-1deg) scale(1.01); }
             100% { transform: rotate(0deg); }
         }
         .wiggle-hover {
-            transition: transform 0.2s ease, z-index 0.2s ease;
-            will-change: transform; /* Hardware acceleration for smoother paints */
+            transition: transform 0.2s ease, z-index 0.2s ease, box-shadow 0.2s ease;
+            will-change: transform;
         }
         .wiggle-hover:hover {
-            animation: wiggle 0.6s ease-in-out infinite; /* Nervous and nervous */
+            animation: wiggle 0.5s ease-in-out infinite;
             z-index: 10;
+            box-shadow: 2px 2px 5px var(--dark-grime) !important;
         }
 
         @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.04); } /* Barely pulsating, weak */
-            100% { transform: scale(1); }
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.02); opacity: 0.9; }
+            100% { transform: scale(1); opacity: 1; }
         }
 
-        /* --- CHAOTIC SPONTANEOUS POP ANIMATION --- */
+        /* --- RANDOM SPONTANEOUS POP ANIMATION --- */
         @keyframes randomPop {
             0% { transform: scale(1) rotate(0deg); }
-            30% { transform: scale(1.1) rotate(4deg); } /* erratic and large */
-            50% { transform: scale(0.9) rotate(-3deg); }
-            70% { transform: scale(1.06) rotate(2deg); }
+            30% { transform: scale(1.04) rotate(1deg); }
+            50% { transform: scale(0.98) rotate(-1deg); }
+            70% { transform: scale(1.02) rotate(0.5deg); }
             100% { transform: scale(1) rotate(0deg); }
         }
         .random-pop {
-            animation: randomPop 1s cubic-bezier(0.68, -0.55, 0.27, 1.55) !important; /* erratic cubic-bezier */
+            animation: randomPop 0.8s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
             z-index: 50;
         }
 
-        /* --- HEADER IMAGE (blended) & TAGLINE --- */
+        /* --- HEADER & IMAGES --- */
         #imageContainer {
             background: transparent; 
             box-shadow: none; 
             padding: 0;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
             width: 100%;
             text-align: center;
-            min-height: 120px; /* Prevents CLS (Cumulative Layout Shift) */
+            min-height: 120px;
         }
         
         #imageContainer img {
@@ -133,57 +144,57 @@
             margin: auto;
             max-width: 100% !important;
             height: auto !important;
+            mix-blend-mode: multiply; /* Blends the image into the dirty background */
+            filter: contrast(1.1) sepia(0.2); /* Enhances the grimy look */
         }
 
         .tagline-container {
             text-align: center;
-            margin-top: 5px;
+            margin-top: 10px;
             perspective: 1000px;
             padding: 0 10px;
         }
         .tagline {
             display: inline-block;
-            font-size: 1.1rem;
-            font-weight: 700;
-            letter-spacing: 0px;
-            color: var(--grime-text); /* Smudged sign text */
-            font-family: var(--font-fancy); /* Rough sign look */
-            text-shadow: none; /* No shadow, bare ink */
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: var(--accent-rust);
+            text-shadow: 1px 1px 0px var(--dark-grime);
             cursor: pointer;
             transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
             transform-style: preserve-3d;
             will-change: transform;
+            font-family: var(--font-family);
         }
         .tagline:hover {
             transform: rotateX(360deg) scale(1.1);
         }
 
-        /* --- GRIM LAYOUT UTILS & LOADING --- */
+        /* --- LAYOUT UTILS --- */
         .loading-section {
             text-align: center;
             margin-bottom: 2rem;
-            background: linear-gradient(135deg, #fefefe 0%, #ffffff 100%); /* Stark and stark paper */
-            border-radius: 8px; /* rougher, squarer edges */
+            background: var(--light-rubbish);
+            border-radius: 5px;
             padding: 20px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* Dirty shadow */
-            border: 4px solid var(--grime-faint); /* Rough cardboard edge effect */
+            box-shadow: 2px 2px 0px var(--main-dirt);
+            border: 2px solid var(--dark-grime);
             width: 100%;
-            min-height: 85px; /* Prevent layout shift while typing */
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%23666666' fill-opacity='0.05' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E"); /* added grit texture */
+            min-height: 85px;
         }
 
         .header-text {
             min-height: 1.2em;
             font-size: 1.2rem;
             font-weight: 700;
-            font-family: var(--font-fancy); /* Typewriter look */
             margin: 8px 0;
-            color: var(--grime-text);
+            color: var(--dark-grime);
             word-wrap: break-word;
             transition: color 0.3s ease, transform 0.3s ease;
         }
 
-        /* --- NEW GRIM METRICS DASHBOARD --- */
+        /* --- NEW METRICS HEADER --- */
         .metrics-container {
             display: none; 
             justify-content: space-around;
@@ -199,54 +210,50 @@
             flex: 1;
             min-width: 120px;
             padding: 15px 10px;
-            border-radius: 8px; /* Rough paper edges */
-            background: #FFFFFF;
-            border: 3px solid var(--grime-faint); /* Cardboard-like border */
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* Dirty shadow */
+            border-radius: 8px;
+            background: var(--light-rubbish);
+            border: 2px solid var(--main-dirt);
+            box-shadow: 3px 3px 0px var(--dark-grime);
             display: flex;
             flex-direction: column;
             justify-content: center;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%23666666' fill-opacity='0.05' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E"); /* added grit texture */
         }
 
         .metric-label {
             font-size: 0.85rem;
-            font-weight: 700;
-            font-family: var(--font-fancy); /* Typewriter rough label */
-            color: var(--grime-text);
-            text-transform: none; /* No uppercase, informal sign look */
-            letter-spacing: 0px;
+            font-weight: 900;
+            color: var(--main-dirt);
+            text-transform: uppercase;
+            letter-spacing: 1px;
             margin-bottom: 5px;
         }
 
         .metric-value {
             font-size: 1.3rem;
-            font-weight: 700;
-            font-family: var(--font-data); /* Rudimentary data monospaced */
-            color: var(--main-ink);
+            font-weight: 800;
+            color: var(--dark-grime);
             word-wrap: break-word;
         }
 
-        /* Center AUM Styling - OLD CANS LOOK */
+        /* Center AUM Styling */
         .metric-main {
             flex: 1.5;
-            background: #FFFFFF; /* Stark paper */
-            border: 4px solid var(--grime-text); /* Distressed metal/grime edge */
-            transform: scale(1); /* scaled down from original for realism */
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25); /* Stronger dirty shadow */
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%23000000' fill-opacity='0.08' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E"); /* added stronger grit texture */
+            background: var(--main-dirt);
+            border: 3px solid var(--dark-grime);
+            transform: scale(1.02);
+            box-shadow: 4px 4px 0px var(--dark-grime);
         }
         .metric-main .metric-label {
             font-size: 1rem;
-            color: var(--grime-text);
-            text-shadow: none;
+            color: var(--dirty-white);
+            text-shadow: 1px 1px 1px var(--dark-grime);
         }
         .metric-main .metric-value {
             font-size: 2.2rem;
-            color: var(--main-ink);
-            font-weight: 700;
-            text-shadow: none;
-            animation: pulse 3s infinite ease-in-out; /* erratic, weak pulse */
+            color: var(--dirty-white);
+            font-weight: 900;
+            text-shadow: 2px 2px 0px var(--dark-grime);
+            animation: pulse 3s infinite ease-in-out;
             will-change: transform;
         }
 
@@ -259,34 +266,33 @@
             width: 100%;
         }
 
-        /* --- GRIM PANELS (PAPER-MORPHISM) --- */
+        /* --- HUD PANELS (CARDBOARD BOXES) --- */
         .hud-panel {
-            background: #FFFFFF; /* Stark and stark paper */
-            border-radius: 8px; /* square-ish paper sheets */
+            background: var(--light-rubbish);
+            border-radius: 10px;
             padding: 25px 20px 20px 20px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* Dirty shadow */
-            border: 4px solid var(--grime-faint); /* Cardboard edge effect */
+            box-shadow: 3px 3px 0px var(--main-dirt);
+            border: 2px solid var(--dark-grime);
             position: relative;
             width: 100%;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%23666666' fill-opacity='0.05' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E"); /* added grit texture */
         }
         
         .hud-title {
             position: absolute;
-            top: -16px;
+            top: -15px;
             left: 20px;
-            background: #552200; /* Rusty brown plaque */
-            color: #FFFFFF; /* Stark white ongrim */
+            background: var(--main-dirt);
+            color: var(--dirty-white);
             padding: 6px 16px;
-            font-weight: 700;
-            font-family: var(--font-fancy); /* Rough plaque look */
+            font-weight: 900;
             font-size: 0.9rem;
             letter-spacing: 1px;
-            border-radius: 4px; /* less rounded edges */
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Strong dirty shadow */
-            border: none; /* No clean borders */
+            border-radius: 5px;
+            box-shadow: 2px 2px 0px var(--dark-grime);
+            border: 2px solid var(--dark-grime);
             white-space: nowrap;
             z-index: 2;
+            transform: rotate(-2deg); /* Slight tilt for a thrown-together look */
         }
 
         #returns-table-container, #graph-container {
@@ -294,7 +300,7 @@
             overflow-x: auto;
         }
 
-        /* --- HOLDINGS GRID (GRIM CARDS) --- */
+        /* --- HOLDINGS TABLE (DIRTY CARDS) --- */
         .holdings-grid-container {
             display: grid;
             grid-template-columns: repeat(2, 1fr); 
@@ -304,27 +310,24 @@
         }
 
         .holding-card {
-            background: #FFFFFF; /* Stark paper */
-            border: 3px solid var(--grime-faint); /* card-like/cardboard-like border */
+            background: var(--dirty-white);
+            border: 2px dashed var(--main-dirt);
             padding: 8px 10px; 
-            border-radius: 6px; /* Squarer cards */
+            border-radius: 5px; 
             min-width: 0; 
             cursor: pointer;
             width: 100%;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%23666666' fill-opacity='0.05' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E"); /* added grit texture */
         }
 
         .holding-name {
-            font-weight: 700;
-            font-family: var(--font-fancy); /* Rough rough label */
+            font-weight: 900;
             font-size: 0.9rem; 
-            color: var(--main-ink);
+            color: var(--dark-grime);
             display: block;
             margin-bottom: 4px; 
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            text-shadow: none;
         }
 
         .holding-row {
@@ -333,10 +336,9 @@
             font-size: 0.8rem; 
             font-weight: 700;
             margin-bottom: 2px; 
-            color: var(--grime-text);
         }
         
-        /* --- GRIM CHART STYLING --- */
+        /* --- CHART STYLING --- */
         svg {
             width: 100%;
             height: auto;
@@ -344,39 +346,40 @@
         }
         .chart-tooltip {
             position: absolute;
-            background: #FFFFFF; /* Stark paper */
-            color: var(--grime-text); /* Smudged sign ink */
-            border: 3px solid var(--grime-faint); /* Cardboard edges */
-            border-radius: 4px; /* Squarer edges */
+            background: var(--main-dirt);
+            color: var(--dirty-white);
+            border: 2px solid var(--dark-grime);
+            border-radius: 5px;
             padding: 8px 12px;
             font-size: 13px;
-            font-weight: 700;
-            font-family: var(--font-data); /* rudimentary monospaced */
+            font-weight: bold;
             pointer-events: none;
             display: none;
             z-index: 100;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25); /* Dirty shadow */
+            box-shadow: 2px 2px 0px var(--dark-grime);
             white-space: nowrap;
         }
         .pie-slice {
             cursor: pointer;
             transition: opacity 0.2s, transform 0.2s;
             transform-origin: center;
+            stroke: var(--dark-grime);
+            stroke-width: 1px;
         }
         .pie-slice:hover { 
-            opacity: 0.8; 
-            transform: scale(1.03);
+            opacity: 0.9; 
+            transform: scale(1.02);
         }
         
         .line-path {
             stroke-dasharray: 2000;
             stroke-dashoffset: 2000;
             animation: drawLine 2.5s ease-out forwards;
-            filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.3)); /* Distressed dirty shadow */
+            filter: drop-shadow(0px 2px 2px var(--dark-grime));
         }
         @keyframes drawLine { to { stroke-dashoffset: 0; } }
 
-        /* --- GRIM RETURNS TABLE --- */
+        /* --- RETURNS TABLE --- */
         .returns-table {
             width: 100%;
             border-collapse: separate;
@@ -386,19 +389,17 @@
             min-width: 250px; 
         }
         .returns-table td, .returns-table th {
-            border-bottom: 3px dotted var(--grime-faint); /* Rough, faint border */
+            border-bottom: 2px dotted var(--main-dirt);
             padding: 14px; 
             text-align: left;
             font-weight: 700;
-            color: var(--grime-text);
         }
         .returns-table th { 
-            color: var(--grime-text); /* Smudged sign ink */
-            font-family: var(--font-fancy); /* Rough plaque th labels */
+            color: var(--main-dirt);
             font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 1px;
-            border-bottom: 4px solid var(--grime-text); /* distressed edge */
+            border-bottom: 3px solid var(--main-dirt);
         }
         .returns-table td:last-child, .returns-table th:last-child {
             text-align: right;
@@ -407,9 +408,9 @@
             border-bottom: none;
         }
 
-        /* --- GRIM TYPING CURSOR (🧐) --- */
+        /* --- TYPING CURSOR (🗑️) --- */
         .cursor::after {
-            content: ' 🧐'; /* analytical and a bit old-timey */
+            content: ' 🗑️';
             animation: blink 1s step-end infinite;
             display: inline-block;
             vertical-align: middle;
@@ -417,7 +418,7 @@
         }
         @keyframes blink { 50% { opacity: 0; } }
 
-        /* --- GRIM LOGS (PAPER SCRAPS) --- */
+        /* --- LOGS (SCRAP PAPER BUBBLES) --- */
         #updatesContainer {
             font-size: 0.95rem;
             line-height: 1.5;
@@ -427,66 +428,63 @@
             gap: 12px;
         }
         .update-entry {
-            background: #FFFFFF; /* Stark paper scraps */
-            color: var(--grime-text);
+            background: var(--dirty-white);
+            color: var(--dark-grime);
             padding: 12px 16px;
-            border-radius: 4px; /* less curved edges */
-            border: 3px solid var(--grime-faint); /* Rough paper borders */
-            border-bottom-left-radius: 0px; /* less curved edges */
+            border-radius: 2px;
+            border-bottom-left-radius: 10px;
             font-weight: 700;
-            font-family: var(--font-data); /* rudimentary monospaced updates */
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* Dirty shadow */
+            box-shadow: 2px 2px 0px var(--main-dirt);
+            border: 1px solid var(--main-dirt);
             display: inline-block;
             max-width: 100%;
             position: relative;
             cursor: pointer;
             word-wrap: break-word;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%23666666' fill-opacity='0.05' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E"); /* added grit texture */
+            transform: rotate(1deg); /* Slight rotation */
         }
         
-        /* desaturated, grim log coloring */
-        .log-buy { background: #E6EEE6; color: var(--positive-grim); border: 2px solid #CCDDCC; } /* copper-green-like desaturated bg */
-        .log-sell { background: #EEE6EE; color: var(--negative-rust); border: 2px solid #DDCCDD; } /* rusty-red-like desaturated bg */
-        .log-paid { background: #FDFCE6; color: #664422; border: 2px solid #EEECC0; } /* old-paper-like desaturated bg, dirty-brown-ish paid color */
+        .log-buy { background: #8f9c82; color: var(--dark-grime); border: 2px solid var(--muted-green); }
+        .log-sell { background: #a88c8c; color: var(--dark-grime); border: 2px solid var(--accent-rust); }
+        .log-paid { background: #b8ad9e; color: var(--dark-grime); border: 2px solid var(--main-dirt); }
 
-        /* Grim Poll Container & Button */
+        /* Poll Container & Button */
         .poll-wrapper {
-            background: linear-gradient(135deg, #fefefe 0%, #ffffff 100%); /* Stark and stark paper */
-            border-radius: 8px; /* cardboard box edges */
+            background: var(--light-rubbish);
+            border-radius: 10px;
             padding: 20px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* Dirty shadow */
-            border: 4px solid var(--grime-faint); /* cardboard edges */
+            box-shadow: 3px 3px 0px var(--main-dirt);
+            border: 2px solid var(--dark-grime);
             text-align: center;
             margin-top: 2rem;
             width: 100%;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%23666666' fill-opacity='0.05' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E"); /* added grit texture */
         }
 
         .squad-btn {
-            background: #552200; /* Rusty metal plaque bg */
-            color: #FFFFFF; /* stark white ongrim */
-            border: 3px solid var(--grime-faint); /* Cardboard-like edges */
-            border-radius: 8px; /* Square-ish edges */
+            background: var(--main-dirt);
+            color: var(--dirty-white);
+            border: 2px solid var(--dark-grime);
+            border-radius: 5px;
             padding: 12px 25px;
             font-size: 1.1rem;
-            font-weight: 700;
-            font-family: var(--font-fancy); /* Rough plaque rough sign look */
-            letter-spacing: 0px; /* remove uppercase and letter-spacing */
+            font-weight: 900;
+            letter-spacing: 2px;
             cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Distressed dirty shadow */
-            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 3px 3px 0px var(--dark-grime);
+            transition: transform 0.1s, box-shadow 0.1s;
             margin-bottom: 15px;
+            font-family: var(--font-family);
             width: 100%;
             max-width: 300px;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%23000000' fill-opacity='0.05' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E"); /* added grit texture */
+            transform: rotate(-1deg);
         }
 
         .squad-btn:active {
-            transform: scale(0.95);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4); /* Distressed dirty shadow */
+            transform: scale(0.98) rotate(-1deg);
+            box-shadow: 1px 1px 0px var(--dark-grime);
         }
 
-        /* --- GRIM EMOJI RAIN ANIMATION (Falling Trash/derelict items) --- */
+        /* --- EMOJI RAIN ANIMATION --- */
         @keyframes fallAndSpin {
             0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
             100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
@@ -499,11 +497,12 @@
             pointer-events: none;
             animation: fallAndSpin linear forwards;
             will-change: transform, opacity;
+            filter: grayscale(0.5) sepia(0.3); /* Make em dirty */
         }
 
         /* =========================================
-            📱 MOBILE RESPONSIVE MEDIA QUERIES 📱 
-            ========================================= */
+           📱 MOBILE RESPONSIVE MEDIA QUERIES 📱 
+           ========================================= */
         @media (max-width: 800px) {
             .dashboard-grid { 
                 grid-template-columns: 1fr; 
@@ -525,7 +524,7 @@
                 padding: 10px 5px;
             }
             .tagline {
-                font-size: 0.95rem;
+                font-size: 1.1rem;
             }
             .metrics-container {
                 flex-direction: column; 
@@ -574,7 +573,7 @@
 </head>
 <body>
 
-<!-- NEW GRIM SCROLLING TICKER -->
+<!-- NEW SCROLLING TICKER -->
 <div class="ticker-wrap" id="ticker-wrap">
     <div class="ticker-text" id="ticker-text">...</div>
 </div>
@@ -583,24 +582,24 @@
 
 <div class="main-container">
     <div id="imageContainer">
-      <!-- Replacing image and ensuring seamless FFFFFF blending -->
-      <img id="headerImage" src="https://i.ibb.co/M0bq2Hr/Broke.jpg" alt="Header Image" width="400" height="auto" loading="eager" style="background:transparent; display:block; margin:auto;">
+      <!-- Replaced image link and removed fixed width for seamless blending -->
+      <img id="headerImage" src="https://i.ibb.co/M0bq2Hr/Broke.jpg" alt="Header Image" height="auto" loading="eager">
     </div>
     
     <div class="tagline-container">
         <div class="tagline">
-            BUY CUTESY, SELL UGLY
+            BUY HIGH, SELL LOW, STAY BROKE
         </div>
     </div>
 
     <br>
 
-    <!-- Initial Loading Screen (GRIM Paper Box) -->
+    <!-- Initial Loading Screen -->
     <div id="loading-container" class="loading-section">
         <div id="loading-text" class="header-text"></div>
     </div>
 
-    <!-- The New Reordered Grim Metrics Dashboard -->
+    <!-- The New Reordered Metrics Dashboard -->
     <div id="metrics-container" class="metrics-container">
         <div class="metric-item wiggle-hover">
             <div class="metric-label">Unit Price</div>
@@ -617,42 +616,41 @@
     </div>
 
     <div class="dashboard-grid">
-        <!-- Holdings (GRIM CARDS) -->
+        <!-- Holdings -->
         <div class="hud-panel">
-            <div class="hud-title">💖 OUR STONKS</div>
+            <div class="hud-title">🏚️ OUR JUNK</div>
             <div id="table-container"></div>
         </div>
 
-        <!-- Asset Allocation (GRIM PIE) -->
+        <!-- Asset Allocation -->
         <div class="hud-panel" style="display:flex; align-items:center; justify-content:center; flex-direction: column;">
-            <div class="hud-title">🍭 YUMMY PIE</div>
+            <div class="hud-title">🗑️ TRASH BAG</div>
             <div id="pie-chart-container" style="width: 80%; max-width: 300px; margin-top: 15px;"></div>
         </div>
 
-        <!-- Returns (GRIM TABLE) -->
+        <!-- Returns -->
         <div class="hud-panel">
-            <div class="hud-title">🎀 WINS TO 30 APR</div>
+            <div class="hud-title">📉 LOSSES TO 30 APR</div>
             <div id="returns-table-container"></div>
         </div>
 
-        <!-- Line Chart (GRIM SQUIGGLE) -->
+        <!-- Line Chart -->
         <div class="hud-panel">
-            <div class="hud-title">📈 SQUIGGLY LINE</div>
+            <div class="hud-title">📉 PATH TO POVERTY</div>
             <div id="graph-container"></div>
         </div>
 
-        <!-- System Logs (GRIM PAPER SCRAPS) -->
+        <!-- System Logs -->
         <div class="hud-panel" style="grid-column: 1 / -1;">
-            <div class="hud-title">💬 BOYS CHAT</div>
+            <div class="hud-title">💬 HOBO CHAT</div>
             <div id="updatesContainer"></div>
         </div>
     </div>
         
-    <!-- Grim Poll (Distressed Cardboard Box) -->
     <div class="poll-wrapper wiggle-hover" id="poll-container" style="max-width:600px; margin:auto;">
         
-        <!-- Interactive Grim Plaque Button -->
-        <button id="emojiRainBtn" class="squad-btn">In Squad We Trust</button>
+        <!-- Interactive Button -->
+        <button id="emojiRainBtn" class="squad-btn">IN DEBT WE TRUST</button>
 
         <script>
             // Note: External scripts block the DOM parsing. If Poll Maker supports it, this should ideally be deferred.
@@ -663,8 +661,7 @@
                 a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
             })(window,document,'script','//scripts.poll-maker.com/3012/pollembed.js','qp');
         </script>
-        <!-- desaturated, stark poll link -->
-        <a href="#" data-poll="5551770xfDF94E9a-164" style="width:100%; display:block; text-align:center; color:var(--main-ink); font-family:sans-serif; font-weight:bold; text-decoration:none;"></a>
+        <a href="#" data-poll="5551770xfDF94E9a-164" style="width:100%; display:block; text-align:center; color:var(--accent-rust); font-family:var(--font-family); font-weight:bold; text-decoration:none;"></a>
     </div>
 
 </div>
@@ -706,25 +703,24 @@
         );
     }
 
-    // --- GRIM UTILITIES (Nervous, erratic typing) ---
-    async function typeText(element, text, speed = 35) {
+    // --- UTILITIES ---
+    async function typeText(element, text, speed = 30) {
         element.classList.add('cursor');
         element.innerHTML = "";
         let currentText = "";
         for (let i = 0; i < text.length; i++) {
             currentText += escapeHTML(text.charAt(i));
             element.innerHTML = currentText;
-            // erratic speed variations
-            await sleep(speed + Math.random() * 40 - 20); 
+            await sleep(speed + Math.random() * 20);
         }
         element.classList.remove('cursor');
     }
 
-    async function typeDots(element, count = 3, speed = 400) {
+    async function typeDots(element, count = 3, speed = 300) {
         element.classList.add('cursor');
         for (let i = 0; i < count; i++) {
             element.textContent += '.';
-            await sleep(speed + Math.random() * 100);
+            await sleep(speed);
         }
         element.classList.remove('cursor');
     }
@@ -758,13 +754,12 @@
             return parseCSV(csvText);
         } catch (e) {
             console.error("Error:", e);
-            loadingTextEl.textContent = "🥺 Severed... 💔";
-            loadingTextEl.style.color = 'var(--negative-rust)';
+            loadingTextEl.textContent = "🐀 RATS ATE THE DATA CABLE! 🐀";
             return null;
         }
     }
 
-    // --- GRIM RENDERERS ---
+    // --- RENDERERS ---
 
     function drawTable(data) {
         const holdings = data.slice(2).filter(row => row[0]);
@@ -783,7 +778,7 @@
 
         let html = '<div class="holdings-grid-container">';
         
-        // Helper function for standard GRIM cards
+        // Helper function for standard cards
         const createCard = (item) => {
             if(!item) return '';
             const name = escapeHTML(item[0] || 'N/A');
@@ -794,45 +789,42 @@
             const dailyVal = parseFloat(dailyChange);
             const profitVal = parseFloat(profit);
 
-            // --- HEATMAP LOGIC BASED ON DAILY CHANGE (GRIM) ---
-            let bgStyle = 'background: #FFFFFF; border-color: var(--grime-faint);'; // default stark paper
+            // --- HEATMAP LOGIC BASED ON DAILY CHANGE ---
+            let bgStyle = 'background: var(--dirty-white); border-color: var(--main-dirt);'; // default
             if (!isNaN(dailyVal) && dailyChange !== '0%') {
                 if (dailyVal > 0) {
-                    const intensity = Math.min(0.02 + (dailyVal / 25), 0.15); // faint grim mold green
-                    bgStyle = `background: rgba(85, 102, 85, ${intensity}); border-color: var(--positive-grim); border-style: solid;`;
+                    // Dirty green for positive
+                    bgStyle = `background: #7a8c69; border-color: var(--muted-green); border-style: solid;`;
                 } else if (dailyVal < 0) {
-                    const intensity = Math.min(0.02 + (Math.abs(dailyVal) / 25), 0.15); // faint grim rust brown
-                    bgStyle = `background: rgba(102, 85, 68, ${intensity}); border-color: var(--negative-rust); border-style: solid;`;
+                    // Dirty red for negative
+                    bgStyle = `background: #a87c7c; border-color: var(--accent-rust); border-style: solid;`;
                 }
             }
 
-            // Data value colors (GRIM)
-            const profitColor = profitVal < 0 ? 'var(--negative-rust)' : 'var(--positive-grim)';
-            const dailyColor = dailyVal < 0 ? 'var(--negative-rust)' : (dailyVal > 0 ? 'var(--positive-grim)' : 'var(--grime-text)');
-            // Value font (GRIM)
-            const dataFont = 'font-family: var(--font-data);';
+            const profitColor = profitVal < 0 ? 'var(--accent-rust)' : 'var(--muted-green)';
+            const dailyColor = dailyVal < 0 ? 'var(--accent-rust)' : (dailyVal > 0 ? 'var(--muted-green)' : 'var(--dark-grime)');
 
             return `
                 <div class="holding-card wiggle-hover" style="${bgStyle}">
                     <span class="holding-name" title="${name}">${name}</span>
-                    <div class="holding-row"><span>Val:</span><span style="${dataFont}">${value}</span></div>
-                    <div class="holding-row"><span>P/L:</span><span style="${dataFont} color:${profitColor}">${profit}</span></div>
-                    <div class="holding-row"><span>Day:</span><span style="${dataFont} color:${dailyColor}; font-weight:700;">${dailyChange}</span></div>
+                    <div class="holding-row"><span>Val:</span><span>${value}</span></div>
+                    <div class="holding-row"><span>P/L:</span><span style="color:${profitColor}">${profit}</span></div>
+                    <div class="holding-row"><span>Day:</span><span style="color:${dailyColor}; font-weight:900;">${dailyChange}</span></div>
                 </div>
             `;
         }
 
-        // Special handling for the very first item (Cash - grim paper look)
+        // Special handling for the very first item (Cash)
         if (holdings.length > 0) {
             const cashItem = holdings[0];
             const name = escapeHTML(cashItem[0] || 'Cash');
             const value = fmtUSD0(cashItem[3]); // Cell D3 value
 
-            // Add the cash card spanning 2 columns (GRIM)
+            // Add the cash card spanning 2 columns
             html += `
-                <div class="holding-card wiggle-hover" style="grid-column: 1 / -1; background: #FFFFFF; border: 4px solid var(--grime-faint); text-align: center; padding: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.15); background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%224%22 height=%224%22 viewBox=%220 0 4 4%22%3E%3Cpath fill=%22%23666666%22 fill-opacity=%220.05%22 d=%22M1 3h1v1H1V3zm2-2h1v1H3V1z%22%3E%3C/path%3E%3C/svg%3E');">
-                    <span class="holding-name" title="${name}" style="font-size: 1.1rem; color: var(--grime-text); margin-bottom: 2px;">${name}</span>
-                    <div style="font-family: var(--font-data); font-size: 1.7rem; font-weight: 700; color: var(--main-ink); text-shadow: none;">${value}</div>
+                <div class="holding-card wiggle-hover" style="grid-column: 1 / -1; background: var(--light-rubbish); border: 2px dashed var(--main-dirt); text-align: center; padding: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 2px 2px 0px var(--dark-grime);">
+                    <span class="holding-name" title="${name}" style="font-size: 1.1rem; color: var(--accent-rust); margin-bottom: 2px;">${name}</span>
+                    <div style="font-size: 1.7rem; font-weight: 900; color: var(--dark-grime); text-shadow: 1px 1px 1px rgba(0,0,0,0.1);">${value}</div>
                 </div>
             `;
         }
@@ -840,18 +832,17 @@
         // Loop through the remaining holdings standardly
         for (let i = 1; i < holdings.length; i++) {
             if(holdings[i] && holdings[i][0]) html += createCard(holdings[i]);
-            // debt card will be manually added next.
         }
 
-        // --- DEBT CARD (Manually added at the bottom, liability style) ---
+        // --- NEW: DEBT CARD AT THE BOTTOM ---
         // Pulls from Cell G2 (Row Index 1, Column Index 6)
         const debtRaw = data[1] ? data[1][6] : undefined;
         const debtValue = debtRaw ? fmtUSD0(debtRaw) : '$0';
         
         html += `
-            <div class="holding-card wiggle-hover" style="grid-column: 1 / -1; background: rgba(102, 85, 68, 0.08); border: 4px solid var(--negative-rust); text-align: center; padding: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.15); margin-top: 4px; background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%224%22 height=%224%22 viewBox=%220 0 4 4%22%3E%3Cpath fill=%22%23552200%22 fill-opacity=%220.08%22 d=%22M1 3h1v1H1V3zm2-2h1v1H3V1z%22%3E%3C/path%3E%3C/svg%3E');">
-                <span class="holding-name" title="DEBT" style="font-size: 1.1rem; color: var(--negative-rust); margin-bottom: 2px;">DEBT</span>
-                <div style="font-family: var(--font-data); font-size: 1.7rem; font-weight: 700; color: var(--negative-rust); text-shadow: none;">${debtValue}</div>
+            <div class="holding-card wiggle-hover" style="grid-column: 1 / -1; background: var(--light-rubbish); border: 2px dashed var(--accent-rust); text-align: center; padding: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 2px 2px 0px var(--dark-grime); margin-top: 4px;">
+                <span class="holding-name" title="DEBT" style="font-size: 1.1rem; color: var(--accent-rust); margin-bottom: 2px;">DEBT</span>
+                <div style="font-size: 1.7rem; font-weight: 900; color: var(--dark-grime); text-shadow: 1px 1px 1px rgba(0,0,0,0.1);">${debtValue}</div>
             </div>
         `;
 
@@ -866,7 +857,7 @@
 
         const totalValue = holdingsData.reduce((sum, item) => sum + item.value, 0);
         if (totalValue === 0) {
-            pieChartContainerEl.innerHTML = '<div style="font-family:var(--font-fancy); text-align:center; font-weight:700; color:var(--grime-faint);">NO ASSETS... 🥺</div>';
+            pieChartContainerEl.innerHTML = '<div style="text-align:center; font-weight:bold;">NO ASSETS 🥺</div>';
             return;
         }
 
@@ -877,9 +868,8 @@
 
         let svgContent = `<svg viewBox="-5 -5 ${radius * 2 + 10} ${radius * 2 + 10}" preserveAspectRatio="xMidYMid meet">`;
 
-        // --- GRIM, DESATURATED PALETTE (from Broke.jpg) ---
-        const grimColors = ['#334433', '#552211', '#555555', '#444444', '#333333', '#666666', '#222211', '#222200', '#556655', '#665544']; 
-        // mold green, rust red, dirt gray, dark gray, black grime, light grime, old dirt, rust, dirt gray, dirt brown
+        // Broke/Dirty Palette
+        const dirtyColors = ['#8c7b6a', '#a39078', '#7c644d', '#5a4a3a', '#bba998', '#6d5c4c'];
 
         holdingsData.forEach((item, index) => {
             const percentage = item.value / totalValue;
@@ -897,15 +887,15 @@
                 "Z"
             ].join(" ");
 
-            const fill = grimColors[index % grimColors.length];
+            const fill = dirtyColors[index % dirtyColors.length];
             const cleanName = escapeHTML(item.name);
             // Must escape quotes for tooltip inline JS string
             const tooltipText = escapeHTML(`${cleanName}: ${item.value.toLocaleString('en-US', {style:'currency', currency:'USD', maximumFractionDigits:0})} (${Math.round(percentage*100)}%)`).replace(/'/g, "\\'");
 
-            svgContent += `<path d="${d}" fill="${fill}" stroke="#bbbbbb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pie-slice" 
-                           ontouchstart="showTooltip(event.touches[0], '${tooltipText}')"
-                           onmousemove="showTooltip(evt, '${tooltipText}')" 
-                           onmouseout="hideTooltip()"></path>`;
+            svgContent += `<path d="${d}" fill="${fill}" class="pie-slice" 
+                                   ontouchstart="showTooltip(event.touches[0], '${tooltipText}')"
+                                   onmousemove="showTooltip(evt, '${tooltipText}')" 
+                                   onmouseout="hideTooltip()"></path>`;
             
             startAngle = endAngle;
         });
@@ -923,8 +913,6 @@
 
     function hideTooltip() {
         tooltipEl.style.display = "none";
-        tooltipEl.style.border = 'none'; // reset border
-        tooltipEl.style.boxShadow = 'none'; // reset shadow
     }
 
     function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
@@ -965,27 +953,24 @@
 
         let svgContent = `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet" style="margin-top: 15px;">`;
 
-        // --- GRIM Axes and Grid (Dirt Gray) ---
-        svgContent += `<line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" stroke="var(--grime-text)" stroke-width="3" stroke-linecap="round"></line>`;
-        svgContent += `<line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke="var(--grime-text)" stroke-width="3" stroke-linecap="round"></line>`;
+        // Axes and Grids
+        svgContent += `<line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" stroke="var(--main-dirt)" stroke-width="3" stroke-linecap="round"></line>`;
+        svgContent += `<line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke="var(--main-dirt)" stroke-width="3" stroke-linecap="round"></line>`;
 
         for (let i = 0; i <= yMax; i += 10000) {
             const y = yScale(i);
-            // faint grimy grid lines
-            svgContent += `<line x1="${padding}" y1="${y}" x2="${width - padding}" y2="${y}" stroke="var(--grime-faint)" stroke-width="2" stroke-dasharray="6,6"></line>`;
-            svgContent += `<text x="${padding - 15}" y="${y + 5}" fill="var(--grime-text)" text-anchor="end" font-size="16" font-family="var(--font-data)" font-weight="700">$${i / 1000}K</text>`;
+            svgContent += `<line x1="${padding}" y1="${y}" x2="${width - padding}" y2="${y}" stroke="var(--light-rubbish)" stroke-width="2" stroke-dasharray="6,6"></line>`;
+            svgContent += `<text x="${padding - 15}" y="${y + 5}" fill="var(--dark-grime)" text-anchor="end" font-size="16" font-weight="bold">$${i / 1000}K</text>`;
         }
 
         for (let year = 2017; year <= today.getFullYear() + 1; year++) {
             const x = xScale(new Date(`${year}-01-01`));
-            svgContent += `<text x="${x}" y="${height - padding + 25}" fill="var(--grime-text)" text-anchor="middle" font-size="16" font-weight="700">${year}</text>`;
+            svgContent += `<text x="${x}" y="${height - padding + 25}" fill="var(--dark-grime)" text-anchor="middle" font-size="16" font-weight="bold">${year}</text>`;
         }
         
         const points = graphData.map(d => `${xScale(d.date)},${yScale(d.value)}`).join(' ');
         
-        // --- Grim Squiggle Path (Mold Green or Rust brown) ---
-        // I will use mold green for squiggle path, for better visibility, and change drop shadow to grimy.
-        svgContent += `<polyline points="${points}" fill="none" stroke="var(--negative-rust)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" class="line-path"></polyline>`;
+        svgContent += `<polyline points="${points}" fill="none" stroke="var(--accent-rust)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" class="line-path"></polyline>`;
         
         svgContent += `</svg>`;
         graphContainerEl.innerHTML = svgContent;
@@ -1005,16 +990,16 @@
         html += '<thead><tr><th>PERIOD</th><th>RETURN</th></tr></thead><tbody>';
         
         periods.forEach(p => {
-            let color = 'var(--positive-grim)';
+            let color = 'var(--muted-green)';
             let valStr = p.val;
-            if(valStr && valStr.includes('-')) color = 'var(--negative-rust)';
+            if(valStr && valStr.includes('-')) color = 'var(--accent-rust)';
             
             if(!valStr.includes('%') && valStr !== '') {
                 const f = parseFloat(valStr);
                 if(!isNaN(f)) valStr = f.toFixed(2) + '%';
             }
 
-            html += `<tr><td>${p.label}</td><td style="font-family: var(--font-data); color:${color}; font-weight:700; font-size:1.1rem;">${valStr}</td></tr>`;
+            html += `<tr><td>${p.label}</td><td style="color:${color}; font-weight:900; font-size:1.1rem;">${valStr}</td></tr>`;
         });
         html += '</tbody></table>';
         returnsTableContainerEl.innerHTML = html;
@@ -1029,22 +1014,22 @@
         container.innerHTML = '';
 
         if (updates.length === 0) {
-            container.innerHTML = '<div style="font-family:var(--font-fancy); text-align:center; opacity:0.6; font-weight:700;">No updates... 🌸</div>';
+            container.innerHTML = '<div style="text-align:center; opacity:0.6; font-weight:bold;">No new junk... 🗑️</div>';
             return;
         }
 
         updates.forEach((update) => {
             const div = document.createElement('div');
             let extraClass = '';
-            let emoji = '🌫️'; // derelict items
+            let emoji = '📝';
             const upperText = update.toUpperCase();
             
             if (upperText.includes('BUY')) {
-                extraClass = 'log-buy'; emoji = '🛍️'; // keep distinct emojis
+                extraClass = 'log-buy'; emoji = '🛒';
             } else if (upperText.includes('SELL') || upperText.includes('SOLD')) {
-                extraClass = 'log-sell'; emoji = '💸'; // distinct
+                extraClass = 'log-sell'; emoji = '💸';
             } else if (upperText.includes('PAID')) {
-                extraClass = 'log-paid'; emoji = '💰'; // distinct
+                extraClass = 'log-paid'; emoji = '🧾';
             }
 
             div.className = `update-entry wiggle-hover ${extraClass}`;
@@ -1057,35 +1042,33 @@
     // Cache elements outside the function loop to save processing time
     let wobbleElements = [];
     
-    // --- RANDOM CHAOTIC SPONTANEOUS WOBBLES & POPS ---
+    // --- RANDOM SPONTANEOUS WOBBLES & POPS ---
     function startRandomWobbles() {
         if(wobbleElements.length === 0) {
-            wobbleElements = Array.from(document.querySelectorAll('.hud-panel, .metric-item, .holding-card, .poll-wrapper, .update-entry, #imageContainer'));
+            wobbleElements = Array.from(document.querySelectorAll('.hud-panel, .metric-item, .holding-card, .poll-wrapper'));
         }
 
         if (wobbleElements.length > 0) {
-            // erratic number to animate
-            const numToAnimate = Math.floor(Math.random() * 3) + 1; 
+            const numToAnimate = Math.floor(Math.random() * 2) + 1;
             for(let i=0; i<numToAnimate; i++) {
                 const el = wobbleElements[Math.floor(Math.random() * wobbleElements.length)];
                 if(!el.classList.contains('random-pop')) {
                     el.classList.add('random-pop');
-                    setTimeout(() => el.classList.remove('random-pop'), 1000); // population logic is distinct
+                    setTimeout(() => el.classList.remove('random-pop'), 800);
                 }
             }
         }
         
-        // nervous next time variations
-        const nextTime = Math.random() * 2500 + 1000;
+        const nextTime = Math.random() * 3000 + 1500;
         setTimeout(startRandomWobbles, nextTime);
     }
 
-    // --- GRIM EMOJI RAIN EFFECT (Trash items rain) ---
+    // --- EMOJI RAIN EFFECT ---
     document.getElementById('emojiRainBtn').addEventListener('click', function(e) {
         e.preventDefault();
         
-        // derelict building, bricks, mist, wrench, bin, plaster, old coins, bucket, basket, scroll/paper scraps
-        const emojis = ['💰', '💸', '🏚️', '🧱', '🌫️', '🔧', '🗑️', '🩹', '🪙', '🕯️', '🪣', '🧺', '📜']; 
+        // Grimy emojis for the broke theme
+        const emojis = ['💸', '📉', '💩', '🏚️', '🗑️', '🪰', '🐀'];
         
         for (let i = 0; i < 50; i++) {
             setTimeout(() => {
@@ -1096,44 +1079,43 @@
                 drop.style.left = Math.random() * 100 + 'vw';
                 drop.style.fontSize = (Math.random() * 2 + 1.5) + 'rem';
                 
-                // nervous and varied duration
-                const duration = Math.random() * 3 + 2; 
+                const duration = Math.random() * 2 + 2; 
                 drop.style.animationDuration = duration + 's';
                 
                 document.body.appendChild(drop);
                 
                 setTimeout(() => drop.remove(), duration * 1000);
-            }, i * 50); // nervous drop rate variation
+            }, i * 40);
         }
     });
 
     // --- MAIN EXECUTION ---
     async function main() {
-        // Start the fetch process immediately to run parallel with our typing animation. 
+        // IMPROVEMENT: Start the fetch process immediately to run parallel with our typing animation. 
+        // This halves the apparent load time for users!
         const dataPromise = getSheetData();
 
-        await typeText(loadingTextEl, 'Scrounging for data... 🫣', 35);
-        await typeDots(loadingTextEl, 4, 200);
+        await typeText(loadingTextEl, 'RUMMAGING FOR SCRAPS... 🗑️', 30);
+        await typeDots(loadingTextEl, 4, 150);
         await sleep(200);
         
-        // Wait for the data fetch to finish.
+        // Wait for the data fetch that started earlier to finish.
         const sheetData = await dataPromise;
         
         if (!sheetData) return;
 
         // Populate and display ticker from Cell J1 (Row index 0, Col index 9)
         if (sheetData[0] && sheetData[0].length > 9 && sheetData[0][9]) {
-            // grim typewriter font logic is in CSS
             tickerTextEl.innerHTML = escapeHTML(sheetData[0][9]);
             tickerWrapEl.style.display = 'block';
         }
 
         loadingTextEl.innerHTML = '';
-        await typeText(loadingTextEl, 'analysing 🧐', 35);
-        await typeDots(loadingTextEl, 4, 200);
+        await typeText(loadingTextEl, 'FOUND SOME CRUMPLED RECIEPTS... 🧾', 30);
+        await typeDots(loadingTextEl, 4, 150);
         await sleep(300);
         
-        // --- GRIM UP/DOWN TODAY LOGIC ---
+        // --- NEW UP/DOWN TODAY LOGIC ---
         let todayChangeStr = (sheetData[0] && sheetData[0].length > 14 && sheetData[0][14]) ? escapeHTML(sheetData[0][14].trim()) : "$0";
         let todayChangeVal = parseFloat(todayChangeStr.replace(/[^0-9.-]+/g,"")) || 0;
 
@@ -1141,26 +1123,21 @@
         let finalMessage = "";
 
         if (todayChangeVal >= 0) {
-            // green mold look for positive
-            finalMessage = `YOU'RE UP ${todayChangeStr}% TODAY! 🧐`;
-            loadingTextEl.style.color = 'var(--positive-grim)';
-            loadingTextEl.style.transform = 'scale(1.06)'; // weak scale
+            finalMessage = `YOU MADE ${todayChangeStr} TODAY! LUNCH IS ON YOU! 🥪`;
+            loadingTextEl.style.color = 'var(--muted-green)';
         } else {
-            // rusted metal look for negative
-            finalMessage = `YOU'RE DOWN ${todayChangeStr.replace('-', '')}% TODAY... 😭`;
-            loadingTextEl.style.color = 'var(--negative-rust)';
-            loadingTextEl.style.transform = 'scale(1.06)'; // weak scale
+            finalMessage = `LOST ${todayChangeStr.replace('-', '')} TODAY. RAMEN NOODLES AGAIN. 🍜`;
+            loadingTextEl.style.color = 'var(--accent-rust)';
         }
         
         loadingTextEl.style.transition = 'all 0.3s ease';
         
-        await typeText(loadingTextEl, finalMessage, 35);
+        await typeText(loadingTextEl, finalMessage, 30);
         await sleep(2500); 
 
         loadingContainerEl.style.display = 'none';
         metricsContainerEl.style.display = 'flex';
 
-        // Grim data values Population (VT323 monospaced look)
         const jokingValue = parseFloat(sheetData[1][3]).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }) || '$0';
         const unitRaw = sheetData[1][4];
         const unitPrice = parseFloat(unitRaw).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
