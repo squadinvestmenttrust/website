@@ -17,7 +17,7 @@
             --main-dirt: #7c644d; /* Cardboard brown */
             --dark-grime: #3e3125; /* Dark shadow/dirt */
             --light-rubbish: #c4b7a5; /* Lighter beige/grey */
-            --dirty-white: #ffffff; /* UPDATED: Pure white background as requested */
+            --dirty-white: #e0d8c9; /* Off-white/grey background */
             --accent-rust: #9c3b2b; /* Rust/red-brown */
             --muted-green: #5a7247; /* Moldy green for 'positive' */
             
@@ -32,13 +32,9 @@
             box-sizing: border-box;
         }
 
-        /* --- GRIMY BACKGROUND & TEXTURE --- */
+        /* --- CLEAN WHITE BACKGROUND --- */
         body {
-            background: var(--dirty-white);
-            background-image: url('https://i.ibb.co/M0bq2Hr/Broke.jpg'); /* Fallback/Texture hint */
-            background-size: cover;
-            background-blend-mode: overlay;
-            background-attachment: fixed;
+            background: #FFFFFF;
             color: var(--dark-grime);
             font-family: var(--font-family);
             margin: 0;
@@ -46,14 +42,6 @@
             font-size: 15px;
             overflow-x: hidden;
             width: 100%; 
-        }
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 255, 255, 0.85); /* UPDATED: Lighter white overlay */
-            pointer-events: none;
-            z-index: -1;
         }
 
         /* --- TICKER --- */
@@ -75,7 +63,7 @@
             font-size: 1.1rem;
             letter-spacing: 1px;
             padding-left: 100%;
-            animation: ticker 20s linear infinite; /* UPDATED: Faster ticker speed */
+            animation: ticker 30s linear infinite; /* Slower ticker for a tired feel */
         }
         @keyframes ticker {
             0% { transform: translateX(0); }
@@ -144,7 +132,7 @@
             margin: auto;
             max-width: 100% !important;
             height: auto !important;
-            mix-blend-mode: multiply; /* Blends the image into the dirty background */
+            mix-blend-mode: multiply; /* Blends the image into the background */
             filter: contrast(1.1) sepia(0.2); /* Enhances the grimy look */
         }
 
@@ -501,8 +489,8 @@
         }
 
         /* =========================================
-           📱 MOBILE RESPONSIVE MEDIA QUERIES 📱 
-           ========================================= */
+            📱 MOBILE RESPONSIVE MEDIA QUERIES 📱 
+            ========================================= */
         @media (max-width: 800px) {
             .dashboard-grid { 
                 grid-template-columns: 1fr; 
@@ -588,7 +576,7 @@
     
     <div class="tagline-container">
         <div class="tagline">
-            BUY HIGH, SELL LOW, STAY BROKE
+            BUY JUNK, LOSE MONEY
         </div>
     </div>
 
@@ -630,7 +618,7 @@
 
         <!-- Returns -->
         <div class="hud-panel">
-            <div class="hud-title">📉 LOSSES TO 30 APR</div>
+            <div class="hud-title">📉 LOSSES TO 31 MAY</div>
             <div id="returns-table-container"></div>
         </div>
 
@@ -1161,4 +1149,3 @@
 </script>
 </body>
 </html>
-```eof
