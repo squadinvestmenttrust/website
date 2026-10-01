@@ -562,12 +562,12 @@
 <div class="main-container">
     <div id="imageContainer">
       <!-- Added loading="eager" and width/height hints to prevent CLS -->
-      <img id="headerImage" src="https://i.ibb.co/1tC77Jmh/Halloween.png" alt="Header Image" width="400" height="auto" loading="eager">
+      <img id="headerImage" src="https://i.ibb.co/k6GXtRtc/Future.jpg" alt="Header Image" width="400" height="auto" loading="eager">
     </div>
     
     <div class="tagline-container">
         <div class="tagline">
-            BUY TREATS, SELL TRICKS
+            BUY CUTSIE, SELL UGLY
         </div>
     </div>
 
@@ -1073,7 +1073,7 @@
         // This halves the apparent load time for users!
         const dataPromise = getSheetData();
 
-        await typeText(loadingTextEl, 'STIRING THE CULDRAN 🧙‍♀️', 30);
+        await typeText(loadingTextEl, 'WAKE UP SLEEPY HEADS 😴', 30);
         await typeDots(loadingTextEl, 4, 150);
         await sleep(200);
         
@@ -1089,7 +1089,7 @@
         }
 
         loadingTextEl.innerHTML = '';
-        await typeText(loadingTextEl, 'GHOULS SUMMONED 🧌', 30);
+        await typeText(loadingTextEl, 'TIME TO MAKE MONEY 🤑', 30);
         await typeDots(loadingTextEl, 4, 150);
         await sleep(300);
         
@@ -1120,7 +1120,7 @@
 
         const jokingValue = parseFloat(sheetData[1][3]).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }) || '$0';
         const unitRaw = sheetData[1][4];
-        const unitPrice = parseFloat(unitRaw).toLocaleString('en-US', { style: 'currency', currency: 'I'll USD' });
+        const unitPrice = parseFloat(unitRaw).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
         const tendiesValue = parseFloat(sheetData[1][5]).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }) || '$0';
 
         aumTextEl.textContent = jokingValue;
