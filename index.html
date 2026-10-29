@@ -3,2127 +3,1141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="description" content="SQUAD INVESTMENT TRUST - 3D Voxel Portfolio Explorer">
-    <title>SQUAD INVESTMENT TRUST</title>
-
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Three.js (r128) & Tone.js for procedural Minecraft sound effects -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
-
-    <!-- Pixel Fonts -->
+    <meta name="description" content="Squad Investment Trust Dashboard">
+    <title>Squad Investment Trust 💖✨</title>
+    
+    <!-- Preconnecting to speed up font loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --mc-bg: #1e1e1e;
-            --mc-panel: #c6c6c6;
-            --mc-border-light: #ffffff;
-            --mc-border-dark: #555555;
-            --mc-slot: #8b8b8b;
-            --mc-green: #55ff55;
-            --mc-red: #ff5555;
-            --mc-gold: #ffaa00;
-            --mc-aqua: #55ffff;
+            --main-pink: #ff69b4;
+            --hot-pink: #ff1493;
+            --light-pink: #ffb6c1;
+            --pastel-purple: #e6e6fa;
+            --deep-purple: #4a0e4e;
+            --bg-gradient-1: #ff9a9e;
+            --bg-gradient-2: #fecfef;
+            --bg-gradient-3: #a1c4fd;
+            --bg-gradient-4: #c2e9fb;
+            --panel-bg: rgba(255, 255, 255, 0.85);
+            --font-family: 'Nunito', sans-serif;
+            --positive-green: #00c853;
+            --negative-red: #ff4d4d;
         }
 
-        * {
+        /* --- PREVENT HORIZONTAL SCROLLING --- */
+        *, *::before, *::after {
             box-sizing: border-box;
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-touch-callout: none;
         }
 
-        body, html {
+        /* --- ANIMATED BUBBLEGUM BACKGROUND --- */
+        body {
+            background: #ffffff;
+            color: var(--deep-purple);
+            font-family: var(--font-family);
             margin: 0;
-            padding: 0;
+            padding: 0 0 20px 0;
+            font-size: 15px;
+            overflow-x: hidden;
+            width: 100%; 
+        }
+
+        /* --- TICKER --- */
+        .ticker-wrap {
             width: 100%;
-            height: 100%;
+            background-color: #ffebf7;
+            padding: 8px 0;
             overflow: hidden;
-            background-color: #111;
-            font-family: 'VT323', monospace;
-            touch-action: none;
-        }
-
-        .font-pixel {
-            font-family: 'Press Start 2P', monospace;
-        }
-
-        .font-mc {
-            font-family: 'VT323', monospace;
-        }
-
-        #game-canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 1;
-        }
-
-        /* Classic Minecraft 3D Beveled UI Panel */
-        .mc-panel {
-            background-color: #c6c6c6;
-            border-top: 3px solid #ffffff;
-            border-left: 3px solid #ffffff;
-            border-right: 3px solid #555555;
-            border-bottom: 3px solid #555555;
-            box-shadow: 0 0 0 2px #000000;
-            color: #222;
-        }
-
-        .mc-dark-panel {
-            background-color: rgba(16, 12, 24, 0.88);
-            border: 3px solid #5000ff;
-            box-shadow: 0 0 0 2px #100010, inset 0 0 12px rgba(80, 0, 255, 0.35);
-            color: #ffffff;
-        }
-
-        .mc-slot {
-            background-color: #8b8b8b;
-            border-top: 2px solid #373737;
-            border-left: 2px solid #373737;
-            border-right: 2px solid #ffffff;
-            border-bottom: 2px solid #ffffff;
-            position: relative;
-            transition: transform 0.08s ease;
-        }
-
-        .mc-slot.active {
-            border: 3px solid #ffffff;
-            box-shadow: 0 0 0 2px #000, inset 0 0 8px rgba(255, 255, 255, 0.6);
-            transform: scale(1.07);
-            z-index: 10;
-            background-color: #a0a0a0;
-        }
-
-        .mc-btn {
-            background-color: #7d7d7d;
-            border-top: 3px solid #aaaaaa;
-            border-left: 3px solid #aaaaaa;
-            border-right: 3px solid #3b3b3b;
-            border-bottom: 3px solid #3b3b3b;
-            box-shadow: 0 0 0 2px #000000;
-            color: #ffffff;
-            text-shadow: 2px 2px 0px #222222;
-            cursor: pointer;
-        }
-
-        .mc-btn:active {
-            border-top: 3px solid #3b3b3b;
-            border-left: 3px solid #3b3b3b;
-            border-right: 3px solid #aaaaaa;
-            border-bottom: 3px solid #aaaaaa;
-            transform: translateY(1px);
-        }
-
-        /* Boss Bar Health / Ticker Style */
-        .boss-bar-bg {
-            background: #2b092b;
-            border: 2px solid #140314;
-            box-shadow: inset 0 2px 0 rgba(0,0,0,0.6), 0 2px 4px rgba(0,0,0,0.5);
-            height: 14px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .boss-bar-fill {
-            background: linear-gradient(90deg, #d91ce0, #ff55ff, #00e5ff);
-            height: 100%;
-            width: 100%;
-            transition: width 0.5s ease;
-        }
-
-        /* Scrolling Ticker inside Boss Bar Header */
-        .ticker-marquee {
             white-space: nowrap;
-            overflow: hidden;
-            width: 100%;
+            box-sizing: border-box;
+            border-bottom: 2px solid var(--light-pink);
+            display: none; 
+            will-change: transform; /* Hint to GPU */
         }
-
-        .ticker-content {
+        .ticker-text {
             display: inline-block;
+            color: #c781ff;
+            font-weight: 900;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
             padding-left: 100%;
-            animation: marquee 24s linear infinite;
+            animation: ticker 20s linear infinite;
         }
-
-        @keyframes marquee {
+        @keyframes ticker {
             0% { transform: translateX(0); }
             100% { transform: translateX(-100%); }
         }
 
-        /* Crosshair */
-        #crosshair {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 18px;
-            height: 18px;
-            pointer-events: none;
-            z-index: 15;
-            opacity: 0.75;
+        .main-container {
+            max-width: 1100px;
+            margin: auto;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            padding: 20px 10px;
         }
-        #crosshair::before, #crosshair::after {
-            content: '';
+
+        /* --- CUTSIE ANIMATIONS --- */
+        @keyframes wiggle {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(3deg) scale(1.03); }
+            50% { transform: rotate(0deg) scale(1.03); }
+            75% { transform: rotate(-3deg) scale(1.03); }
+            100% { transform: rotate(0deg); }
+        }
+        .wiggle-hover {
+            transition: transform 0.2s ease, z-index 0.2s ease;
+            will-change: transform; /* Hardware acceleration for smoother paints */
+        }
+        .wiggle-hover:hover {
+            animation: wiggle 0.4s ease-in-out infinite;
+            z-index: 10;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.06); }
+            100% { transform: scale(1); }
+        }
+
+        /* --- RANDOM SPONTANEOUS POP ANIMATION --- */
+        @keyframes randomPop {
+            0% { transform: scale(1) rotate(0deg); }
+            30% { transform: scale(1.08) rotate(2deg); }
+            50% { transform: scale(0.95) rotate(-2deg); }
+            70% { transform: scale(1.04) rotate(1deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+        .random-pop {
+            animation: randomPop 0.8s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+            z-index: 50;
+        }
+
+        /* --- HEADER & IMAGES --- */
+        #imageContainer {
+            background: transparent; 
+            box-shadow: none; 
+            padding: 0;
+            margin-bottom: 20px;
+            width: 100%;
+            text-align: center;
+            min-height: 120px; /* Prevents CLS (Cumulative Layout Shift) */
+        }
+        
+        #imageContainer img {
+            display: block;
+            margin: auto;
+            max-width: 100% !important;
+            height: auto !important;
+        }
+
+        .tagline-container {
+            text-align: center;
+            margin-top: 10px;
+            perspective: 1000px;
+            padding: 0 10px;
+        }
+        .tagline {
+            display: inline-block;
+            font-size: 1.1rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: var(--hot-pink);
+            text-shadow: 2px 2px 0px rgba(255,255,255,0.7);
+            cursor: pointer;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+            will-change: transform;
+        }
+        .tagline:hover {
+            transform: rotateX(360deg) scale(1.15);
+        }
+
+        /* --- LAYOUT UTILS --- */
+        .loading-section {
+            text-align: center;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, var(--bg-gradient-2) 0%, #fff0f5 100%);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(255, 105, 180, 0.15);
+            border: 2px solid var(--light-pink);
+            width: 100%;
+            min-height: 85px; /* Prevent layout shift while typing */
+        }
+
+        .header-text {
+            min-height: 1.2em;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin: 8px 0;
+            color: var(--deep-purple);
+            word-wrap: break-word;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+
+        /* --- NEW METRICS HEADER --- */
+        .metrics-container {
+            display: none; 
+            justify-content: space-around;
+            align-items: stretch;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .metric-item {
+            text-align: center;
+            flex: 1;
+            min-width: 120px;
+            padding: 15px 10px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, var(--pastel-purple) 0%, #f8f8ff 100%);
+            border: 2px solid var(--light-pink);
+            box-shadow: 0 5px 20px rgba(230, 230, 250, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            font-weight: 900;
+            color: var(--hot-pink);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .metric-value {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--deep-purple);
+            word-wrap: break-word;
+        }
+
+        /* Center AUM Styling */
+        .metric-main {
+            flex: 1.5;
+            background: linear-gradient(135deg, var(--bg-gradient-2) 0%, var(--bg-gradient-1) 100%);
+            border: 3px solid var(--main-pink);
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 105, 180, 0.4);
+        }
+        .metric-main .metric-label {
+            font-size: 1rem;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        .metric-main .metric-value {
+            font-size: 2.2rem;
+            color: white;
+            font-weight: 900;
+            text-shadow: 2px 2px 0px rgba(255, 20, 147, 0.4);
+            animation: pulse 2.5s infinite ease-in-out;
+            will-change: transform;
+        }
+
+        /* Main Grid: 2 columns */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            width: 100%;
+        }
+
+        /* --- HUD PANELS (GLASSMORPHISM) --- */
+        .hud-panel {
+            background: linear-gradient(135deg, #fffafa 0%, var(--bg-gradient-2) 100%);
+            border-radius: 24px;
+            padding: 25px 20px 20px 20px;
+            box-shadow: 0 8px 32px rgba(255, 105, 180, 0.15);
+            border: 2px solid var(--light-pink);
+            position: relative;
+            width: 100%;
+        }
+        
+        .hud-title {
             position: absolute;
-            background: rgba(255, 255, 255, 0.9);
-            box-shadow: 0 0 2px #000;
-        }
-        #crosshair::before {
-            top: 8px; left: 0; width: 18px; height: 2px;
-        }
-        #crosshair::after {
-            top: 0; left: 8px; width: 2px; height: 18px;
-        }
-
-        /* Virtual Joystick */
-        #joystick-zone {
-            position: fixed;
-            bottom: 84px;
-            left: 18px;
-            width: 116px;
-            height: 116px;
-            border-radius: 16px;
-            background: rgba(0, 0, 0, 0.38);
-            border: 2px solid rgba(255, 255, 255, 0.35);
-            z-index: 25;
-            touch-action: none;
+            top: -18px;
+            left: 20px;
+            background: linear-gradient(135deg, #ff7eb3 0%, #ff758c 100%);
+            color: white;
+            padding: 6px 16px;
+            font-weight: 900;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(255, 117, 140, 0.4);
+            border: 2px solid white;
+            white-space: nowrap;
+            z-index: 2;
         }
 
-        #joystick-knob {
+        #returns-table-container, #graph-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        /* --- HOLDINGS TABLE (HEATMAP CARDS) --- */
+        .holdings-grid-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 8px; 
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .holding-card {
+            background: #fff0f5;
+            border: 2px dashed var(--light-pink);
+            padding: 8px 10px; 
+            border-radius: 12px; 
+            min-width: 0; 
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .holding-name {
+            font-weight: 900;
+            font-size: 0.9rem; 
+            color: var(--deep-purple);
+            display: block;
+            margin-bottom: 4px; 
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+        }
+
+        .holding-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem; 
+            font-weight: 700;
+            margin-bottom: 2px; 
+        }
+        
+        /* --- CHART STYLING --- */
+        svg {
+            width: 100%;
+            height: auto;
+            overflow: visible;
+        }
+        .chart-tooltip {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 46px;
-            height: 46px;
-            margin-top: -23px;
-            margin-left: -23px;
-            background: rgba(198, 198, 198, 0.85);
-            border-top: 3px solid #fff;
-            border-left: 3px solid #fff;
-            border-right: 3px solid #444;
-            border-bottom: 3px solid #444;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+            background: var(--hot-pink);
+            color: white;
+            border: 2px solid white;
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: bold;
             pointer-events: none;
+            display: none;
+            z-index: 100;
+            box-shadow: 0 4px 15px rgba(255, 20, 147, 0.4);
+            white-space: nowrap;
+        }
+        .pie-slice {
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.2s;
+            transform-origin: center;
+        }
+        .pie-slice:hover { 
+            opacity: 0.8; 
+            transform: scale(1.03);
+        }
+        
+        .line-path {
+            stroke-dasharray: 2000;
+            stroke-dashoffset: 2000;
+            animation: drawLine 2.5s ease-out forwards;
+            filter: drop-shadow(0px 4px 6px rgba(255, 20, 147, 0.3));
+        }
+        @keyframes drawLine { to { stroke-dashoffset: 0; } }
+
+        /* --- RETURNS TABLE --- */
+        .returns-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.95rem;
+            margin-top: 10px;
+            min-width: 250px; 
+        }
+        .returns-table td, .returns-table th {
+            border-bottom: 2px dotted var(--light-pink);
+            padding: 14px; 
+            text-align: left;
+            font-weight: 700;
+        }
+        .returns-table th { 
+            color: var(--hot-pink);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 3px solid var(--main-pink);
+        }
+        .returns-table td:last-child, .returns-table th:last-child {
+            text-align: right;
+        }
+        .returns-table tr:last-child td {
+            border-bottom: none;
         }
 
-        /* Custom Scrollbar for Chest Modal */
-        .mc-scroll::-webkit-scrollbar {
-            width: 10px;
+        /* --- TYPING CURSOR (💖) --- */
+        .cursor::after {
+            content: ' 💖';
+            animation: blink 1s step-end infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-bottom: 2px;
         }
-        .mc-scroll::-webkit-scrollbar-track {
-            background: #555;
-            border: 2px solid #222;
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* --- LOGS (CHAT BUBBLES) --- */
+        #updatesContainer {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
-        .mc-scroll::-webkit-scrollbar-thumb {
-            background: #c6c6c6;
-            border: 2px solid #fff;
+        .update-entry {
+            background: var(--pastel-purple);
+            color: var(--deep-purple);
+            padding: 12px 16px;
+            border-radius: 20px;
+            border-bottom-left-radius: 5px;
+            font-weight: 700;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            display: inline-block;
+            max-width: 100%;
+            position: relative;
+            cursor: pointer;
+            word-wrap: break-word;
+        }
+        
+        .log-buy { background: #d4edda; color: #155724; border: 2px solid #c3e6cb; }
+        .log-sell { background: #ff9ba2; color: #6d2947; border: 2px solid #ff6672; }
+        .log-paid { background: #fff3cd; color: #856404; border: 2px solid #ffeeba; }
+
+        /* Poll Container & Button */
+        .poll-wrapper {
+            background: linear-gradient(135deg, var(--bg-gradient-4) 0%, var(--bg-gradient-3) 100%);
+            border-radius: 24px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(161, 196, 253, 0.4);
+            border: 2px solid white;
+            text-align: center;
+            margin-top: 2rem;
+            width: 100%;
         }
 
-        .text-shadow-mc {
-            text-shadow: 2px 2px 0px #000000;
+        .squad-btn {
+            background: linear-gradient(135deg, var(--main-pink) 0%, var(--hot-pink) 100%);
+            color: white;
+            border: 2px solid white;
+            border-radius: 20px;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 20, 147, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 15px;
+            font-family: var(--font-family);
+            width: 100%;
+            max-width: 300px;
         }
+
+        .squad-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 8px rgba(255, 20, 147, 0.4);
+        }
+
+        /* --- EMOJI RAIN ANIMATION --- */
+        @keyframes fallAndSpin {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+        }
+
+        .emoji-drop {
+            position: fixed;
+            top: -10vh;
+            z-index: 9999;
+            pointer-events: none;
+            animation: fallAndSpin linear forwards;
+            will-change: transform, opacity;
+        }
+
+        /* =========================================
+            📱 MOBILE RESPONSIVE MEDIA QUERIES 📱 
+            ========================================= */
+        @media (max-width: 800px) {
+            .dashboard-grid { 
+                grid-template-columns: 1fr; 
+                gap: 2.5rem; 
+            }
+            .main-container { 
+                padding: 15px 10px; 
+            } 
+            .metric-main { 
+                transform: scale(1); 
+            }
+        }
+
+        @media (max-width: 600px) {
+            body {
+                font-size: 13px;
+            }
+            .main-container {
+                padding: 10px 5px;
+            }
+            .tagline {
+                font-size: 0.95rem;
+            }
+            .metrics-container {
+                flex-direction: column; 
+                gap: 10px;
+            }
+            .metric-item {
+                width: 100%;
+                min-width: unset;
+                padding: 10px 8px;
+            }
+            .metric-label {
+                font-size: 0.75rem;
+            }
+            .metric-value {
+                font-size: 1.15rem;
+            }
+            .metric-main .metric-value {
+                font-size: 1.6rem;
+            }
+            .hud-panel {
+                padding: 25px 10px 15px 10px;
+            }
+            .hud-title {
+                font-size: 0.8rem;
+                padding: 5px 12px;
+                left: 10px;
+            }
+            .returns-table td, .returns-table th {
+                padding: 10px 5px; 
+                font-size: 0.85rem;
+            }
+            #pie-chart-container {
+                width: 100% !important; 
+            }
+            .update-entry {
+                font-size: 0.85rem;
+                padding: 10px 12px;
+            }
+            .squad-btn {
+                font-size: 0.95rem;
+                padding: 10px 20px;
+            }
+        }
+
     </style>
 </head>
 <body>
 
-    <!-- 3D WebGL Canvas -->
-    <canvas id="game-canvas"></canvas>
+<!-- NEW SCROLLING TICKER -->
+<div class="ticker-wrap" id="ticker-wrap">
+    <div class="ticker-text" id="ticker-text">...</div>
+</div>
 
-    <!-- Center Crosshair -->
-    <div id="crosshair"></div>
+<div id="tooltip" class="chart-tooltip"></div>
 
-    <!-- Loading Screen (Minecraft Dirt Screen Style - Dismisses automatically right into the game) -->
-    <div id="loading-overlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#241911] text-white p-4 transition-opacity duration-500">
-        <div class="max-w-md w-full text-center space-y-4">
-            <div class="inline-block px-3 py-1 bg-[#55ff55]/20 border border-[#55ff55] text-[#55ff55] text-sm font-pixel">
-                VOXEL ENGINE v1.26
-            </div>
-            <h1 class="font-pixel text-xl sm:text-2xl text-[#ffaa00] text-shadow-mc leading-relaxed">
-                SQUAD INVESTMENT TRUST
-            </h1>
-            <p id="loading-status" class="text-xl text-gray-200 text-shadow-mc tracking-wide">
-                Generating Terrain & Syncing Google Sheets...
-            </p>
-            <div class="w-full h-6 bg-[#111] border-2 border-[#555] p-0.5 mx-auto max-w-xs">
-                <div id="loading-bar" class="h-full bg-[#55ff55] transition-all duration-300" style="width: 25%"></div>
-            </div>
-            <p class="text-sm text-gray-400">
-                BUY TREATS, SELL TRICKS • DEPLOYING INTO WORLD
-            </p>
+<div class="main-container">
+    <div id="imageContainer">
+      <!-- Added loading="eager" and width/height hints to prevent CLS -->
+      <img id="headerImage" src="https://i.ibb.co/t1DgsQm/Hell.jpg" alt="Header Image" width="400" height="auto" loading="eager">
+    </div>
+    
+    <div class="tagline-container">
+        <div class="tagline">
+            BUY TREATS, SELL TRICKS
         </div>
     </div>
 
-    <!-- TOP HUD: Title, Boss Bar Ticker, Mini-Stats & Quick Controls -->
-    <div class="fixed top-0 left-0 right-0 z-20 pointer-events-none p-2 sm:p-3 flex flex-col items-center">
-        <!-- Boss Bar Container -->
-        <div class="w-full max-w-2xl pointer-events-auto">
-            <div class="flex items-center justify-between gap-2 mb-1 px-1">
-                <div class="flex items-center gap-2">
-                    <span class="font-pixel text-[10px] sm:text-xs text-[#ffaa00] text-shadow-mc tracking-tighter">
-                        ⛏️ SQUAD INVESTMENT TRUST
-                    </span>
-                    <span id="hud-today-badge" class="px-1.5 py-0.5 text-xs sm:text-sm font-bold bg-black/75 border border-white/30 text-[#55ff55] rounded">
-                        LOADING...
-                    </span>
-                </div>
-                <div class="flex items-center gap-1.5">
-                    <button id="sound-toggle-btn" class="mc-btn px-2 py-0.5 text-xs sm:text-sm flex items-center gap-1" title="Toggle Sound">
-                        <span id="sound-icon">🔊</span> <span class="hidden sm:inline">SFX</span>
-                    </button>
-                    <button id="open-chest-btn-top" class="mc-btn px-2 py-0.5 text-xs sm:text-sm bg-[#aa5500]" title="Open Full Portfolio Chest">
-                        📦 DATA CHEST
-                    </button>
-                </div>
-            </div>
+    <br>
 
-            <!-- Boss Bar Health + Live Ticker -->
-            <div class="boss-bar-bg rounded-sm">
-                <div id="boss-bar-fill" class="boss-bar-fill"></div>
-            </div>
-            <div class="bg-black/65 border-x border-b border-white/20 px-2 py-0.5 text-xs sm:text-sm text-[#ff88ff] ticker-marquee">
-                <div id="hud-ticker-text" class="ticker-content text-shadow-mc">
-                    SYNCING LIVE SQUAD TRUST BLOCKCHAIN LEDGER... BUY TREATS, SELL TRICKS!
-                </div>
-            </div>
+    <!-- Initial Loading Screen -->
+    <div id="loading-container" class="loading-section">
+        <div id="loading-text" class="header-text"></div>
+    </div>
+
+    <!-- The New Reordered Metrics Dashboard -->
+    <div id="metrics-container" class="metrics-container">
+        <div class="metric-item wiggle-hover">
+            <div class="metric-label">Unit Price</div>
+            <div id="unitprice-text" class="metric-value">...</div>
         </div>
-
-        <!-- Compact Floating Top Metric Pills (Always visible while walking) -->
-        <div class="grid grid-cols-3 gap-1.5 sm:gap-3 w-full max-w-xl mt-1.5 pointer-events-auto">
-            <div onclick="teleportTo('spawn')" class=" bg-black/70 border-2 border-[#55ffff]/60 px-2 py-1 text-center cursor-pointer active:scale-95 transition">
-                <div class="text-[10px] sm:text-xs text-[#55ffff] uppercase leading-none">UNIT PRICE</div>
-                <div id="hud-unit-price" class="text-sm sm:text-lg font-bold text-white text-shadow-mc leading-tight">$...</div>
-            </div>
-            <div onclick="teleportTo('spawn')" class="bg-black/80 border-2 border-[#ffaa00] px-2 py-1 text-center cursor-pointer active:scale-95 transition shadow-lg">
-                <div class="text-[10px] sm:text-xs text-[#ffaa00] font-pixel leading-none">TOTAL AUM</div>
-                <div id="hud-aum" class="text-base sm:text-xl font-bold text-[#55ff55] text-shadow-mc leading-tight">$...</div>
-            </div>
-            <div onclick="teleportTo('spawn')" class="bg-black/70 border-2 border-[#55ff55]/60 px-2 py-1 text-center cursor-pointer active:scale-95 transition">
-                <div class="text-[10px] sm:text-xs text-[#55ff55] uppercase leading-none">NET TENDIES</div>
-                <div id="hud-tendies" class="text-sm sm:text-lg font-bold text-white text-shadow-mc leading-tight">$...</div>
-            </div>
+        <div class="metric-item metric-main wiggle-hover">
+            <div class="metric-label">Total AUM</div>
+            <div id="aum-text" class="metric-value">...</div>
+        </div>
+        <div class="metric-item wiggle-hover">
+            <div class="metric-label">Net Tendies</div>
+            <div id="tendies-text" class="metric-value">...</div>
         </div>
     </div>
 
-    <!-- PROXIMITY / TARGET BLOCK INSPECTOR POPUP (Shows when looking at or near a holding tower / structure) -->
-    <div id="block-inspector" class="fixed top-32 sm:top-36 left-1/2 -translate-x-1/2 z-20 pointer-events-none hidden transition-all duration-150 w-[90%] max-w-xs">
-        <div class="mc-dark-panel p-2.5 rounded-sm text-center shadow-2xl">
-            <div id="inspector-badge" class="text-[10px] font-pixel text-[#ffaa00] uppercase tracking-wider mb-0.5">STONK BLOCK</div>
-            <div id="inspector-title" class="text-xl font-bold text-white text-shadow-mc truncate">Holding Name</div>
-            <div id="inspector-body" class="text-sm sm:text-base text-gray-200 mt-1 space-y-0.5"></div>
-        </div>
-    </div>
-
-    <!-- MOBILE LEFT VIRTUAL JOYSTICK -->
-    <div id="joystick-zone" class="flex items-center justify-center">
-        <div class="text-[10px] text-white/40 font-pixel pointer-events-none">MOVE</div>
-        <div id="joystick-knob"></div>
-    </div>
-
-    <!-- MOBILE RIGHT ACTION BUTTONS (Jump, Ride Minecart, Party TNT) -->
-    <div class="fixed bottom-[84px] right-4 z-25 flex flex-col gap-2 pointer-events-auto">
-        <button id="party-btn" class="mc-btn w-12 h-12 sm:w-14 sm:h-14 flex flex-col items-center justify-center rounded-sm" title="In Squad We Trust - Drop Emeralds!">
-            <span class="text-lg sm:text-xl leading-none">🧨</span>
-            <span class="text-[9px] font-pixel mt-0.5">TRUST</span>
-        </button>
-        <button id="cart-btn" class="mc-btn w-12 h-12 sm:w-14 sm:h-14 flex flex-col items-center justify-center rounded-sm" title="Ride the Historical AUM Rollercoaster">
-            <span class="text-lg sm:text-xl leading-none">🛤️</span>
-            <span class="text-[9px] font-pixel mt-0.5" id="cart-btn-label">RIDE</span>
-        </button>
-        <button id="jump-btn" class="mc-btn w-12 h-12 sm:w-14 sm:h-14 flex flex-col items-center justify-center rounded-sm" title="Jump">
-            <span class="text-lg sm:text-xl leading-none">⬆️</span>
-            <span class="text-[9px] font-pixel mt-0.5">JUMP</span>
-        </button>
-    </div>
-
-    <!-- look hint for mobile -->
-    <div id="look-hint" class="fixed bottom-[208px] left-4 z-15 pointer-events-none text-xs text-white/70 bg-black/50 px-2 py-0.5 rounded border border-white/20">
-        👆 Drag screen to look • Tap blocks to inspect
-    </div>
-
-    <!-- BOTTOM MINECRAFT HOTBAR (Quick Teleport & World Tools) -->
-    <div class="fixed bottom-1.5 left-0 right-0 z-30 flex flex-col items-center pointer-events-none px-1">
-        <!-- Zone Name Popup above Hotbar -->
-        <div id="hotbar-label" class="text-sm sm:text-base text-[#ffff55] text-shadow-mc mb-1 bg-black/65 px-2.5 py-0.5 rounded border border-white/20">
-            📍 Spawn Plaza: Central AUM Monument
+    <div class="dashboard-grid">
+        <!-- Holdings -->
+        <div class="hud-panel">
+            <div class="hud-title">💖 OUR STONKS</div>
+            <div id="table-container"></div>
         </div>
 
-        <div class="mc-panel p-1 flex items-center gap-1 pointer-events-auto max-w-full overflow-x-auto">
-            <button onclick="selectHotbar(0, 'spawn', '📍 Spawn Plaza: Central AUM Monument')" class=" hotbar-slot mc-slot active w-10 h-10 sm:w-12 sm:h-12 flex flex-col items-center justify-center shrink-0">
-                <span class="text-base sm:text-lg leading-none">💎</span>
-                <span class="text-[9px] sm:text-[10px] text-white text-shadow-mc leading-none mt-0.5">AUM</span>
-            </button>
-            <button onclick="selectHotbar(1, 'stonks', '🏢 Stonks Village: Holdings & Cash/Debt')" class="hotbar-slot mc-slot w-10 h-10 sm:w-12 sm:h-12 flex flex-col items-center justify-center shrink-0">
-                <span class="text-base sm:text-lg leading-none">📈</span>
-                <span class="text-[9px] sm:text-[10px] text-white text-shadow-mc leading-none mt-0.5">STONKS</span>
-            </button>
-            <button onclick="selectHotbar(2, 'pie', '🍰 Allocation Arena: Portfolio Pie Blocks')" class="hotbar-slot mc-slot w-10 h-10 sm:w-12 sm:h-12 flex flex-col items-center justify-center shrink-0">
-                <span class="text-base sm:text-lg leading-none">🍰</span>
-                <span class="text-[9px] sm:text-[10px] text-white text-shadow-mc leading-none mt-0.5">PIE</span>
-            </button>
-            <button onclick="selectHotbar(3, 'returns', '🏆 Hall of Wins: Period Returns Temple')" class="hotbar-slot mc-slot w-10 h-10 sm:w-12 sm:h-12 flex flex-col items-center justify-center shrink-0">
-                <span class="text-base sm:text-lg leading-none">🏆</span>
-                <span class="text-[9px] sm:text-[10px] text-white text-shadow-mc leading-none mt-0.5">WINS</span>
-            </button>
-            <button onclick="selectHotbar(4, 'graph', '🎢 Mt. Tendies: 3D Historical Line Graph')" class="hotbar-slot mc-slot w-10 h-10 sm:w-12 sm:h-12 flex flex-col items-center justify-center shrink-0">
-                <span class="text-base sm:text-lg leading-none">🎢</span>
-                <span class="text-[9px] sm:text-[10px] text-white text-shadow-mc leading-none mt-0.5">GRAPH</span>
-            </button>
-            <button onclick="selectHotbar(5, 'chat', '💬 Boys Chat Tavern: Trade & Dividend Logs')" class="hotbar-slot mc-slot w-10 h-10 sm:w-12 sm:h-12 flex flex-col items-center justify-center shrink-0">
-                <span class="text-base sm:text-lg leading-none">💬</span>
-                <span class="text-[9px] sm:text-[10px] text-white text-shadow-mc leading-none mt-0.5">CHAT</span>
-            </button>
-            <button onclick="selectHotbar(6, 'sky', '🦅 Elytra Sky View: Overview of Trust')" class="hotbar-slot mc-slot w-10 h-10 sm:w-12 sm:h-12 flex flex-col items-center justify-center shrink-0">
-                <span class="text-base sm:text-lg leading-none">🦅</span>
-                <span class="text-[9px] sm:text-[10px] text-white text-shadow-mc leading-none mt-0.5">FLY</span>
-            </button>
-            <button onclick="toggleDayNight()" class="hotbar-slot mc-slot w-10 h-10 sm:w-12 sm:h-12 flex flex-col items-center justify-center shrink-0">
-                <span id="time-icon" class="text-base sm:text-lg leading-none">☀️</span>
-                <span class="text-[9px] sm:text-[10px] text-white text-shadow-mc leading-none mt-0.5">TIME</span>
-            </button>
-            <button onclick="toggleChestModal(true)" class="hotbar-slot mc-slot w-10 h-10 sm:w-12 sm:h-12 flex flex-col items-center justify-center shrink-0 bg-[#aa6622]">
-                <span class="text-base sm:text-lg leading-none">📦</span>
-                <span class="text-[9px] sm:text-[10px] text-[#ffff55] text-shadow-mc leading-none mt-0.5">ALL</span>
-            </button>
+        <!-- Asset Allocation -->
+        <div class="hud-panel" style="display:flex; align-items:center; justify-content:center; flex-direction: column;">
+            <div class="hud-title">🍭 YUMMY PIE</div>
+            <div id="pie-chart-container" style="width: 80%; max-width: 300px; margin-top: 15px;"></div>
+        </div>
+
+        <!-- Returns -->
+        <div class="hud-panel">
+            <div class="hud-title">🎀 WINS TO 30 SEP</div>
+            <div id="returns-table-container"></div>
+        </div>
+
+        <!-- Line Chart -->
+        <div class="hud-panel">
+            <div class="hud-title">📈 SQUIGGLY LINE</div>
+            <div id="graph-container"></div>
+        </div>
+
+        <!-- System Logs -->
+        <div class="hud-panel" style="grid-column: 1 / -1;">
+            <div class="hud-title">💬 BOYS CHAT</div>
+            <div id="updatesContainer"></div>
         </div>
     </div>
+        
+    <div class="poll-wrapper wiggle-hover" id="poll-container" style="max-width:600px; margin:auto;">
+        
+        <!-- Interactive Button -->
+        <button id="emojiRainBtn" class="squad-btn">IN SQUAD WE TRUST</button>
 
-    <!-- MINECRAFT CHEST INVENTORY MODAL (Full 2D Data View & Poll for Quick Inspection) -->
-    <div id="chest-modal" class="fixed inset-0 z-40 bg-black/80 hidden items-center justify-center p-2 sm:p-4">
-        <div class="mc-panel w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
-            <!-- Modal Header -->
-            <div class="flex items-center justify-between bg-[#8b8b8b] px-3 py-2 border-b-2 border-[#555]">
-                <div class="flex items-center gap-2">
-                    <span class="text-xl">📦</span>
-                    <h2 class="font-pixel text-xs sm:text-sm text-white text-shadow-mc">
-                        SQUAD INVESTMENT TRUST — MASTER LEDGER CHEST
-                    </h2>
-                </div>
-                <button onclick="toggleChestModal(false)" class="mc-btn px-3 py-1 font-pixel text-xs bg-[#aa2222]">
-                    X
-                </button>
-            </div>
-
-            <!-- Modal Body -->
-            <div class="p-3 sm:p-4 overflow-y-auto mc-scroll space-y-4 bg-[#d6d6d6] text-gray-900">
-                <!-- Top Summary Row -->
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    <div class="mc-slot p-2 text-center bg-[#333] text-white">
-                        <div class="text-xs text-[#ffaa00]">TOTAL AUM</div>
-                        <div id="modal-aum" class="text-xl font-bold text-[#55ff55]">$0</div>
-                    </div>
-                    <div class="mc-slot p-2 text-center bg-[#333] text-white">
-                        <div class="text-xs text-[#55ffff]">UNIT PRICE</div>
-                        <div id="modal-unit" class="text-xl font-bold text-white">$0</div>
-                    </div>
-                    <div class="mc-slot p-2 text-center bg-[#333] text-white">
-                        <div class="text-xs text-[#55ff55]">NET TENDIES</div>
-                        <div id="modal-tendies" class="text-xl font-bold text-[#55ff55]">$0</div>
-                    </div>
-                    <div class="mc-slot p-2 text-center bg-[#333] text-white">
-                        <div class="text-xs text-[#ff5555]">TRUST DEBT</div>
-                        <div id="modal-debt" class="text-xl font-bold text-[#ff5555]">$0</div>
-                    </div>
-                </div>
-
-                <!-- Holdings Grid ("OUR STONKS") -->
-                <div>
-                    <h3 class="font-pixel text-xs text-[#333] mb-2">⛏️ OUR STONKS & CASH RESERVES (TAP TO TELEPORT IN 3D)</h3>
-                    <div id="modal-holdings-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2"></div>
-                </div>
-
-                <!-- Returns & Allocation Row -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Period Returns -->
-                    <div class="mc-panel p-3 bg-[#bcbcbc]">
-                        <h3 class="font-pixel text-xs text-[#222] mb-2">🏆 WINS TO 30 SEP (PERIOD RETURNS)</h3>
-                        <div id="modal-returns-table"></div>
-                    </div>
-
-                    <!-- Boys Chat Updates -->
-                    <div class="mc-panel p-3 bg-[#bcbcbc]">
-                        <h3 class="font-pixel text-xs text-[#222] mb-2">💬 BOYS CHAT (SYSTEM LOGS)</h3>
-                        <div id="modal-updates-list" class="space-y-1.5 max-h-56 overflow-y-auto mc-scroll pr-1"></div>
-                    </div>
-                </div>
-
-                <!-- Action Footer -->
-                <div class="text-center pt-2">
-                    <button onclick="toggleChestModal(false); triggerEmeraldRain();" class="mc-btn px-6 py-2.5 font-pixel text-xs bg-[#228822]">
-                        💎 IN SQUAD WE TRUST (LAUNCH 3D FIREWORKS) 💎
-                    </button>
-                </div>
-            </div>
-        </div>
+        <script>
+            // Note: External scripts block the DOM parsing. If Poll Maker supports it, this should ideally be deferred.
+            (function(i,s,o,g,r,a,m){
+                i['QP']=r;
+                i[r]=i[r]||function(){ (i[r].q=i[r].q||[]).push(arguments) },i[r].l=1*new Date();
+                a=s.createElement(o),m=s.getElementsByTagName(o)[0];
+                a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','//scripts.poll-maker.com/3012/pollembed.js','qp');
+        </script>
+        <a href="#" data-poll="5551770xfDF94E9a-164" style="width:100%; display:block; text-align:center; color:#ff1493; font-family:'Nunito', sans-serif; font-weight:bold; text-decoration:none;"></a>
     </div>
 
-    <script>
-        /********************************************************************
-         * 1. GOOGLE SHEETS DATA FETCH & PARSER (Exact Match to Squad Trust)
-         ********************************************************************/
-        const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQvIkFEd8DqGzQOSMan7QNAuwDI4fXgD1HB8PDbmnnqk5QmA0YNigbxyWuuKhoAys9VRKrbDqym2xDw/pub?output=csv';
+</div>
 
-        // Structured portfolio state populated from live CSV
-        const portfolioState = {
-            ticker: "IN SQUAD WE TRUST • BUY TREATS, SELL TRICKS!",
-            todayChangeRaw: "0.00",
-            todayChangeVal: 0,
-            aum: "$0",
-            aumNum: 0,
-            unitPrice: "$0.00",
-            tendies: "$0",
-            debt: "$0",
-            cash: { name: "Cash", valueFormatted: "$0", valueNum: 0 },
-            holdings: [],      // { name, valueFormatted, valueNum, dailyChange, dailyVal, profit, profitVal, pctShare, position3D }
-            returns: [],       // { label, val, isPositive }
-            history: [],       // { date, yearStr, label, value }
-            updates: []        // { text, type }
-        };
+<script>
+    // --- DOM ELEMENTS ---
+    const tickerWrapEl = document.getElementById('ticker-wrap');
+    const tickerTextEl = document.getElementById('ticker-text');
+    const loadingContainerEl = document.getElementById('loading-container');
+    const loadingTextEl = document.getElementById('loading-text');
+    const metricsContainerEl = document.getElementById('metrics-container');
+    
+    const aumTextEl = document.getElementById('aum-text');
+    const unitPriceTextEl = document.getElementById('unitprice-text');
+    const tendiesTextEl = document.getElementById('tendies-text');
+    
+    const tableContainerEl = document.getElementById('table-container');
+    const pieChartContainerEl = document.getElementById('pie-chart-container');
+    const returnsTableContainerEl = document.getElementById('returns-table-container');
+    const graphContainerEl = document.getElementById('graph-container');
+    const tooltipEl = document.getElementById('tooltip');
 
-        function escapeHTML(str) {
-            if (!str) return '';
-            return String(str).replace(/[&<>'"]/g, tag => ({
-                '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
-            }[tag] || tag));
+    const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQvIkFEd8DqGzQOSMan7QNAuwDI4fXgD1HB8PDbmnnqk5QmA0YNigbxyWuuKhoAys9VRKrbDqym2xDw/pub?output=csv';
+
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+    // --- SECURITY UTILITY ---
+    // Safely escapes characters that could trigger XSS if injected into innerHTML
+    function escapeHTML(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>'"]/g, 
+            tag => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                "'": '&#39;',
+                '"': '&quot;'
+            }[tag] || tag)
+        );
+    }
+
+    // --- UTILITIES ---
+    async function typeText(element, text, speed = 30) {
+        element.classList.add('cursor');
+        element.innerHTML = "";
+        let currentText = "";
+        for (let i = 0; i < text.length; i++) {
+            currentText += escapeHTML(text.charAt(i));
+            element.innerHTML = currentText;
+            await sleep(speed + Math.random() * 20);
         }
+        element.classList.remove('cursor');
+    }
 
-        function parseCSV(str) {
-            const arr = [];
-            let quote = false;
-            let col, c;
-            for (let row = col = c = 0; c < str.length; c++) {
-                const cc = str[c], nc = str[c + 1];
-                arr[row] = arr[row] || [];
-                arr[row][col] = arr[row][col] || '';
-
-                if (cc == '"' && quote && nc == '"') { arr[row][col] += cc; ++c; continue; }
-                if (cc == '"') { quote = !quote; continue; }
-                if (cc == ',' && !quote) { ++col; continue; }
-                if (cc == '\r' && nc == '\n' && !quote) { ++row; col = 0; ++c; continue; }
-                if (cc == '\n' && !quote) { ++row; col = 0; continue; }
-                if (cc == '\r' && !quote) { ++row; col = 0; continue; }
-
-                arr[row][col] += cc;
-            }
-            return arr;
+    async function typeDots(element, count = 3, speed = 300) {
+        element.classList.add('cursor');
+        for (let i = 0; i < count; i++) {
+            element.textContent += '.';
+            await sleep(speed);
         }
+        element.classList.remove('cursor');
+    }
 
+    function parseCSV(str) {
+        const arr = [];
+        let quote = false; 
+        let col, c;
+        for (let row = col = c = 0; c < str.length; c++) {
+            const cc = str[c], nc = str[c+1];
+            arr[row] = arr[row] || [];
+            arr[row][col] = arr[row][col] || '';
+
+            if (cc == '"' && quote && nc == '"') { arr[row][col] += cc; ++c; continue; }
+            if (cc == '"') { quote = !quote; continue; }
+            if (cc == ',' && !quote) { ++col; continue; }
+            if (cc == '\r' && nc == '\n' && !quote) { ++row; col = 0; ++c; continue; }
+            if (cc == '\n' && !quote) { ++row; col = 0; continue; }
+            if (cc == '\r' && !quote) { ++row; col = 0; continue; }
+            
+            arr[row][col] += cc;
+        }
+        return arr;
+    }
+
+    async function getSheetData() {
+        try {
+            const response = await fetch(SPREADSHEET_URL);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const csvText = await response.text();
+            return parseCSV(csvText);
+        } catch (e) {
+            console.error("Error:", e);
+            loadingTextEl.textContent = "🥺 Oopsie! Data link severed~ 💔";
+            return null;
+        }
+    }
+
+    // --- RENDERERS ---
+
+    function drawTable(data) {
+        const holdings = data.slice(2).filter(row => row[0]);
         const fmtUSD0 = (n) => {
-            const num = parseFloat(String(n).replace(/[^0-9.-]+/g, ""));
-            if (isNaN(num)) return String(n || '$0');
+            const num = parseFloat(n);
+            if (isNaN(num)) return escapeHTML(n) || '$0';
             return num.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
         };
-
         const fmtPct = (v) => {
             const raw = (v ?? '').toString().trim();
             if (raw === '') return '0%';
-            if (raw.endsWith('%')) return raw;
+            if (raw.endsWith('%')) return escapeHTML(raw);
             const num = parseFloat(raw);
-            return isNaN(num) ? raw : `${num.toFixed(2)}%`;
+            return isNaN(num) ? escapeHTML(raw) : `${num.toFixed(2)}%`;
         };
 
-        function processSheetData(data) {
-            // 1. Ticker J1 (Row 0, Col 9)
-            if (data[0] && data[0][9]) {
-                portfolioState.ticker = String(data[0][9]).trim();
-            }
+        let html = '<div class="holdings-grid-container">';
+        
+        // Helper function for standard cards
+        const createCard = (item) => {
+            if(!item) return '';
+            const name = escapeHTML(item[0] || 'N/A');
+            const value = fmtUSD0(item[3]); 
+            const dailyChange = fmtPct(item[13]); 
+            const profit = fmtPct(item[6]);
+            
+            const dailyVal = parseFloat(dailyChange);
+            const profitVal = parseFloat(profit);
 
-            // 2. Today's Change O1 (Row 0, Col 14)
-            if (data[0] && data[0][14]) {
-                portfolioState.todayChangeRaw = String(data[0][14]).trim();
-                portfolioState.todayChangeVal = parseFloat(portfolioState.todayChangeRaw.replace(/[^0-9.-]+/g, "")) || 0;
-            }
-
-            // 3. Core Metrics (Row 1: D2=AUM, E2=UnitPrice, F2=Tendies, G2=Debt)
-            if (data[1]) {
-                const aumRaw = parseFloat(String(data[1][3]).replace(/[^0-9.-]+/g, "")) || 0;
-                portfolioState.aumNum = aumRaw;
-                portfolioState.aum = fmtUSD0(data[1][3]);
-
-                const unitRaw = parseFloat(String(data[1][4]).replace(/[^0-9.-]+/g, ""));
-                portfolioState.unitPrice = !isNaN(unitRaw)
-                    ? unitRaw.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
-                    : String(data[1][4] || '$0.00');
-
-                portfolioState.tendies = fmtUSD0(data[1][5]);
-                portfolioState.debt = data[1][6] ? fmtUSD0(data[1][6]) : '$0';
-            }
-
-            // 4. Holdings (Rows 2+)
-            const rawHoldings = data.slice(2).filter(row => row && row[0] && String(row[0]).trim() !== '');
-            let totalHoldingsVal = 0;
-            rawHoldings.forEach(r => {
-                const v = parseFloat(String(r[3]).replace(/[^0-9.-]+/g, "")) || 0;
-                if (v > 0) totalHoldingsVal += v;
-            });
-
-            if (rawHoldings.length > 0) {
-                const cashItem = rawHoldings[0];
-                const cVal = parseFloat(String(cashItem[3]).replace(/[^0-9.-]+/g, "")) || 0;
-                portfolioState.cash = {
-                    name: String(cashItem[0] || 'Cash').trim(),
-                    valueFormatted: fmtUSD0(cashItem[3]),
-                    valueNum: cVal,
-                    pctShare: totalHoldingsVal > 0 ? Math.round((cVal / totalHoldingsVal) * 100) : 0
-                };
-            }
-
-            portfolioState.holdings = [];
-            for (let i = 1; i < rawHoldings.length; i++) {
-                const item = rawHoldings[i];
-                if (!item || !item[0]) continue;
-                const valNum = parseFloat(String(item[3]).replace(/[^0-9.-]+/g, "")) || 0;
-                const dailyChange = fmtPct(item[13]);
-                const profit = fmtPct(item[6]);
-                portfolioState.holdings.push({
-                    name: String(item[0]).trim(),
-                    valueFormatted: fmtUSD0(item[3]),
-                    valueNum: valNum,
-                    dailyChange,
-                    dailyVal: parseFloat(dailyChange) || 0,
-                    profit,
-                    profitVal: parseFloat(profit) || 0,
-                    pctShare: totalHoldingsVal > 0 ? Math.max(1, Math.round((valNum / totalHoldingsVal) * 100)) : 5
-                });
-            }
-
-            // 5. Period Returns (Col 11, Rows 1..5)
-            const safeGet = (r, c) => (data[r] && typeof data[r][c] !== 'undefined') ? String(data[r][c]).trim() : '0%';
-            const periodDefs = [
-                { label: '1 Month', raw: safeGet(1, 11) },
-                { label: '3 Month', raw: safeGet(2, 11) },
-                { label: '6 Month', raw: safeGet(3, 11) },
-                { label: '1 Year', raw: safeGet(4, 11) },
-                { label: '2 Year', raw: safeGet(5, 11) }
-            ];
-            portfolioState.returns = periodDefs.map(p => {
-                let valStr = p.raw;
-                if (!valStr.includes('%') && valStr !== '') {
-                    const f = parseFloat(valStr);
-                    if (!isNaN(f)) valStr = f.toFixed(2) + '%';
-                }
-                return {
-                    label: p.label,
-                    val: valStr || '0.00%',
-                    num: parseFloat(valStr) || 0,
-                    isPositive: !valStr.includes('-')
-                };
-            });
-
-            // 6. Historical Line Graph (Col 7 = Date DD/MM/YYYY, Col 8 = Value)
-            portfolioState.history = data.slice(1)
-                .filter(row => row[7] && row[8])
-                .map(row => {
-                    const dateParts = String(row[7]).trim().split('/');
-                    const dt = new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`);
-                    return {
-                        date: dt,
-                        rawDate: String(row[7]).trim(),
-                        year: dateParts[2] || '',
-                        value: parseFloat(String(row[8]).replace(/[^0-9.-]+/g, "")) || 0
-                    };
-                })
-                .filter(d => !isNaN(d.date.getTime()) && d.value > 0)
-                .sort((a, b) => a.date - b.date);
-
-            // 7. Updates / Boys Chat (Col 9, Rows 1+)
-            portfolioState.updates = data.slice(1)
-                .map(row => row[9])
-                .filter(item => item && String(item).trim() !== '')
-                .map(text => {
-                    const clean = String(text).trim();
-                    const upper = clean.toUpperCase();
-                    let type = 'CHAT';
-                    if (upper.includes('BUY')) type = 'BUY';
-                    else if (upper.includes('SELL') || upper.includes('SOLD')) type = 'SELL';
-                    else if (upper.includes('PAID')) type = 'PAID';
-                    return { text: clean, type };
-                });
-        }
-
-        function loadFallbackData() {
-            // Only used if offline or sheet temporarily unreachable
-            portfolioState.ticker = "SQUAD INVESTMENT TRUST • LIVE LINK FALLBACK MODE";
-            portfolioState.todayChangeRaw = "1.42";
-            portfolioState.todayChangeVal = 1.42;
-            portfolioState.aum = "$142,850";
-            portfolioState.aumNum = 142850;
-            portfolioState.unitPrice = "$2.84";
-            portfolioState.tendies = "$64,200";
-            portfolioState.debt = "$12,500";
-            portfolioState.cash = { name: "Cash Vault", valueFormatted: "$14,200", valueNum: 14200, pctShare: 10 };
-            portfolioState.holdings = [
-                { name: "NVDA", valueFormatted: "$38,400", valueNum: 38400, dailyChange: "+2.85%", dailyVal: 2.85, profit: "+142.5%", profitVal: 142.5, pctShare: 27 },
-                { name: "VAS.AX", valueFormatted: "$29,100", valueNum: 29100, dailyChange: "+0.65%", dailyVal: 0.65, profit: "+24.1%", profitVal: 24.1, pctShare: 20 },
-                { name: "NDQ.AX", valueFormatted: "$26,500", valueNum: 26500, dailyChange: "+1.12%", dailyVal: 1.12, profit: "+48.9%", profitVal: 48.9, pctShare: 19 },
-                { name: "META", valueFormatted: "$18,900", valueNum: 18900, dailyChange: "-0.45%", dailyVal: -0.45, profit: "+62.0%", profitVal: 62.0, pctShare: 13 },
-                { name: "BHP.AX", valueFormatted: "$15,750", valueNum: 15750, dailyChange: "-1.10%", dailyVal: -1.10, profit: "-4.2%", profitVal: -4.2, pctShare: 11 }
-            ];
-            portfolioState.returns = [
-                { label: "1 Month", val: "+3.40%", num: 3.4, isPositive: true },
-                { label: "3 Month", val: "+8.90%", num: 8.9, isPositive: true },
-                { label: "6 Month", val: "+15.20%", num: 15.2, isPositive: true },
-                { label: "1 Year", val: "+28.60%", num: 28.6, isPositive: true },
-                { label: "2 Year", val: "+54.10%", num: 54.1, isPositive: true }
-            ];
-            portfolioState.history = [
-                { rawDate: "01/06/2018", year: "2018", value: 15000 },
-                { rawDate: "01/06/2019", year: "2019", value: 28000 },
-                { rawDate: "01/06/2020", year: "2020", value: 42000 },
-                { rawDate: "01/06/2021", year: "2021", value: 68000 },
-                { rawDate: "01/06/2022", year: "2022", value: 61000 },
-                { rawDate: "01/06/2023", year: "2023", value: 89000 },
-                { rawDate: "01/06/2024", year: "2024", value: 115000 },
-                { rawDate: "01/06/2025", year: "2025", value: 142850 }
-            ];
-            portfolioState.updates = [
-                { text: "BUY: Added more blocks to the portfolio stronghold", type: "BUY" },
-                { text: "PAID: Dividend tendies deposited into Trust Chest", type: "PAID" },
-                { text: "SELL: Trimmed paper-hand positions for diamond gains", type: "SELL" }
-            ];
-        }
-
-        /********************************************************************
-         * 2. PROCEDURAL SOUND ENGINE (Tone.js Minecraft SFX)
-         ********************************************************************/
-        let soundEnabled = true;
-        let audioInitialized = false;
-        let stepSynth, popSynth, chimeSynth;
-
-        async function initAudio() {
-            if (audioInitialized) return;
-            try {
-                await Tone.start();
-                stepSynth = new Tone.NoiseSynth({
-                    noise: { type: 'brown' },
-                    envelope: { attack: 0.005, decay: 0.05, sustain: 0 }
-                }).toDestination();
-                stepSynth.volume.value = -18;
-
-                popSynth = new Tone.MembraneSynth({
-                    pitchDecay: 0.02,
-                    octaves: 3,
-                    envelope: { attack: 0.001, decay: 0.09, sustain: 0 }
-                }).toDestination();
-                popSynth.volume.value = -10;
-
-                chimeSynth = new Tone.PolySynth(Tone.Synth, {
-                    oscillator: { type: 'square' },
-                    envelope: { attack: 0.01, decay: 0.2, sustain: 0.05, release: 0.3 }
-                }).toDestination();
-                chimeSynth.volume.value = -12;
-
-                audioInitialized = true;
-            } catch (e) {
-                // Silent fallback if audio blocked
-            }
-        }
-
-        function playStepSound() {
-            if (!soundEnabled || !audioInitialized || !stepSynth) return;
-            try { stepSynth.triggerAttackRelease("32n"); } catch (e) {}
-        }
-
-        function playClickSound(note = "C3") {
-            if (!soundEnabled) return;
-            initAudio().then(() => {
-                if (popSynth) {
-                    try { popSynth.triggerAttackRelease(note, "32n"); } catch (e) {}
-                }
-            });
-        }
-
-        function playLevelUpChime() {
-            if (!soundEnabled) return;
-            initAudio().then(() => {
-                if (chimeSynth) {
-                    try {
-                        const now = Tone.now();
-                        chimeSynth.triggerAttackRelease("C5", "16n", now);
-                        chimeSynth.triggerAttackRelease("E5", "16n", now + 0.07);
-                        chimeSynth.triggerAttackRelease("G5", "16n", now + 0.14);
-                        chimeSynth.triggerAttackRelease("C6", "8n", now + 0.21);
-                    } catch (e) {}
-                }
-            });
-        }
-
-        document.getElementById('sound-toggle-btn').addEventListener('click', () => {
-            soundEnabled = !soundEnabled;
-            document.getElementById('sound-icon').textContent = soundEnabled ? '🔊' : '🔇';
-            if (soundEnabled) playClickSound("G3");
-        });
-
-        /********************************************************************
-         * 3. PROCEDURAL 16x16 PIXEL TEXTURE GENERATOR & 3D SIGN FACTORY
-         ********************************************************************/
-        const textures = {};
-
-        function createPixelTexture(drawFn) {
-            const canvas = document.createElement('canvas');
-            canvas.width = 16;
-            canvas.height = 16;
-            const ctx = canvas.getContext('2d');
-            drawFn(ctx);
-            const tex = new THREE.CanvasTexture(canvas);
-            tex.magFilter = THREE.NearestFilter;
-            tex.minFilter = THREE.NearestFilter;
-            tex.wrapS = THREE.RepeatWrapping;
-            tex.wrapT = THREE.RepeatWrapping;
-            return tex;
-        }
-
-        function fillNoise(ctx, baseHex, variations, density = 0.45) {
-            ctx.fillStyle = baseHex;
-            ctx.fillRect(0, 0, 16, 16);
-            for (let y = 0; y < 16; y++) {
-                for (let x = 0; x < 16; x++) {
-                    if (Math.random() < density) {
-                        ctx.fillStyle = variations[Math.floor(Math.random() * variations.length)];
-                        ctx.fillRect(x, y, 1, 1);
-                    }
+            // --- HEATMAP LOGIC BASED ON DAILY CHANGE ---
+            let bgStyle = 'background: #fff0f5; border-color: var(--light-pink);'; // default
+            if (!isNaN(dailyVal) && dailyChange !== '0%') {
+                if (dailyVal > 0) {
+                    const intensity = Math.min(0.05 + (dailyVal / 10), 0.5); 
+                    bgStyle = `background: rgba(0, 200, 83, ${intensity}); border-color: var(--positive-green); border-style: solid;`;
+                } else if (dailyVal < 0) {
+                    const intensity = Math.min(0.05 + (Math.abs(dailyVal) / 10), 0.5);
+                    bgStyle = `background: rgba(255, 77, 77, ${intensity}); border-color: var(--negative-red); border-style: solid;`;
                 }
             }
-        }
 
-        function initVoxelTextures() {
-            // Grass Top
-            textures.grassTop = createPixelTexture(ctx => {
-                fillNoise(ctx, '#55a630', ['#4a9329', '#64b83c', '#3f8221'], 0.55);
-            });
-            // Grass Side
-            textures.grassSide = createPixelTexture(ctx => {
-                fillNoise(ctx, '#7f5539', ['#6b462e', '#8d6245', '#5c3b24'], 0.55);
-                for (let x = 0; x < 16; x++) {
-                    const depth = 2 + Math.floor(Math.random() * 3);
-                    for (let y = 0; y < depth; y++) {
-                        ctx.fillStyle = Math.random() > 0.4 ? '#55a630' : '#4a9329';
-                        ctx.fillRect(x, y, 1, 1);
-                    }
-                }
-            });
-            // Dirt
-            textures.dirt = createPixelTexture(ctx => {
-                fillNoise(ctx, '#7f5539', ['#6b462e', '#8d6245', '#5c3b24'], 0.55);
-            });
-            // Cobblestone Path
-            textures.cobble = createPixelTexture(ctx => {
-                fillNoise(ctx, '#7a7a7a', ['#5c5c5c', '#8f8f8f', '#474747', '#999999'], 0.75);
-                ctx.fillStyle = '#3d3d3d';
-                ctx.fillRect(0, 7, 16, 1);
-                ctx.fillRect(7, 0, 1, 8);
-                ctx.fillRect(12, 8, 1, 8);
-            });
-            // Emerald Block (Positive Stonks)
-            textures.emerald = createPixelTexture(ctx => {
-                fillNoise(ctx, '#17dd62', ['#0fb84f', '#52ff8e', '#0a8f3c'], 0.5);
-                ctx.strokeStyle = '#a3ffc2';
-                ctx.lineWidth = 1;
-                ctx.strokeRect(1.5, 1.5, 13, 13);
-                ctx.strokeRect(4.5, 4.5, 7, 7);
-            });
-            // Redstone Block (Negative Stonks)
-            textures.redstone = createPixelTexture(ctx => {
-                fillNoise(ctx, '#b81d13', ['#8f1109', '#eb3226', '#660802'], 0.5);
-                ctx.strokeStyle = '#ff6b61';
-                ctx.lineWidth = 1;
-                ctx.strokeRect(1.5, 1.5, 13, 13);
-                ctx.strokeRect(4.5, 4.5, 7, 7);
-            });
-            // Gold Block (Cash & Tendies)
-            textures.gold = createPixelTexture(ctx => {
-                fillNoise(ctx, '#f5c71a', ['#d4a406', '#ffe566', '#b88b00'], 0.45);
-                ctx.strokeStyle = '#fff099';
-                ctx.strokeRect(1.5, 1.5, 13, 13);
-            });
-            // Diamond Block (AUM Monument)
-            textures.diamond = createPixelTexture(ctx => {
-                fillNoise(ctx, '#4eedd8', ['#2cc9b4', '#99fff2', '#1ba390'], 0.45);
-                ctx.strokeStyle = '#c4fff7';
-                ctx.strokeRect(1.5, 1.5, 13, 13);
-            });
-            // Obsidian (Debt Nether Portal)
-            textures.obsidian = createPixelTexture(ctx => {
-                fillNoise(ctx, '#1b112c', ['#0f081a', '#352054', '#501887'], 0.6);
-            });
-            // Portal Swirl
-            textures.portal = createPixelTexture(ctx => {
-                fillNoise(ctx, '#9d22e6', ['#c75cff', '#6909a6', '#e9a8ff'], 0.7);
-            });
-            // Oak Planks
-            textures.planks = createPixelTexture(ctx => {
-                fillNoise(ctx, '#b88c56', ['#a37843', '#c99e67', '#8f6634'], 0.4);
-                ctx.fillStyle = '#755125';
-                ctx.fillRect(0, 3, 16, 1);
-                ctx.fillRect(0, 7, 16, 1);
-                ctx.fillRect(0, 11, 16, 1);
-                ctx.fillRect(0, 15, 16, 1);
-            });
-            // Oak Log
-            textures.wood = createPixelTexture(ctx => {
-                fillNoise(ctx, '#5c4028', ['#4a321e', '#6e4f35', '#3d2816'], 0.55);
-            });
-            // Leaves
-            textures.leaves = createPixelTexture(ctx => {
-                fillNoise(ctx, '#387d22', ['#2a6318', '#48992e', '#1e4a10'], 0.65);
-            });
-            // Glowstone
-            textures.glowstone = createPixelTexture(ctx => {
-                fillNoise(ctx, '#e6b84d', ['#fff799', '#b87c1d', '#ffd966'], 0.75);
-            });
-        }
-
-        // Creates a high-legibility 3D floating Minecraft Sign/Billboard Mesh
-        function createSignBoard({ title, subtitle, lines = [], badge = '', borderColor = '#ffaa00', bgColor = 'rgba(18, 12, 28, 0.92)', width = 5.5, height = 3.0 }) {
-            const canvas = document.createElement('canvas');
-            canvas.width = 512;
-            canvas.height = 280;
-            const ctx = canvas.getContext('2d');
-
-            // Background & Pixel Border
-            ctx.fillStyle = bgColor;
-            ctx.fillRect(8, 8, 496, 264);
-
-            ctx.lineWidth = 8;
-            ctx.strokeStyle = borderColor;
-            ctx.strokeRect(12, 12, 488, 256);
-
-            ctx.lineWidth = 4;
-            ctx.strokeStyle = '#000000';
-            ctx.strokeRect(4, 4, 504, 272);
-
-            let yPos = 48;
-
-            if (badge) {
-                ctx.font = 'bold 20px "Press Start 2P", monospace';
-                ctx.fillStyle = borderColor;
-                ctx.textAlign = 'center';
-                ctx.fillText(badge, 256, yPos);
-                yPos += 42;
-            }
-
-            if (title) {
-                ctx.font = 'bold 30px "Press Start 2P", monospace';
-                ctx.fillStyle = '#000000';
-                ctx.textAlign = 'center';
-                ctx.fillText(title.slice(0, 18), 259, yPos + 3);
-                ctx.fillStyle = '#ffffff';
-                ctx.fillText(title.slice(0, 18), 256, yPos);
-                yPos += 46;
-            }
-
-            if (subtitle) {
-                ctx.font = 'bold 44px "VT323", monospace';
-                ctx.fillStyle = '#000000';
-                ctx.fillText(subtitle, 258, yPos + 3);
-                ctx.fillStyle = '#55ff55';
-                ctx.fillText(subtitle, 256, yPos);
-                yPos += 42;
-            }
-
-            lines.forEach(line => {
-                ctx.font = 'bold 32px "VT323", monospace';
-                ctx.textAlign = 'center';
-                ctx.fillStyle = '#000000';
-                ctx.fillText(line.text, 258, yPos + 2);
-                ctx.fillStyle = line.color || '#e5e5e5';
-                ctx.fillText(line.text, 256, yPos);
-                yPos += 34;
-            });
-
-            const tex = new THREE.CanvasTexture(canvas);
-            tex.minFilter = THREE.LinearFilter;
-            const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide });
-            const geo = new THREE.PlaneGeometry(width, height);
-            const mesh = new THREE.Mesh(geo, mat);
-            return mesh;
-        }
-
-        /********************************************************************
-         * 4. THREE.JS VOXEL WORLD BUILDER
-         ********************************************************************/
-        let scene, camera, renderer;
-        let worldGroup, dynamicObjects = [], interactiveBlocks = [], fireworks = [];
-        let isNight = false;
-        let skyColorDay = new THREE.Color(0x78b7ff);
-        let skyColorNight = new THREE.Color(0x0b1026);
-        let ambientLight, sunLight;
-
-        // Player Movement & Camera State
-        const player = {
-            pos: new THREE.Vector3(0, 2.3, 10),
-            vel: new THREE.Vector3(0, 0, 0),
-            yaw: 0,
-            pitch: 0.05,
-            speed: 11.5,
-            isGrounded: true,
-            bobTimer: 0,
-            ridingCart: false,
-            cartProgress: 0,
-            flyingOverview: false
-        };
-
-        // Minecart coaster curve points
-        let coasterCurve = null;
-
-        // Input States
-        const keys = { w: false, a: false, s: false, d: false, space: false, left: false, right: false, up: false, down: false };
-        const joystick = { active: false, dx: 0, dy: 0, touchId: null };
-        const lookTouch = { active: false, lastX: 0, lastY: 0, startX: 0, startY: 0, touchId: null };
-
-        function initThreeWorld() {
-            const canvas = document.getElementById('game-canvas');
-            scene = new THREE.Scene();
-            scene.background = skyColorDay.clone();
-            scene.fog = new THREE.FogExp2(0x78b7ff, 0.011);
-
-            camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 220);
-            camera.rotation.order = 'YXZ';
-
-            renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance' });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-            // Lighting
-            ambientLight = new THREE.AmbientLight(0xffffff, 0.78);
-            scene.add(ambientLight);
-
-            sunLight = new THREE.DirectionalLight(0xfff5dd, 0.65);
-            sunLight.position.set(35, 65, 25);
-            scene.add(sunLight);
-
-            initVoxelTextures();
-
-            worldGroup = new THREE.Group();
-            scene.add(worldGroup);
-
-            buildBaseTerrain();
-        }
-
-        function buildBaseTerrain() {
-            // Giant Voxel Grass Island Platform
-            const grassTopMat = new THREE.MeshLambertMaterial({ map: textures.grassTop });
-            const grassSideMat = new THREE.MeshLambertMaterial({ map: textures.grassSide });
-            const dirtMat = new THREE.MeshLambertMaterial({ map: textures.dirt });
-
-            // Repeat grass texture across the ground
-            const groundTopTex = textures.grassTop.clone();
-            groundTopTex.needsUpdate = true;
-            groundTopTex.repeat.set(96, 96);
-            const groundMat = new THREE.MeshLambertMaterial({ map: groundTopTex });
-
-            const groundMesh = new THREE.Mesh(new THREE.BoxGeometry(96, 2, 96), [
-                grassSideMat, grassSideMat, groundMat, dirtMat, grassSideMat, grassSideMat
-            ]);
-            groundMesh.position.set(0, -1, 0);
-            worldGroup.add(groundMesh);
-
-            // Cobblestone Crossroad Paths connecting Spawn (0,0) to all 4 Districts
-            const cobbleNorthTex = textures.cobble.clone();
-            cobbleNorthTex.needsUpdate = true;
-            cobbleNorthTex.repeat.set(4, 42);
-            const cobbleNS = new THREE.Mesh(
-                new THREE.BoxGeometry(4, 0.12, 80),
-                new THREE.MeshLambertMaterial({ map: cobbleNorthTex })
-            );
-            cobbleNS.position.set(0, 0.02, 0);
-            worldGroup.add(cobbleNS);
-
-            const cobbleEastTex = textures.cobble.clone();
-            cobbleEastTex.needsUpdate = true;
-            cobbleEastTex.repeat.set(42, 4);
-            const cobbleEW = new THREE.Mesh(
-                new THREE.BoxGeometry(80, 0.12, 4),
-                new THREE.MeshLambertMaterial({ map: cobbleEastTex })
-            );
-            cobbleEW.position.set(0, 0.02, 0);
-            worldGroup.add(cobbleEW);
-
-            // Spawn Plaza Cobblestone Courtyard
-            const plazaTex = textures.cobble.clone();
-            plazaTex.needsUpdate = true;
-            plazaTex.repeat.set(14, 14);
-            const plazaMesh = new THREE.Mesh(
-                new THREE.BoxGeometry(14, 0.14, 14),
-                new THREE.MeshLambertMaterial({ map: plazaTex })
-            );
-            plazaMesh.position.set(0, 0.03, 0);
-            worldGroup.add(plazaMesh);
-
-            // Blocky Clouds in the Sky
-            const cloudMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.82 });
-            for (let i = 0; i < 18; i++) {
-                const cw = 8 + Math.random() * 12;
-                const cd = 6 + Math.random() * 10;
-                const cloud = new THREE.Mesh(new THREE.BoxGeometry(cw, 1.5, cd), cloudMat);
-                cloud.position.set((Math.random() - 0.5) * 140, 28 + Math.random() * 10, (Math.random() - 0.5) * 140);
-                worldGroup.add(cloud);
-                dynamicObjects.push({ mesh: cloud, type: 'cloud', speed: 0.6 + Math.random() * 0.8 });
-            }
-
-            // Decorative Voxel Oak Trees around the perimeter
-            const treeCoords = [
-                [-12, -10], [12, -10], [-14, 10], [14, 10],
-                [-26, -26], [26, -26], [-28, 24], [28, 24],
-                [-35, 6], [35, -8], [-8, 34], [10, 34]
-            ];
-            treeCoords.forEach(([tx, tz]) => createVoxelTree(tx, tz));
-        }
-
-        function createVoxelTree(x, z) {
-            const trunkMat = new THREE.MeshLambertMaterial({ map: textures.wood });
-            const leavesMat = new THREE.MeshLambertMaterial({ map: textures.leaves });
-
-            const trunk = new THREE.Mesh(new THREE.BoxGeometry(1, 4, 1), trunkMat);
-            trunk.position.set(x, 2, z);
-            worldGroup.add(trunk);
-
-            const canopy1 = new THREE.Mesh(new THREE.BoxGeometry(3.2, 2, 3.2), leavesMat);
-            canopy1.position.set(x, 4.5, z);
-            worldGroup.add(canopy1);
-
-            const canopy2 = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.5, 1.8), leavesMat);
-            canopy2.position.set(x, 6.0, z);
-            worldGroup.add(canopy2);
-        }
-
-        /********************************************************************
-         * 5. POPULATE 3D WORLD WITH LIVE PORTFOLIO DATA
-         ********************************************************************/
-        function buildPortfolioStructures() {
-            const diamondMat = new THREE.MeshLambertMaterial({ map: textures.diamond });
-            const goldMat = new THREE.MeshLambertMaterial({ map: textures.gold });
-            const emeraldMat = new THREE.MeshLambertMaterial({ map: textures.emerald });
-            const redstoneMat = new THREE.MeshLambertMaterial({ map: textures.redstone });
-            const obsidianMat = new THREE.MeshLambertMaterial({ map: textures.obsidian });
-            const planksMat = new THREE.MeshLambertMaterial({ map: textures.planks });
-            const glowMat = new THREE.MeshBasicMaterial({ map: textures.glowstone });
-
-            /* =============================================================
-             * ZONE 1: SPAWN PLAZA (0, 0) - TOTAL AUM, UNIT PRICE, TENDIES
-             * ============================================================= */
-            // Central Beacon Pyramid
-            const pyrBase = new THREE.Mesh(new THREE.BoxGeometry(5, 1, 5), diamondMat);
-            pyrBase.position.set(0, 0.5, 0);
-            worldGroup.add(pyrBase);
-
-            const pyrMid = new THREE.Mesh(new THREE.BoxGeometry(3, 1, 3), goldMat);
-            pyrMid.position.set(0, 1.5, 0);
-            worldGroup.add(pyrMid);
-
-            const beaconCore = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1.4, 1.4), glowMat);
-            beaconCore.position.set(0, 2.7, 0);
-            worldGroup.add(beaconCore);
-            dynamicObjects.push({ mesh: beaconCore, type: 'spin', speed: 1.5 });
-
-            // Glowing Sky Beam
-            const beamGeo = new THREE.BoxGeometry(0.45, 40, 0.45);
-            const beamColor = portfolioState.todayChangeVal >= 0 ? 0x55ff55 : 0xff5555;
-            const beamMat = new THREE.MeshBasicMaterial({ color: beamColor, transparent: true, opacity: 0.45 });
-            const beamMesh = new THREE.Mesh(beamGeo, beamMat);
-            beamMesh.position.set(0, 20, 0);
-            worldGroup.add(beamMesh);
-
-            // Main AUM Floating Sign (Faces South towards spawning player, double-sided)
-            const todayPrefix = portfolioState.todayChangeVal >= 0 ? '▲ UP ' : '▼ DOWN ';
-            const todayClean = String(portfolioState.todayChangeRaw).replace('-', '');
-            const aumSign = createSignBoard({
-                badge: '💎 SQUAD INVESTMENT TRUST 💎',
-                title: 'TOTAL AUM',
-                subtitle: portfolioState.aum,
-                lines: [
-                    { text: `${todayPrefix}${todayClean}% TODAY!`, color: portfolioState.todayChangeVal >= 0 ? '#55ff55' : '#ff5555' },
-                    { text: 'Walk around or tap Hotbar below!', color: '#ffff55' }
-                ],
-                borderColor: '#4eedd8',
-                width: 6.4,
-                height: 3.4
-            });
-            aumSign.position.set(0, 5.4, 0);
-            worldGroup.add(aumSign);
-
-            interactiveBlocks.push({
-                mesh: pyrBase,
-                pos: new THREE.Vector3(0, 2, 0),
-                radius: 5.5,
-                badge: 'SPAWN BEACON',
-                title: `TOTAL AUM: ${portfolioState.aum}`,
-                html: `<div class="text-[#55ffff]">Unit Price: <b>${escapeHTML(portfolioState.unitPrice)}</b></div>
-                       <div class="text-[#55ff55]">Net Tendies: <b>${escapeHTML(portfolioState.tendies)}</b></div>
-                       <div class="text-[#ffaa00]">Today: <b>${escapeHTML(todayPrefix + todayClean)}%</b></div>`
-            });
-
-            // Left Pillar: UNIT PRICE
-            const unitPillar = new THREE.Mesh(new THREE.BoxGeometry(2, 3, 2), emeraldMat);
-            unitPillar.position.set(-4.8, 1.5, -1.5);
-            worldGroup.add(unitPillar);
-            const unitSign = createSignBoard({
-                badge: 'UNIT VALUE',
-                title: 'UNIT PRICE',
-                subtitle: portfolioState.unitPrice,
-                lines: [{ text: 'Trust Share Value', color: '#55ffff' }],
-                borderColor: '#17dd62',
-                width: 4.2,
-                height: 2.3
-            });
-            unitSign.position.set(-4.8, 4.5, -1.5);
-            unitSign.rotation.y = 0.25;
-            worldGroup.add(unitSign);
-
-            // Right Pillar: NET TENDIES
-            const tendiesPillar = new THREE.Mesh(new THREE.BoxGeometry(2, 3, 2), goldMat);
-            tendiesPillar.position.set(4.8, 1.5, -1.5);
-            worldGroup.add(tendiesPillar);
-            const tendiesSign = createSignBoard({
-                badge: 'PROFIT VAULT',
-                title: 'NET TENDIES',
-                subtitle: portfolioState.tendies,
-                lines: [{ text: 'Total Gains Harvested', color: '#ffaa00' }],
-                borderColor: '#f5c71a',
-                width: 4.2,
-                height: 2.3
-            });
-            tendiesSign.position.set(4.8, 4.5, -1.5);
-            tendiesSign.rotation.y = -0.25;
-            worldGroup.add(tendiesSign);
-
-            /* =============================================================
-             * ZONE 2: NORTH DISTRICT (Z = -14 to -38) - STONKS TOWERS, CASH & DEBT
-             * ============================================================= */
-            // Cash Vault (Left of North Path entrance)
-            const cashVault = new THREE.Mesh(new THREE.BoxGeometry(3.2, 3.2, 3.2), goldMat);
-            cashVault.position.set(-5.5, 1.6, -12);
-            worldGroup.add(cashVault);
-
-            const cashSign = createSignBoard({
-                badge: '💰 LIQUIDITY CHEST',
-                title: portfolioState.cash.name.toUpperCase(),
-                subtitle: portfolioState.cash.valueFormatted,
-                lines: [{ text: `${portfolioState.cash.pctShare}% of Portfolio`, color: '#ffe566' }],
-                borderColor: '#f5c71a',
-                width: 4.5,
-                height: 2.5
-            });
-            cashSign.position.set(-5.5, 4.8, -12);
-            worldGroup.add(cashSign);
-
-            interactiveBlocks.push({
-                mesh: cashVault,
-                pos: new THREE.Vector3(-5.5, 2, -12),
-                radius: 4.5,
-                badge: 'LIQUIDITY RESERVES',
-                title: `${portfolioState.cash.name}: ${portfolioState.cash.valueFormatted}`,
-                html: `<div class="text-[#ffaa00]">Allocation: <b>${portfolioState.cash.pctShare}%</b></div>
-                       <div class="text-gray-300">Ready to deploy for tasty dips!</div>`
-            });
-
-            // Debt Nether Portal (Right of North Path entrance)
-            const portalFrame = new THREE.Mesh(new THREE.BoxGeometry(3.6, 4.5, 1.2), obsidianMat);
-            portalFrame.position.set(5.5, 2.25, -12);
-            worldGroup.add(portalFrame);
-
-            const portalInner = new THREE.Mesh(
-                new THREE.BoxGeometry(2.2, 3.1, 1.3),
-                new THREE.MeshBasicMaterial({ map: textures.portal, transparent: true, opacity: 0.85 })
-            );
-            portalInner.position.set(5.5, 2.25, -12);
-            worldGroup.add(portalInner);
-
-            const debtSign = createSignBoard({
-                badge: '🔥 NETHER LEVERAGE',
-                title: 'TRUST DEBT',
-                subtitle: portfolioState.debt,
-                lines: [{ text: 'Margin / Loan Balance', color: '#ff77ff' }],
-                borderColor: '#c75cff',
-                width: 4.5,
-                height: 2.5
-            });
-            debtSign.position.set(5.5, 5.8, -12);
-            worldGroup.add(debtSign);
-
-            interactiveBlocks.push({
-                mesh: portalFrame,
-                pos: new THREE.Vector3(5.5, 2, -12),
-                radius: 4.5,
-                badge: 'NETHER DEBT PORTAL',
-                title: `DEBT: ${portfolioState.debt}`,
-                html: `<div class="text-[#ff77ff]">Pulled live from Cell G2</div>`
-            });
-
-            // Individual Stonk Skyscraper Towers along the North Avenue
-            const maxHoldingVal = Math.max(...portfolioState.holdings.map(h => h.valueNum), 1000);
-            portfolioState.holdings.forEach((h, idx) => {
-                const side = idx % 2 === 0 ? -1 : 1;
-                const rowIdx = Math.floor(idx / 2);
-                const xPos = side * 6.2;
-                const zPos = -18 - (rowIdx * 6.2);
-
-                // Calculate voxel tower height (between 2 and 11 blocks tall)
-                const towerHeight = Math.max(2, Math.min(11, Math.round((h.valueNum / maxHoldingVal) * 9) + 2));
-                const isUpToday = h.dailyVal >= 0;
-                const towerMat = h.dailyVal > 0 ? emeraldMat : (h.dailyVal < 0 ? redstoneMat : diamondMat);
-
-                // Stack of blocks for authentic voxel look
-                const towerGeo = new THREE.BoxGeometry(2.6, towerHeight, 2.6);
-                const towerMesh = new THREE.Mesh(towerGeo, towerMat);
-                towerMesh.position.set(xPos, towerHeight / 2, zPos);
-                worldGroup.add(towerMesh);
-
-                // Save 3D position for quick teleport from Chest modal
-                h.position3D = { x: xPos * 0.4, z: zPos + 4.5, lookX: xPos, lookZ: zPos };
-
-                // Eye-level readable Sign right in front of the tower
-                const profitColor = h.profitVal >= 0 ? '#55ff55' : '#ff5555';
-                const dayColor = h.dailyVal > 0 ? '#55ff55' : (h.dailyVal < 0 ? '#ff5555' : '#ffffff');
-                const stonkSign = createSignBoard({
-                    badge: `STONK #${idx + 1} (${h.pctShare}%)`,
-                    title: h.name,
-                    subtitle: h.valueFormatted,
-                    lines: [
-                        { text: `P/L: ${h.profit}`, color: profitColor },
-                        { text: `Day: ${h.dailyChange}`, color: dayColor }
-                    ],
-                    borderColor: h.dailyVal >= 0 ? '#17dd62' : '#ff5555',
-                    width: 4.3,
-                    height: 2.5
-                });
-                // Place sign at comfortable reading height facing the center road
-                stonkSign.position.set(xPos - (side * 2.2), 2.7, zPos);
-                stonkSign.rotation.y = side === -1 ? Math.PI / 3 : -Math.PI / 3;
-                worldGroup.add(stonkSign);
-
-                interactiveBlocks.push({
-                    mesh: towerMesh,
-                    pos: new THREE.Vector3(xPos, 2, zPos),
-                    radius: 4.8,
-                    badge: `HOLDING TOWER (${h.pctShare}% SHARE)`,
-                    title: h.name,
-                    html: `<div>Value: <b class="text-[#ffff55]">${escapeHTML(h.valueFormatted)}</b></div>
-                           <div>Total P/L: <b style="color:${profitColor}">${escapeHTML(h.profit)}</b></div>
-                           <div>Daily Move: <b style="color:${dayColor}">${escapeHTML(h.dailyChange)}</b></div>`
-                });
-            });
-
-            /* =============================================================
-             * ZONE 3: WEST DISTRICT (X = -15 to -34) - HALL OF WINS & PIE ARENA
-             * ============================================================= */
-            // Period Returns Temple ("WINS TO 30 SEP")
-            const returnsTitleSign = createSignBoard({
-                badge: '🏆 HALL OF WINS 🏆',
-                title: 'RETURNS TO 30 SEP',
-                subtitle: 'TRUST PERFORMANCE',
-                lines: [{ text: '1M • 3M • 6M • 1Y • 2Y', color: '#ffaa00' }],
-                borderColor: '#f5c71a',
-                width: 5.5,
-                height: 2.6
-            });
-            returnsTitleSign.position.set(-22, 5.8, -8);
-            returnsTitleSign.rotation.y = Math.PI / 4;
-            worldGroup.add(returnsTitleSign);
-
-            portfolioState.returns.forEach((ret, idx) => {
-                const rx = -15 - (idx * 3.8);
-                const rz = -7;
-                const pedHeight = Math.max(1.5, Math.min(6, 1.5 + Math.abs(ret.num) * 0.08));
-                const pedMat = ret.isPositive ? emeraldMat : redstoneMat;
-
-                const pedestal = new THREE.Mesh(new THREE.BoxGeometry(2.2, pedHeight, 2.2), pedMat);
-                pedestal.position.set(rx, pedHeight / 2, rz);
-                worldGroup.add(pedestal);
-
-                // Spinning Trophy Block on top
-                const trophy = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 0.9), goldMat);
-                trophy.position.set(rx, pedHeight + 0.9, rz);
-                worldGroup.add(trophy);
-                dynamicObjects.push({ mesh: trophy, type: 'spin', speed: 2.0 });
-
-                const retSign = createSignBoard({
-                    badge: 'PERIOD RETURN',
-                    title: ret.label.toUpperCase(),
-                    subtitle: ret.val,
-                    lines: [{ text: ret.isPositive ? '▲ GAIN' : '▼ DIP', color: ret.isPositive ? '#55ff55' : '#ff5555' }],
-                    borderColor: ret.isPositive ? '#55ff55' : '#ff5555',
-                    width: 3.4,
-                    height: 2.1
-                });
-                retSign.position.set(rx, 2.4, rz + 1.5);
-                worldGroup.add(retSign);
-
-                interactiveBlocks.push({
-                    mesh: pedestal,
-                    pos: new THREE.Vector3(rx, 2, rz),
-                    radius: 3.5,
-                    badge: 'WINS TO 30 SEP',
-                    title: `${ret.label}: ${ret.val}`,
-                    html: `<div class="text-[#55ff55]">Historical performance milestone</div>`
-                });
-            });
-
-            // 3D Voxel Pie / Allocation Block Ring (West-South X = -22, Z = 8)
-            const pieColors = [0xff5588, 0x55ff55, 0x55ffff, 0xffaa00, 0xaa55ff, 0xffff55, 0xff5555, 0x5588ff];
-            const allAssets = [
-                { name: portfolioState.cash.name, valueFormatted: portfolioState.cash.valueFormatted, pctShare: portfolioState.cash.pctShare },
-                ...portfolioState.holdings
-            ].filter(a => a.pctShare > 0);
-
-            const pieCenter = { x: -22, z: 9 };
-            const pieCenterSign = createSignBoard({
-                badge: '🍭 YUMMY PIE BLOCKS',
-                title: 'ASSET ALLOCATION',
-                subtitle: `${allAssets.length} POSITIONS`,
-                lines: [{ text: '3D Voxel Weight Breakdown', color: '#ff88ff' }],
-                borderColor: '#ff758c',
-                width: 4.8,
-                height: 2.5
-            });
-            pieCenterSign.position.set(pieCenter.x, 4.5, pieCenter.z);
-            pieCenterSign.rotation.y = Math.PI / 2;
-            worldGroup.add(pieCenterSign);
-
-            allAssets.forEach((asset, i) => {
-                const angle = (i / allAssets.length) * Math.PI * 2;
-                const px = pieCenter.x + Math.cos(angle) * 5.5;
-                const pz = pieCenter.z + Math.sin(angle) * 5.5;
-                const blockH = Math.max(1.2, (asset.pctShare / 100) * 12);
-                const mat = new THREE.MeshLambertMaterial({ color: pieColors[i % pieColors.length] });
-
-                const sliceBlock = new THREE.Mesh(new THREE.BoxGeometry(2.0, blockH, 2.0), mat);
-                sliceBlock.position.set(px, blockH / 2, pz);
-                worldGroup.add(sliceBlock);
-
-                const sliceSign = createSignBoard({
-                    badge: `${asset.pctShare}% SHARE`,
-                    title: asset.name,
-                    subtitle: asset.valueFormatted,
-                    lines: [],
-                    borderColor: '#ffffff',
-                    width: 3.0,
-                    height: 1.7
-                });
-                sliceSign.position.set(px, blockH + 1.2, pz);
-                sliceSign.lookAt(0, blockH + 1.2, 0);
-                worldGroup.add(sliceSign);
-            });
-
-            /* =============================================================
-             * ZONE 4: EAST DISTRICT (X = +14 to +38) - 3D HISTORICAL LINE GRAPH COASTER
-             * ============================================================= */
-            const graphBanner = createSignBoard({
-                badge: '📈 SQUIGGLY LINE MOUNTAIN',
-                title: 'AUM HISTORY GRAPH',
-                subtitle: 'TAP "RIDE" TO COAST!',
-                lines: [{ text: 'Historical Portfolio Value Curve', color: '#55ffff' }],
-                borderColor: '#ff1493',
-                width: 5.8,
-                height: 2.8
-            });
-            graphBanner.position.set(18, 5.5, 0);
-            graphBanner.rotation.y = -Math.PI / 2;
-            worldGroup.add(graphBanner);
-
-            // Sample up to 24 evenly-spaced historical points to build the 3D Voxel Coaster
-            const hist = portfolioState.history;
-            if (hist.length >= 2) {
-                const maxSamples = Math.min(24, hist.length);
-                const sampled = [];
-                for (let i = 0; i < maxSamples; i++) {
-                    const idx = Math.floor((i / (maxSamples - 1)) * (hist.length - 1));
-                    sampled.push(hist[idx]);
-                }
-
-                const maxHistVal = Math.max(...sampled.map(d => d.value), 10000);
-                const curvePoints = [];
-
-                sampled.forEach((pt, i) => {
-                    // Arrange along a scenic arc in the East District (Z from -24 to +24)
-                    const t = i / (sampled.length - 1);
-                    const gx = 20 + Math.sin(t * Math.PI) * 10;
-                    const gz = -24 + t * 48;
-                    const gy = Math.max(1.2, (pt.value / maxHistVal) * 13);
-
-                    curvePoints.push(new THREE.Vector3(gx, gy + 1.6, gz));
-
-                    // Build Voxel Column under the graph point
-                    const colMesh = new THREE.Mesh(
-                        new THREE.BoxGeometry(1.4, gy, 1.4),
-                        i === sampled.length - 1 ? diamondMat : planksMat
-                    );
-                    colMesh.position.set(gx, gy / 2, gz);
-                    worldGroup.add(colMesh);
-
-                    // Glowing Gold Rail Cap
-                    const capMesh = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.4, 1.6), goldMat);
-                    capMesh.position.set(gx, gy + 0.2, gz);
-                    worldGroup.add(capMesh);
-
-                    // Add Year / Milestone Signs every few columns
-                    if (i === 0 || i === sampled.length - 1 || i % 4 === 0) {
-                        const ptSign = createSignBoard({
-                            badge: pt.rawDate,
-                            title: fmtUSD0(pt.value),
-                            subtitle: i === sampled.length - 1 ? 'LATEST' : pt.year,
-                            lines: [],
-                            borderColor: '#ffaa00',
-                            width: 3.2,
-                            height: 1.8
-                        });
-                        ptSign.position.set(gx - 2.2, gy + 1.8, gz);
-                        ptSign.rotation.y = -Math.PI / 2;
-                        worldGroup.add(ptSign);
-                    }
-                });
-
-                coasterCurve = new THREE.CatmullRomCurve3(curvePoints);
-
-                // Draw glowing voxel rail line connecting all historical points
-                const tubeGeo = new THREE.TubeGeometry(coasterCurve, 64, 0.22, 6, false);
-                const tubeMat = new THREE.MeshBasicMaterial({ color: 0xff1493 });
-                const railTube = new THREE.Mesh(tubeGeo, tubeMat);
-                worldGroup.add(railTube);
-            }
-
-            /* =============================================================
-             * ZONE 5: SOUTH DISTRICT (Z = +15 to +32) - BOYS CHAT TAVERN
-             * ============================================================= */
-            const chatHeader = createSignBoard({
-                badge: '💬 BOYS CHAT TAVERN 💬',
-                title: 'PORTFOLIO LOGS',
-                subtitle: 'BUY • SELL • DIVIDENDS',
-                lines: [{ text: 'Live Updates from Google Sheets', color: '#ffff55' }],
-                borderColor: '#55ffff',
-                width: 5.6,
-                height: 2.6
-            });
-            chatHeader.position.set(0, 5.2, 16);
-            chatHeader.rotation.y = Math.PI;
-            worldGroup.add(chatHeader);
-
-            const logsToShow = portfolioState.updates.slice(0, 10);
-            logsToShow.forEach((log, idx) => {
-                const col = idx % 2 === 0 ? -1 : 1;
-                const row = Math.floor(idx / 2);
-                const lx = col * 5.2;
-                const lz = 19 + row * 4.2;
-
-                let logColor = '#55ffff';
-                let postMat = planksMat;
-                if (log.type === 'BUY') { logColor = '#55ff55'; postMat = emeraldMat; }
-                else if (log.type === 'SELL') { logColor = '#ff5555'; postMat = redstoneMat; }
-                else if (log.type === 'PAID') { logColor = '#ffaa00'; postMat = goldMat; }
-
-                const post = new THREE.Mesh(new THREE.BoxGeometry(1.2, 2.2, 1.2), postMat);
-                post.position.set(lx, 1.1, lz);
-                worldGroup.add(post);
-
-                // Wrap long chat message into 2 lines
-                const words = log.text.split(' ');
-                let line1 = '', line2 = '';
-                words.forEach(w => {
-                    if ((line1 + ' ' + w).length < 28) line1 += (line1 ? ' ' : '') + w;
-                    else line2 += (line2 ? ' ' : '') + w;
-                });
-
-                const logSign = createSignBoard({
-                    badge: `LOG #${idx + 1} [${log.type}]`,
-                    title: line1,
-                    subtitle: '',
-                    lines: line2 ? [{ text: line2.slice(0, 34), color: logColor }] : [],
-                    borderColor: logColor,
-                    width: 4.4,
-                    height: 2.2
-                });
-                logSign.position.set(lx, 3.0, lz);
-                logSign.rotation.y = Math.PI + (col * 0.25);
-                worldGroup.add(logSign);
-
-                interactiveBlocks.push({
-                    mesh: post,
-                    pos: new THREE.Vector3(lx, 2, lz),
-                    radius: 4.0,
-                    badge: `BOYS CHAT [${log.type}]`,
-                    title: log.type + ' UPDATE',
-                    html: `<div class="text-white">${escapeHTML(log.text)}</div>`
-                });
-            });
-        }
-
-        /********************************************************************
-         * 6. UPDATE 2D HUD & CHEST INVENTORY MODAL
-         ********************************************************************/
-        function populateHUDAndModal() {
-            // Top Boss Bar & Pills
-            document.getElementById('hud-ticker-text').textContent =
-                `✨ ${portfolioState.ticker} ✨   •   TOTAL AUM: ${portfolioState.aum}   •   UNIT PRICE: ${portfolioState.unitPrice}   •   NET TENDIES: ${portfolioState.tendies}`;
-
-            const badgeEl = document.getElementById('hud-today-badge');
-            const cleanChange = String(portfolioState.todayChangeRaw).replace('-', '');
-            if (portfolioState.todayChangeVal >= 0) {
-                badgeEl.textContent = `▲ UP ${cleanChange}% TODAY`;
-                badgeEl.className = 'px-1.5 py-0.5 text-xs sm:text-sm font-bold bg-black/80 border border-[#55ff55] text-[#55ff55] rounded';
-            } else {
-                badgeEl.textContent = `▼ DOWN ${cleanChange}% TODAY`;
-                badgeEl.className = 'px-1.5 py-0.5 text-xs sm:text-sm font-bold bg-black/80 border border-[#ff5555] text-[#ff5555] rounded';
-            }
-
-            document.getElementById('hud-aum').textContent = portfolioState.aum;
-            document.getElementById('hud-unit-price').textContent = portfolioState.unitPrice;
-            document.getElementById('hud-tendies').textContent = portfolioState.tendies;
-
-            // Chest Modal Metrics
-            document.getElementById('modal-aum').textContent = portfolioState.aum;
-            document.getElementById('modal-unit').textContent = portfolioState.unitPrice;
-            document.getElementById('modal-tendies').textContent = portfolioState.tendies;
-            document.getElementById('modal-debt').textContent = portfolioState.debt;
-
-            // Chest Modal Holdings Grid
-            const gridEl = document.getElementById('modal-holdings-grid');
-            let gridHTML = `
-                <div onclick="toggleChestModal(false); teleportTo('stonks')" class="mc-slot p-2 bg-[#4a3b10] text-white cursor-pointer hover:brightness-110">
-                    <div class="text-xs text-[#ffaa00] font-bold">💰 ${escapeHTML(portfolioState.cash.name)}</div>
-                    <div class="text-lg font-bold">${escapeHTML(portfolioState.cash.valueFormatted)}</div>
-                    <div class="text-xs text-gray-300">Share: ${portfolioState.cash.pctShare}%</div>
+            const profitColor = profitVal < 0 ? 'var(--negative-red)' : 'var(--positive-green)';
+            const dailyColor = dailyVal < 0 ? 'var(--negative-red)' : (dailyVal > 0 ? 'var(--positive-green)' : 'var(--deep-purple)');
+
+            return `
+                <div class="holding-card wiggle-hover" style="${bgStyle}">
+                    <span class="holding-name" title="${name}">${name}</span>
+                    <div class="holding-row"><span>Val:</span><span>${value}</span></div>
+                    <div class="holding-row"><span>P/L:</span><span style="color:${profitColor}">${profit}</span></div>
+                    <div class="holding-row"><span>Day:</span><span style="color:${dailyColor}; font-weight:900;">${dailyChange}</span></div>
                 </div>
             `;
-            portfolioState.holdings.forEach((h, i) => {
-                const bg = h.dailyVal > 0 ? 'bg-[#143d1f]' : (h.dailyVal < 0 ? 'bg-[#451717]' : 'bg-[#2e2e2e]');
-                const pCol = h.profitVal >= 0 ? 'text-[#55ff55]' : 'text-[#ff5555]';
-                const dCol = h.dailyVal >= 0 ? 'text-[#55ff55]' : 'text-[#ff5555]';
-                gridHTML += `
-                    <div onclick="teleportToHolding(${i})" class="mc-slot p-2 ${bg} text-white cursor-pointer hover:brightness-125">
-                        <div class="font-bold text-sm truncate text-[#ffff55]">${escapeHTML(h.name)}</div>
-                        <div class="text-base font-bold">${escapeHTML(h.valueFormatted)}</div>
-                        <div class="flex justify-between text-xs">
-                            <span>P/L: <b class="${pCol}">${escapeHTML(h.profit)}</b></span>
-                            <span>Day: <b class="${dCol}">${escapeHTML(h.dailyChange)}</b></span>
-                        </div>
-                    </div>
-                `;
-            });
-            gridEl.innerHTML = gridHTML;
-
-            // Chest Modal Returns Table
-            const retEl = document.getElementById('modal-returns-table');
-            let retHTML = '<div class="space-y-1">';
-            portfolioState.returns.forEach(r => {
-                const col = r.isPositive ? 'text-[#007700]' : 'text-[#aa0000]';
-                retHTML += `
-                    <div class="flex justify-between items-center border-b border-gray-400 py-1 px-1 text-base font-bold">
-                        <span>${escapeHTML(r.label)}</span>
-                        <span class="${col}">${escapeHTML(r.val)}</span>
-                    </div>
-                `;
-            });
-            retHTML += '</div>';
-            retEl.innerHTML = retHTML;
-
-            // Chest Modal Updates List
-            const updEl = document.getElementById('modal-updates-list');
-            if (portfolioState.updates.length === 0) {
-                updEl.innerHTML = '<div class="text-sm text-gray-600">No recent updates</div>';
-            } else {
-                updEl.innerHTML = portfolioState.updates.map(u => {
-                    let badge = '✨';
-                    let bg = 'bg-white/80';
-                    if (u.type === 'BUY') { badge = '🛍️ BUY'; bg = 'bg-green-200'; }
-                    else if (u.type === 'SELL') { badge = '💸 SELL'; bg = 'bg-red-200'; }
-                    else if (u.type === 'PAID') { badge = '💰 PAID'; bg = 'bg-yellow-200'; }
-                    return `<div class="${bg} p-1.5 rounded border border-gray-500 text-sm font-bold">
-                        <span class="px-1 bg-black/15 rounded mr-1">${badge}</span> ${escapeHTML(u.text)}
-                    </div>`;
-                }).join('');
-            }
         }
 
-        /********************************************************************
-         * 7. NAVIGATION, TELEPORTATION, MINECART COASTER & FIREWORKS
-         ********************************************************************/
-        const zoneCoordinates = {
-            spawn:   { x: 0,   y: 2.3, z: 10,  yaw: 0,            pitch: 0.08 },
-            stonks:  { x: 0,   y: 2.3, z: -9,  yaw: 0,            pitch: 0.05 },
-            pie:     { x: -12, y: 2.3, z: 9,   yaw: Math.PI / 2,  pitch: 0.05 },
-            returns: { x: -22, y: 2.3, z: 1,   yaw: 0,            pitch: 0.05 },
-            graph:   { x: 10,  y: 2.3, z: 0,   yaw: -Math.PI / 2, pitch: 0.10 },
-            chat:    { x: 0,   y: 2.3, z: 12,  yaw: Math.PI,      pitch: 0.05 },
-            sky:     { x: 0,   y: 22,  z: 28,  yaw: 0,            pitch: -0.55 }
-        };
+        // Special handling for the very first item (Cash)
+        if (holdings.length > 0) {
+            const cashItem = holdings[0];
+            const name = escapeHTML(cashItem[0] || 'Cash');
+            const value = fmtUSD0(cashItem[3]); // Cell D3 value
 
-        function selectHotbar(slotIndex, zoneKey, labelText) {
-            playClickSound("E3");
-            const slots = document.querySelectorAll('.hotbar-slot');
-            slots.forEach((s, idx) => s.classList.toggle('active', idx === slotIndex));
-            document.getElementById('hotbar-label').textContent = labelText;
-            teleportTo(zoneKey);
+            // Add the cash card spanning 2 columns
+            html += `
+                <div class="holding-card wiggle-hover" style="grid-column: 1 / -1; background: linear-gradient(135deg, var(--pastel-purple) 0%, #fff 100%); border: 2px dashed #c781ff; text-align: center; padding: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(230,230,250,0.8);">
+                    <span class="holding-name" title="${name}" style="font-size: 1.1rem; color: var(--hot-pink); margin-bottom: 2px;">${name}</span>
+                    <div style="font-size: 1.7rem; font-weight: 900; color: var(--deep-purple); text-shadow: 1px 1px 2px rgba(0,0,0,0.05);">${value}</div>
+                </div>
+            `;
+        }
+        
+        // Loop through the remaining holdings standardly
+        for (let i = 1; i < holdings.length; i++) {
+            if(holdings[i] && holdings[i][0]) html += createCard(holdings[i]);
         }
 
-        function teleportTo(zoneKey) {
-            const target = zoneCoordinates[zoneKey];
-            if (!target) return;
-            player.ridingCart = false;
-            document.getElementById('cart-btn-label').textContent = 'RIDE';
-            player.flyingOverview = (zoneKey === 'sky');
-            player.pos.set(target.x, target.y, target.z);
-            player.vel.set(0, 0, 0);
-            player.yaw = target.yaw;
-            player.pitch = target.pitch;
+        // --- NEW: DEBT CARD AT THE BOTTOM ---
+        // Pulls from Cell G2 (Row Index 1, Column Index 6)
+        const debtRaw = data[1] ? data[1][6] : undefined;
+        const debtValue = debtRaw ? fmtUSD0(debtRaw) : '$0';
+        
+        html += `
+            <div class="holding-card wiggle-hover" style="grid-column: 1 / -1; background: linear-gradient(135deg, var(--pastel-purple) 0%, #fff 100%); border: 2px dashed #c781ff; text-align: center; padding: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(230,230,250,0.8); margin-top: 4px;">
+                <span class="holding-name" title="DEBT" style="font-size: 1.1rem; color: var(--hot-pink); margin-bottom: 2px;">DEBT</span>
+                <div style="font-size: 1.7rem; font-weight: 900; color: var(--deep-purple); text-shadow: 1px 1px 2px rgba(0,0,0,0.05);">${debtValue}</div>
+            </div>
+        `;
+
+        html += '</div>';
+        tableContainerEl.innerHTML = html;
+    }
+
+    function drawPieChart(data) {
+        const holdingsData = data.slice(2)
+            .filter(row => row[0] && parseFloat(row[3]) > 0)
+            .map(row => ({ name: row[0], value: parseFloat(row[3]) }));
+
+        const totalValue = holdingsData.reduce((sum, item) => sum + item.value, 0);
+        if (totalValue === 0) {
+            pieChartContainerEl.innerHTML = '<div style="text-align:center; font-weight:bold;">NO ASSETS 🥺</div>';
+            return;
         }
 
-        function teleportToHolding(index) {
-            toggleChestModal(false);
-            const h = portfolioState.holdings[index];
-            if (!h || !h.position3D) {
-                teleportTo('stonks');
-                return;
-            }
-            playClickSound("G3");
-            player.ridingCart = false;
-            player.flyingOverview = false;
-            player.pos.set(0, 2.3, h.position3D.lookZ);
-            player.yaw = h.position3D.lookX < 0 ? Math.PI / 2 : -Math.PI / 2;
-            player.pitch = 0.05;
-        }
+        const radius = 100;
+        const cx = radius;
+        const cy = radius;
+        let startAngle = -90;
 
-        function toggleChestModal(show) {
-            playClickSound(show ? "C4" : "A2");
-            const modal = document.getElementById('chest-modal');
-            if (show) {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            } else {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }
-        }
+        let svgContent = `<svg viewBox="-5 -5 ${radius * 2 + 10} ${radius * 2 + 10}" preserveAspectRatio="xMidYMid meet">`;
 
-        document.getElementById('open-chest-btn-top').addEventListener('click', () => toggleChestModal(true));
+        // K-Pop Bubblegum Palette
+        const cuteColors = ['#ff758c', '#ff7eb3', '#ffa6c9', '#c781ff', '#8cc6ff', '#8cf0ff', '#ffe18c', '#ffb58c', '#d8bfd8'];
 
-        function toggleDayNight() {
-            isNight = !isNight;
-            playClickSound("D3");
-            document.getElementById('time-icon').textContent = isNight ? '🌙' : '☀️';
-            const targetSky = isNight ? skyColorNight : skyColorDay;
-            scene.background = targetSky.clone();
-            scene.fog.color = targetSky.clone();
-            ambientLight.intensity = isNight ? 0.38 : 0.78;
-            sunLight.intensity = isNight ? 0.2 : 0.65;
-        }
+        holdingsData.forEach((item, index) => {
+            const percentage = item.value / totalValue;
+            const angle = percentage * 360;
+            const endAngle = startAngle + angle;
 
-        // Minecart Coaster Ride along Historical Portfolio Graph
-        document.getElementById('cart-btn').addEventListener('click', () => {
-            if (!coasterCurve) return;
-            player.ridingCart = !player.ridingCart;
-            player.flyingOverview = false;
-            playLevelUpChime();
-            document.getElementById('cart-btn-label').textContent = player.ridingCart ? 'STOP' : 'RIDE';
-            if (player.ridingCart) {
-                player.cartProgress = 0;
-                document.getElementById('hotbar-label').textContent = '🎢 Riding Historical AUM Minecart Coaster!';
-            }
+            const start = polarToCartesian(cx, cy, radius, endAngle);
+            const end = polarToCartesian(cx, cy, radius, startAngle);
+            const largeArcFlag = angle > 180 ? "1" : "0";
+
+            const d = [
+                "M", cx, cy,
+                "L", end.x, end.y,
+                "A", radius, radius, 0, largeArcFlag, 1, start.x, start.y,
+                "Z"
+            ].join(" ");
+
+            const fill = cuteColors[index % cuteColors.length];
+            const cleanName = escapeHTML(item.name);
+            // Must escape quotes for tooltip inline JS string
+            const tooltipText = escapeHTML(`${cleanName}: ${item.value.toLocaleString('en-US', {style:'currency', currency:'USD', maximumFractionDigits:0})} (${Math.round(percentage*100)}%)`).replace(/'/g, "\\'");
+
+            svgContent += `<path d="${d}" fill="${fill}" stroke="#fff" stroke-width="2" class="pie-slice" 
+                           ontouchstart="showTooltip(event.touches[0], '${tooltipText}')"
+                           onmousemove="showTooltip(evt, '${tooltipText}')" 
+                           onmouseout="hideTooltip()"></path>`;
+            
+            startAngle = endAngle;
         });
 
-        // 3D Voxel Emerald & Diamond Rain ("IN SQUAD WE TRUST")
-        function triggerEmeraldRain() {
-            playLevelUpChime();
-            const colors = [0x17dd62, 0x4eedd8, 0xf5c71a, 0xff1493];
-            for (let i = 0; i < 36; i++) {
-                const mat = new THREE.MeshLambertMaterial({ color: colors[i % colors.length] });
-                const cube = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.55, 0.55), mat);
-                cube.position.set(
-                    player.pos.x + (Math.random() - 0.5) * 14,
-                    player.pos.y + 6 + Math.random() * 8,
-                    player.pos.z + (Math.random() - 0.5) * 14
-                );
-                scene.add(cube);
-                fireworks.push({
-                    mesh: cube,
-                    vel: new THREE.Vector3((Math.random() - 0.5) * 4, -4 - Math.random() * 3, (Math.random() - 0.5) * 4),
-                    life: 3.5
-                });
-            }
-        }
+        svgContent += `</svg>`;
+        pieChartContainerEl.innerHTML = svgContent;
+    }
 
-        document.getElementById('party-btn').addEventListener('click', triggerEmeraldRain);
+    function showTooltip(evt, text) {
+        tooltipEl.style.display = "block";
+        tooltipEl.innerHTML = text; // Safely mapped previously
+        tooltipEl.style.left = (evt.pageX + 10) + 'px';
+        tooltipEl.style.top = (evt.pageY + 10) + 'px';
+    }
 
-        /********************************************************************
-         * 8. MOBILE TOUCH JOYSTICK, LOOK DRAG, RAYCASTER & KEYBOARD INPUTS
-         ********************************************************************/
-        function setupControls() {
-            const joyZone = document.getElementById('joystick-zone');
-            const joyKnob = document.getElementById('joystick-knob');
-            const maxRadius = 38;
+    function hideTooltip() {
+        tooltipEl.style.display = "none";
+    }
 
-            // Virtual Joystick Touch
-            joyZone.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                initAudio();
-                const touch = e.changedTouches[0];
-                joystick.active = true;
-                joystick.touchId = touch.identifier;
-                updateJoystick(touch, joyZone, joyKnob, maxRadius);
-            }, { passive: false });
-
-            joyZone.addEventListener('touchmove', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                for (let i = 0; i < e.changedTouches.length; i++) {
-                    if (e.changedTouches[i].identifier === joystick.touchId) {
-                        updateJoystick(e.changedTouches[i], joyZone, joyKnob, maxRadius);
-                    }
-                }
-            }, { passive: false });
-
-            const endJoystick = (e) => {
-                for (let i = 0; i < e.changedTouches.length; i++) {
-                    if (e.changedTouches[i].identifier === joystick.touchId) {
-                        joystick.active = false;
-                        joystick.dx = 0;
-                        joystick.dy = 0;
-                        joyKnob.style.transform = `translate(0px, 0px)`;
-                    }
-                }
-            };
-            joyZone.addEventListener('touchend', endJoystick);
-            joyZone.addEventListener('touchcancel', endJoystick);
-
-            function updateJoystick(touch, zone, knob, maxR) {
-                const rect = zone.getBoundingClientRect();
-                const cx = rect.left + rect.width / 2;
-                const cy = rect.top + rect.height / 2;
-                let dx = touch.clientX - cx;
-                let dy = touch.clientY - cy;
-                const dist = Math.hypot(dx, dy);
-                if (dist > maxR) {
-                    dx = (dx / dist) * maxR;
-                    dy = (dy / dist) * maxR;
-                }
-                knob.style.transform = `translate(${dx}px, ${dy}px)`;
-                joystick.dx = dx / maxR;
-                joystick.dy = dy / maxR;
-                player.ridingCart = false;
-                player.flyingOverview = false;
-            }
-
-            // Canvas Touch Look + Tap Block Raycast
-            const canvas = document.getElementById('game-canvas');
-            canvas.addEventListener('touchstart', (e) => {
-                initAudio();
-                const touch = e.changedTouches[0];
-                lookTouch.active = true;
-                lookTouch.touchId = touch.identifier;
-                lookTouch.lastX = touch.clientX;
-                lookTouch.lastY = touch.clientY;
-                lookTouch.startX = touch.clientX;
-                lookTouch.startY = touch.clientY;
-            }, { passive: true });
-
-            canvas.addEventListener('touchmove', (e) => {
-                for (let i = 0; i < e.changedTouches.length; i++) {
-                    const t = e.changedTouches[i];
-                    if (t.identifier === lookTouch.touchId) {
-                        const dx = t.clientX - lookTouch.lastX;
-                        const dy = t.clientY - lookTouch.lastY;
-                        lookTouch.lastX = t.clientX;
-                        lookTouch.lastY = t.clientY;
-
-                        player.yaw -= dx * 0.0055;
-                        player.pitch = Math.max(-1.2, Math.min(1.2, player.pitch - dy * 0.0045));
-                    }
-                }
-            }, { passive: true });
-
-            canvas.addEventListener('touchend', (e) => {
-                for (let i = 0; i < e.changedTouches.length; i++) {
-                    const t = e.changedTouches[i];
-                    if (t.identifier === lookTouch.touchId) {
-                        const moveDist = Math.hypot(t.clientX - lookTouch.startX, t.clientY - lookTouch.startY);
-                        if (moveDist < 12) {
-                            handleScreenTap(t.clientX, t.clientY);
-                        }
-                        lookTouch.active = false;
-                    }
-                }
-            });
-
-            // Desktop Mouse Drag Look & Click
-            let isMouseDragging = false;
-            let mouseStart = { x: 0, y: 0 };
-            canvas.addEventListener('mousedown', (e) => {
-                initAudio();
-                isMouseDragging = true;
-                lookTouch.lastX = e.clientX;
-                lookTouch.lastY = e.clientY;
-                mouseStart.x = e.clientX;
-                mouseStart.y = e.clientY;
-            });
-            window.addEventListener('mousemove', (e) => {
-                if (!isMouseDragging) return;
-                const dx = e.clientX - lookTouch.lastX;
-                const dy = e.clientY - lookTouch.lastY;
-                lookTouch.lastX = e.clientX;
-                lookTouch.lastY = e.clientY;
-                player.yaw -= dx * 0.0045;
-                player.pitch = Math.max(-1.2, Math.min(1.2, player.pitch - dy * 0.004));
-            });
-            window.addEventListener('mouseup', (e) => {
-                if (isMouseDragging) {
-                    const dist = Math.hypot(e.clientX - mouseStart.x, e.clientY - mouseStart.y);
-                    if (dist < 8) handleScreenTap(e.clientX, e.clientY);
-                }
-                isMouseDragging = false;
-            });
-
-            // Jump Button
-            const doJump = () => {
-                initAudio();
-                player.flyingOverview = false;
-                if (player.isGrounded) {
-                    player.vel.y = 7.8;
-                    player.isGrounded = false;
-                    playClickSound("A2");
-                }
-            };
-            document.getElementById('jump-btn').addEventListener('touchstart', (e) => { e.preventDefault(); doJump(); });
-            document.getElementById('jump-btn').addEventListener('click', doJump);
-
-            // Keyboard Controls (WASD + Arrows + Space + 1-9 Hotbar)
-            window.addEventListener('keydown', (e) => {
-                const k = e.key.toLowerCase();
-                if (k === 'w' || e.key === 'ArrowUp') { keys.w = true; player.ridingCart = false; player.flyingOverview = false; }
-                if (k === 's' || e.key === 'ArrowDown') { keys.s = true; player.ridingCart = false; player.flyingOverview = false; }
-                if (k === 'a' || e.key === 'ArrowLeft') { keys.a = true; player.ridingCart = false; player.flyingOverview = false; }
-                if (k === 'd' || e.key === 'ArrowRight') { keys.d = true; player.ridingCart = false; player.flyingOverview = false; }
-                if (e.code === 'Space') doJump();
-                if (k === 'e') toggleChestModal(document.getElementById('chest-modal').classList.contains('hidden'));
-            });
-
-            window.addEventListener('keyup', (e) => {
-                const k = e.key.toLowerCase();
-                if (k === 'w' || e.key === 'ArrowUp') keys.w = false;
-                if (k === 's' || e.key === 'ArrowDown') keys.s = false;
-                if (k === 'a' || e.key === 'ArrowLeft') keys.a = false;
-                if (k === 'd' || e.key === 'ArrowRight') keys.d = false;
-            });
-
-            // Responsive Resize
-            window.addEventListener('resize', () => {
-                if (!camera || !renderer) return;
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-            });
-        }
-
-        const raycaster = new THREE.Raycaster();
-        const pointer = new THREE.Vector2();
-
-        function handleScreenTap(clientX, clientY) {
-            pointer.x = (clientX / window.innerWidth) * 2 - 1;
-            pointer.y = -(clientY / window.innerHeight) * 2 + 1;
-            raycaster.setFromCamera(pointer, camera);
-
-            const meshes = interactiveBlocks.map(b => b.mesh);
-            const hits = raycaster.intersectObjects(meshes, false);
-            if (hits.length > 0 && hits[0].distance < 35) {
-                const hitMesh = hits[0].object;
-                const info = interactiveBlocks.find(b => b.mesh === hitMesh);
-                if (info) {
-                    playClickSound("F3");
-                    showInspector(info);
-                }
-            }
-        }
-
-        function showInspector(info) {
-            const el = document.getElementById('block-inspector');
-            document.getElementById('inspector-badge').textContent = info.badge;
-            document.getElementById('inspector-title').textContent = info.title;
-            document.getElementById('inspector-body').innerHTML = info.html;
-            el.classList.remove('hidden');
-        }
-
-        /********************************************************************
-         * 9. MAIN GAME LOOP & PROXIMITY DETECTION
-         ********************************************************************/
-        let lastTime = performance.now();
-
-        function animateLoop() {
-            requestAnimationFrame(animateLoop);
-
-            const now = performance.now();
-            const dt = Math.min((now - lastTime) / 1000, 0.1);
-            lastTime = now;
-
-            // 1. Minecart Coaster Mode vs Free Walk Mode
-            if (player.ridingCart && coasterCurve) {
-                player.cartProgress += dt * 0.085;
-                if (player.cartProgress >= 1) {
-                    player.cartProgress = 0;
-                }
-                const pt = coasterCurve.getPointAt(player.cartProgress);
-                const lookPt = coasterCurve.getPointAt(Math.min(1, player.cartProgress + 0.03));
-                player.pos.copy(pt);
-                camera.position.copy(player.pos);
-                camera.lookAt(lookPt);
-            } else {
-                // Calculate Forward & Right movement vectors on XZ plane
-                let moveForward = 0;
-                let moveRight = 0;
-
-                if (keys.w) moveForward += 1;
-                if (keys.s) moveForward -= 1;
-                if (keys.d) moveRight += 1;
-                if (keys.a) moveRight -= 1;
-
-                if (joystick.active) {
-                    moveForward -= joystick.dy;
-                    moveRight += joystick.dx;
-                }
-
-                const inputLen = Math.hypot(moveForward, moveRight);
-                if (inputLen > 0.05) {
-                    const normF = moveForward / Math.max(1, inputLen);
-                    const normR = moveRight / Math.max(1, inputLen);
-
-                    const sinY = Math.sin(player.yaw);
-                    const cosY = Math.cos(player.yaw);
-
-                    const vx = (-sinY * normF + cosY * normR) * player.speed;
-                    const vz = (-cosY * normF - sinY * normR) * player.speed;
-
-                    player.pos.x += vx * dt;
-                    player.pos.z += vz * dt;
-
-                    // Keep within island boundaries
-                    player.pos.x = Math.max(-44, Math.min(44, player.pos.x));
-                    player.pos.z = Math.max(-44, Math.min(44, player.pos.z));
-
-                    // Footstep bobbing & audio
-                    if (player.isGrounded && !player.flyingOverview) {
-                        player.bobTimer += dt * 11;
-                        if (Math.sin(player.bobTimer) > 0.92) {
-                            playStepSound();
-                        }
-                    }
-                }
-
-                // Gravity & Jumping (unless in Fly overview mode)
-                if (!player.flyingOverview) {
-                    player.vel.y -= 20 * dt;
-                    player.pos.y += player.vel.y * dt;
-                    if (player.pos.y <= 2.3) {
-                        player.pos.y = 2.3;
-                        player.vel.y = 0;
-                        player.isGrounded = true;
-                    }
-                }
-
-                // Apply Camera Position & Rotation
-                const bobOffset = (player.isGrounded && inputLen > 0.1 && !player.flyingOverview)
-                    ? Math.sin(player.bobTimer) * 0.08
-                    : 0;
-                camera.position.set(player.pos.x, player.pos.y + bobOffset, player.pos.z);
-                camera.rotation.y = player.yaw;
-                camera.rotation.x = player.pitch;
-            }
-
-            // 2. Proximity Block Inspector Check
-            let closestBlock = null;
-            let minDist = Infinity;
-            for (let i = 0; i < interactiveBlocks.length; i++) {
-                const b = interactiveBlocks[i];
-                const d = Math.hypot(player.pos.x - b.pos.x, player.pos.z - b.pos.z);
-                if (d < b.radius && d < minDist) {
-                    minDist = d;
-                    closestBlock = b;
-                }
-            }
-            if (closestBlock && !player.flyingOverview) {
-                showInspector(closestBlock);
-            } else {
-                document.getElementById('block-inspector').classList.add('hidden');
-            }
-
-            // 3. Animate Dynamic World Objects (Spinning Beacons, Trophies, Clouds)
-            for (let i = 0; i < dynamicObjects.length; i++) {
-                const obj = dynamicObjects[i];
-                if (obj.type === 'spin') {
-                    obj.mesh.rotation.y += dt * obj.speed;
-                    obj.mesh.rotation.x += dt * (obj.speed * 0.4);
-                } else if (obj.type === 'cloud') {
-                    obj.mesh.position.x += dt * obj.speed;
-                    if (obj.mesh.position.x > 75) obj.mesh.position.x = -75;
-                }
-            }
-
-            // 4. Animate Emerald Fireworks Particles
-            for (let i = fireworks.length - 1; i >= 0; i--) {
-                const fw = fireworks[i];
-                fw.mesh.position.addScaledVector(fw.vel, dt);
-                fw.mesh.rotation.x += dt * 4;
-                fw.mesh.rotation.y += dt * 4;
-                if (fw.mesh.position.y < 0.4) {
-                    fw.mesh.position.y = 0.4;
-                    fw.vel.y *= -0.55;
-                }
-                fw.life -= dt;
-                if (fw.life <= 0) {
-                    scene.remove(fw.mesh);
-                    fireworks.splice(i, 1);
-                }
-            }
-
-            renderer.render(scene, camera);
-        }
-
-        /********************************************************************
-         * 10. INITIALIZATION ON WINDOW LOAD
-         ********************************************************************/
-        window.onload = async function () {
-            const loadingBar = document.getElementById('loading-bar');
-            const loadingStatus = document.getElementById('loading-status');
-            const loadingOverlay = document.getElementById('loading-overlay');
-
-            // 1. Initialize 3D Engine & Base Terrain immediately
-            initThreeWorld();
-            setupControls();
-            loadingBar.style.width = '55%';
-            loadingStatus.textContent = 'Mining Live Stonks from Google Sheets...';
-
-            // 2. Fetch Live Data from Google Sheets
-            try {
-                const response = await fetch(SPREADSHEET_URL);
-                if (!response.ok) throw new Error('Sheet HTTP Error');
-                const csvText = await response.text();
-                const parsed = parseCSV(csvText);
-                processSheetData(parsed);
-            } catch (err) {
-                console.warn('Using fallback portfolio dataset:', err);
-                loadFallbackData();
-            }
-
-            loadingBar.style.width = '90%';
-            loadingStatus.textContent = 'Building 3D Stonks Village & AUM Coaster...';
-
-            // 3. Construct 3D Portfolio Monuments & Populate HUD
-            buildPortfolioStructures();
-            populateHUDAndModal();
-
-            loadingBar.style.width = '100%';
-            setTimeout(() => {
-                loadingOverlay.classList.add('opacity-0', 'pointer-events-none');
-                setTimeout(() => loadingOverlay.remove(), 500);
-            }, 350);
-
-            // 4. Start 3D Game Loop
-            animateLoop();
+    function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+        const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+        return {
+            x: centerX + (radius * Math.cos(angleInRadians)),
+            y: centerY + (radius * Math.sin(angleInRadians))
         };
-    </script>
+    }
+
+    function drawLineGraph(data) {
+        const graphData = data.slice(1)
+            .filter(row => row[7] && row[8])
+            .map(row => {
+                const dateParts = row[7].split('/');
+                return {
+                    date: new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`),
+                    value: parseFloat(row[8])
+                };
+            })
+            .sort((a, b) => a.date - b.date);
+
+        if (graphData.length < 2) return;
+
+        const width = 800;
+        const height = 400;
+        const padding = 60;
+
+        const maxValue = Math.max(...graphData.map(d => d.value));
+        const yMax = Math.ceil(maxValue / 10000) * 10000;
+        
+        const startDate = new Date('2017-01-01');
+        const today = new Date();
+        const theEndDate = new Date(today.getFullYear() + 1, 0, 1);
+
+        const xScale = (date) => padding + ((date - startDate) / (theEndDate - startDate)) * (width - padding * 2);
+        const yScale = (value) => height - padding - (value / yMax) * (height - padding * 2);
+
+        let svgContent = `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet" style="margin-top: 15px;">`;
+
+        // Axes and Grids
+        svgContent += `<line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" stroke="var(--light-pink)" stroke-width="3" stroke-linecap="round"></line>`;
+        svgContent += `<line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke="var(--light-pink)" stroke-width="3" stroke-linecap="round"></line>`;
+
+        for (let i = 0; i <= yMax; i += 10000) {
+            const y = yScale(i);
+            svgContent += `<line x1="${padding}" y1="${y}" x2="${width - padding}" y2="${y}" stroke="var(--pastel-purple)" stroke-width="2" stroke-dasharray="6,6"></line>`;
+            svgContent += `<text x="${padding - 15}" y="${y + 5}" fill="var(--deep-purple)" text-anchor="end" font-size="16" font-weight="bold">$${i / 1000}K</text>`;
+        }
+
+        for (let year = 2017; year <= today.getFullYear() + 1; year++) {
+            const x = xScale(new Date(`${year}-01-01`));
+            svgContent += `<text x="${x}" y="${height - padding + 25}" fill="var(--deep-purple)" text-anchor="middle" font-size="16" font-weight="bold">${year}</text>`;
+        }
+        
+        const points = graphData.map(d => `${xScale(d.date)},${yScale(d.value)}`).join(' ');
+        
+        svgContent += `<polyline points="${points}" fill="none" stroke="var(--hot-pink)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" class="line-path"></polyline>`;
+        
+        svgContent += `</svg>`;
+        graphContainerEl.innerHTML = svgContent;
+    }
+
+    function drawReturnsTable(data) {
+        const safeGet = (r, c) => (data[r] && typeof data[r][c] !== 'undefined') ? escapeHTML(data[r][c]) : '';
+        const periods = [
+            { label: '1 Month', val: safeGet(1, 11) },
+            { label: '3 Month', val: safeGet(2, 11) },
+            { label: '6 Month', val: safeGet(3, 11) },
+            { label: '1 Year', val: safeGet(4, 11) },
+            { label: '2 Year', val: safeGet(5, 11) }
+        ];
+
+        let html = '<table class="returns-table">';
+        html += '<thead><tr><th>PERIOD</th><th>RETURN</th></tr></thead><tbody>';
+        
+        periods.forEach(p => {
+            let color = 'var(--positive-green)';
+            let valStr = p.val;
+            if(valStr && valStr.includes('-')) color = 'var(--negative-red)';
+            
+            if(!valStr.includes('%') && valStr !== '') {
+                const f = parseFloat(valStr);
+                if(!isNaN(f)) valStr = f.toFixed(2) + '%';
+            }
+
+            html += `<tr><td>${p.label}</td><td style="color:${color}; font-weight:900; font-size:1.1rem;">${valStr}</td></tr>`;
+        });
+        html += '</tbody></table>';
+        returnsTableContainerEl.innerHTML = html;
+    }
+
+    function loadPortfolioUpdates(data) {
+        const updates = data.slice(1)
+            .map(row => row[9])
+            .filter(item => item && item.trim() !== '');
+
+        const container = document.getElementById('updatesContainer');
+        container.innerHTML = '';
+
+        if (updates.length === 0) {
+            container.innerHTML = '<div style="text-align:center; opacity:0.6; font-weight:bold;">No recent updates 🌸</div>';
+            return;
+        }
+
+        updates.forEach((update) => {
+            const div = document.createElement('div');
+            let extraClass = '';
+            let emoji = '✨';
+            const upperText = update.toUpperCase();
+            
+            if (upperText.includes('BUY')) {
+                extraClass = 'log-buy'; emoji = '🛍️';
+            } else if (upperText.includes('SELL') || upperText.includes('SOLD')) {
+                extraClass = 'log-sell'; emoji = '💸';
+            } else if (upperText.includes('PAID')) {
+                extraClass = 'log-paid'; emoji = '💰';
+            }
+
+            div.className = `update-entry wiggle-hover ${extraClass}`;
+            // Output sanitised update text
+            div.innerHTML = `<span style="margin-right:5px; font-size:1.1rem;">${emoji}</span> ${escapeHTML(update)}`;
+            container.appendChild(div);
+        });
+    }
+
+    // Cache elements outside the function loop to save processing time
+    let wobbleElements = [];
+    
+    // --- RANDOM SPONTANEOUS WOBBLES & POPS ---
+    function startRandomWobbles() {
+        if(wobbleElements.length === 0) {
+            wobbleElements = Array.from(document.querySelectorAll('.hud-panel, .metric-item, .holding-card, .poll-wrapper'));
+        }
+
+        if (wobbleElements.length > 0) {
+            const numToAnimate = Math.floor(Math.random() * 2) + 1;
+            for(let i=0; i<numToAnimate; i++) {
+                const el = wobbleElements[Math.floor(Math.random() * wobbleElements.length)];
+                if(!el.classList.contains('random-pop')) {
+                    el.classList.add('random-pop');
+                    setTimeout(() => el.classList.remove('random-pop'), 800);
+                }
+            }
+        }
+        
+        const nextTime = Math.random() * 3000 + 1500;
+        setTimeout(startRandomWobbles, nextTime);
+    }
+
+    // --- EMOJI RAIN EFFECT ---
+    document.getElementById('emojiRainBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        const emojis = ['👻', '👺', '🎃', '😈', '😱', '🧌', '🧙‍♀️', '🔥', '💩', '🫨'];
+        
+        for (let i = 0; i < 50; i++) {
+            setTimeout(() => {
+                const drop = document.createElement('div');
+                drop.classList.add('emoji-drop');
+                drop.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                
+                drop.style.left = Math.random() * 100 + 'vw';
+                drop.style.fontSize = (Math.random() * 2 + 1.5) + 'rem';
+                
+                const duration = Math.random() * 2 + 2; 
+                drop.style.animationDuration = duration + 's';
+                
+                document.body.appendChild(drop);
+                
+                setTimeout(() => drop.remove(), duration * 1000);
+            }, i * 40);
+        }
+    });
+
+    // --- MAIN EXECUTION ---
+    async function main() {
+        // IMPROVEMENT: Start the fetch process immediately to run parallel with our typing animation. 
+        // This halves the apparent load time for users!
+        const dataPromise = getSheetData();
+
+        await typeText(loadingTextEl, 'SCOURING DEPTHS OF HELL', 30);
+        await typeDots(loadingTextEl, 4, 150);
+        await sleep(200);
+        
+        // Wait for the data fetch that started earlier to finish.
+        const sheetData = await dataPromise;
+        
+        if (!sheetData) return;
+
+        // Populate and display ticker from Cell J1 (Row index 0, Col index 9)
+        if (sheetData[0] && sheetData[0].length > 9 && sheetData[0][9]) {
+            tickerTextEl.innerHTML = escapeHTML(sheetData[0][9]);
+            tickerWrapEl.style.display = 'block';
+        }
+
+        loadingTextEl.innerHTML = '';
+        await typeText(loadingTextEl, 'FOUND DAMNED SOULS', 30);
+        await typeDots(loadingTextEl, 4, 150);
+        await sleep(300);
+        
+        // --- NEW UP/DOWN TODAY LOGIC ---
+        let todayChangeStr = (sheetData[0] && sheetData[0].length > 14 && sheetData[0][14]) ? escapeHTML(sheetData[0][14].trim()) : "$0";
+        let todayChangeVal = parseFloat(todayChangeStr.replace(/[^0-9.-]+/g,"")) || 0;
+
+        loadingTextEl.innerHTML = ''; 
+        let finalMessage = "";
+
+        if (todayChangeVal >= 0) {
+            finalMessage = `YOU'RE UP ${todayChangeStr}% TODAY! 🤩`;
+            loadingTextEl.style.color = 'var(--positive-green)';
+            loadingTextEl.style.transform = 'scale(1.1)';
+        } else {
+            finalMessage = `YOU'RE DOWN ${todayChangeStr.replace('-', '')}% TODAY! 😭`;
+            loadingTextEl.style.color = 'var(--negative-red)';
+            loadingTextEl.style.transform = 'scale(1.1)';
+        }
+        
+        loadingTextEl.style.transition = 'all 0.3s ease';
+        
+        await typeText(loadingTextEl, finalMessage, 30);
+        await sleep(2500); 
+
+        loadingContainerEl.style.display = 'none';
+        metricsContainerEl.style.display = 'flex';
+
+        const jokingValue = parseFloat(sheetData[1][3]).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }) || '$0';
+        const unitRaw = sheetData[1][4];
+        const unitPrice = parseFloat(unitRaw).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+        const tendiesValue = parseFloat(sheetData[1][5]).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }) || '$0';
+
+        aumTextEl.textContent = jokingValue;
+        unitPriceTextEl.textContent = unitPrice;
+        tendiesTextEl.textContent = tendiesValue;
+        
+        drawTable(sheetData);
+        drawPieChart(sheetData);
+        drawReturnsTable(sheetData);
+        drawLineGraph(sheetData);
+        loadPortfolioUpdates(sheetData);
+
+        setTimeout(startRandomWobbles, 2000);
+    }
+
+    window.onload = main;
+
+</script>
 </body>
 </html>
