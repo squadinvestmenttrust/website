@@ -548,9 +548,322 @@
             }
         }
 
+        /* =========================================
+           🌭 HOTDOG JOKE CAPTCHA OVERLAY 🌭
+           ========================================= */
+        #hotdog-captcha-overlay {
+            position: fixed;
+            inset: 0;
+            background: #ffffff;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+            transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        #hotdog-captcha-overlay.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .captcha-instruction {
+            font-family: var(--font-family), -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1f2937;
+            text-align: center;
+            margin: 0 0 36px 0;
+            min-height: 1.6em;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+
+        .captcha-instruction.switching {
+            opacity: 0;
+            transform: translateY(-6px);
+        }
+
+        .captcha-stage {
+            position: relative;
+            width: 340px;
+            max-width: 100%;
+            height: 290px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Hotdog Bun Target */
+        #captcha-bun-zone {
+            position: absolute;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 260px;
+            height: 112px;
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        #captcha-bun-zone.bun-highlight {
+            transform: translateX(-50%) scale(1.05);
+        }
+
+        #captcha-bun-zone.bun-bounce {
+            animation: hotdogBounce 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes hotdogBounce {
+            0% { transform: translateX(-50%) scale(1); }
+            35% { transform: translateX(-50%) scale(1.08, 0.94); }
+            65% { transform: translateX(-50%) scale(0.97, 1.04); }
+            100% { transform: translateX(-50%) scale(1); }
+        }
+
+        .bun-layer {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        #bun-back { z-index: 1; }
+        #bun-sausage-slot { z-index: 2; opacity: 0; transition: opacity 0.15s ease; }
+        #bun-sausage-slot.visible { opacity: 1; }
+        #bun-front { z-index: 3; }
+        #bun-sauce-layer { z-index: 4; }
+
+        /* Draggable Sausage */
+        #captcha-sausage {
+            position: absolute;
+            top: 24px;
+            left: 50%;
+            width: 220px;
+            height: 54px;
+            margin-left: -110px;
+            cursor: grab;
+            z-index: 10;
+            touch-action: none;
+            filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.12));
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease, opacity 0.2s ease;
+        }
+
+        #captcha-sausage.dragging {
+            cursor: grabbing;
+            transition: filter 0.15s ease;
+            filter: drop-shadow(0 14px 20px rgba(0, 0, 0, 0.18));
+        }
+
+        #captcha-sausage.placed {
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        /* Draggable Tomato Sauce Bottle */
+        #captcha-sauce-bottle {
+            position: absolute;
+            top: 6px;
+            left: 50%;
+            width: 72px;
+            height: 128px;
+            margin-left: -36px;
+            cursor: grab;
+            z-index: 15;
+            touch-action: none;
+            opacity: 0;
+            pointer-events: none;
+            transform: translate3d(0, 16px, 0) scale(0.85);
+            filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.12));
+            transition: opacity 0.4s ease, transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease;
+        }
+
+        #captcha-sauce-bottle.ready {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translate3d(0, 0, 0) scale(1);
+        }
+
+        #captcha-sauce-bottle.dragging {
+            cursor: grabbing;
+            transition: filter 0.15s ease;
+            filter: drop-shadow(0 14px 22px rgba(0, 0, 0, 0.18));
+        }
+
+        #captcha-sauce-bottle.done {
+            opacity: 0;
+            pointer-events: none;
+            transform: translate3d(0, -18px, 0) scale(0.85);
+        }
+
+        /* Sauce Squirt Stream inside Bottle SVG */
+        .sauce-stream {
+            opacity: 0;
+            transition: opacity 0.12s ease;
+        }
+
+        #captcha-sauce-bottle.squirting .sauce-stream {
+            opacity: 1;
+            animation: squirtPulse 0.22s ease-in-out infinite alternate;
+        }
+
+        @keyframes squirtPulse {
+            0% { transform: scaleY(0.85); }
+            100% { transform: scaleY(1.15); }
+        }
+
+        /* Sauce Squiggle Path */
+        #sauce-squiggle-path {
+            stroke-dasharray: 290;
+            stroke-dashoffset: 290;
+        }
+
+        #sauce-squiggle-highlight {
+            stroke-dasharray: 290;
+            stroke-dashoffset: 290;
+        }
+
+        @media (max-width: 420px) {
+            .captcha-instruction {
+                font-size: 1.1rem;
+                margin-bottom: 24px;
+            }
+            .captcha-stage {
+                transform: scale(0.92);
+            }
+        }
     </style>
 </head>
 <body>
+
+<!-- HOTDOG CAPTCHA OVERLAY -->
+<div id="hotdog-captcha-overlay" aria-label="Hotdog verification">
+    <p id="captcha-instruction" class="captcha-instruction">Drag the sausage into the hotdog bun</p>
+
+    <div class="captcha-stage" id="captcha-stage">
+        <!-- Draggable Sausage -->
+        <div id="captcha-sausage" aria-label="Sausage">
+            <svg viewBox="0 0 220 54" width="220" height="54" style="width:100%; height:100%; overflow:visible;">
+                <defs>
+                    <linearGradient id="sausageGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#e0704a"/>
+                        <stop offset="45%" stop-color="#c85532"/>
+                        <stop offset="100%" stop-color="#9c381c"/>
+                    </linearGradient>
+                </defs>
+                <!-- Sausage Body -->
+                <rect x="6" y="7" width="208" height="40" rx="20" ry="20" fill="url(#sausageGrad)"/>
+                <!-- Soft Top Highlight -->
+                <path d="M 28 15 Q 110 11 192 15" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="4" stroke-linecap="round"/>
+                <!-- Subtle Grill Marks -->
+                <path d="M 55 16 Q 60 27 53 38" fill="none" stroke="rgba(90,24,10,0.38)" stroke-width="3.5" stroke-linecap="round"/>
+                <path d="M 90 15 Q 95 27 88 39" fill="none" stroke="rgba(90,24,10,0.38)" stroke-width="3.5" stroke-linecap="round"/>
+                <path d="M 125 15 Q 130 27 123 39" fill="none" stroke="rgba(90,24,10,0.38)" stroke-width="3.5" stroke-linecap="round"/>
+                <path d="M 160 16 Q 165 27 158 38" fill="none" stroke="rgba(90,24,10,0.38)" stroke-width="3.5" stroke-linecap="round"/>
+            </svg>
+        </div>
+
+        <!-- Draggable Tomato Sauce Bottle -->
+        <div id="captcha-sauce-bottle" aria-label="Tomato sauce bottle">
+            <svg viewBox="0 0 72 128" width="72" height="128" style="width:100%; height:100%; overflow:visible;">
+                <defs>
+                    <linearGradient id="bottleGrad" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#ef4444"/>
+                        <stop offset="55%" stop-color="#dc2626"/>
+                        <stop offset="100%" stop-color="#b91c1c"/>
+                    </linearGradient>
+                </defs>
+                <!-- Animated Sauce Stream (appears above nozzle when inverted & squirting) -->
+                <g class="sauce-stream" style="transform-origin: 36px 2px;">
+                    <path d="M 36 -2 Q 33 -14 36 -26" fill="none" stroke="#dc2626" stroke-width="4.5" stroke-linecap="round"/>
+                    <circle cx="36" cy="-33" r="3" fill="#dc2626"/>
+                </g>
+                <!-- Pointed Nozzle -->
+                <path d="M 32 4 L 40 4 L 44 26 L 28 26 Z" fill="#dc2626"/>
+                <circle cx="36" cy="4" r="3" fill="#b91c1c"/>
+                <!-- Cap Ring -->
+                <rect x="22" y="25" width="28" height="11" rx="4" fill="#b91c1c"/>
+                <!-- Bottle Shoulders & Body -->
+                <path d="M 22 36 Q 12 42 12 56 L 12 114 Q 12 124 22 124 L 50 124 Q 60 124 60 114 L 60 56 Q 60 42 50 36 Z" fill="url(#bottleGrad)"/>
+                <!-- Glossy Side Reflection -->
+                <path d="M 19 56 L 19 110" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="4" stroke-linecap="round"/>
+                <!-- Minimalist Label -->
+                <rect x="18" y="60" width="36" height="44" rx="6" fill="#fffaf0"/>
+                <!-- Cute Tomato Icon on Label -->
+                <circle cx="36" cy="83" r="10" fill="#dc2626"/>
+                <path d="M 36 73 Q 33 68 30 71 M 36 73 Q 39 68 42 71 M 36 73 L 36 68" fill="none" stroke="#16a34a" stroke-width="2.2" stroke-linecap="round"/>
+            </svg>
+        </div>
+
+        <!-- Hotdog Bun Target (Layered so sausage tucks cleanly inside) -->
+        <div id="captcha-bun-zone" aria-label="Hotdog bun">
+            <!-- Back Half of Bun -->
+            <svg id="bun-back" class="bun-layer" viewBox="0 0 260 112" width="260" height="112">
+                <defs>
+                    <linearGradient id="bunBackGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#f5c678"/>
+                        <stop offset="60%" stop-color="#e5a650"/>
+                        <stop offset="100%" stop-color="#c98532"/>
+                    </linearGradient>
+                </defs>
+                <!-- Soft Ground Shadow -->
+                <ellipse cx="130" cy="100" rx="112" ry="9" fill="rgba(0,0,0,0.08)"/>
+                <!-- Back Bun -->
+                <rect x="12" y="14" width="236" height="58" rx="29" ry="29" fill="url(#bunBackGrad)"/>
+                <!-- Inner Bun Crease -->
+                <rect x="20" y="34" width="220" height="32" rx="16" ry="16" fill="#fbe0ae"/>
+            </svg>
+
+            <!-- Placed Sausage Layer (Nested between Back & Front Bun) -->
+            <svg id="bun-sausage-slot" class="bun-layer" viewBox="0 0 260 112" width="260" height="112">
+                <g transform="translate(20, 21)">
+                    <rect x="6" y="7" width="208" height="40" rx="20" ry="20" fill="url(#sausageGrad)"/>
+                    <path d="M 28 15 Q 110 11 192 15" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="4" stroke-linecap="round"/>
+                    <path d="M 55 16 Q 60 27 53 38" fill="none" stroke="rgba(90,24,10,0.38)" stroke-width="3.5" stroke-linecap="round"/>
+                    <path d="M 90 15 Q 95 27 88 39" fill="none" stroke="rgba(90,24,10,0.38)" stroke-width="3.5" stroke-linecap="round"/>
+                    <path d="M 125 15 Q 130 27 123 39" fill="none" stroke="rgba(90,24,10,0.38)" stroke-width="3.5" stroke-linecap="round"/>
+                    <path d="M 160 16 Q 165 27 158 38" fill="none" stroke="rgba(90,24,10,0.38)" stroke-width="3.5" stroke-linecap="round"/>
+                </g>
+            </svg>
+
+            <!-- Front Half of Bun -->
+            <svg id="bun-front" class="bun-layer" viewBox="0 0 260 112" width="260" height="112">
+                <defs>
+                    <linearGradient id="bunFrontGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#f7ce86"/>
+                        <stop offset="55%" stop-color="#e7ab57"/>
+                        <stop offset="100%" stop-color="#cc8834"/>
+                    </linearGradient>
+                </defs>
+                <rect x="12" y="48" width="236" height="48" rx="24" ry="24" fill="url(#bunFrontGrad)"/>
+                <!-- Warm Front Highlight -->
+                <path d="M 38 58 Q 130 53 222 58" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="4" stroke-linecap="round"/>
+            </svg>
+
+            <!-- Tomato Sauce Squiggle Layer -->
+            <svg id="bun-sauce-layer" class="bun-layer" viewBox="0 0 260 112" width="260" height="112">
+                <path id="sauce-squiggle-path"
+                      d="M 44 46 C 54 32, 66 58, 78 44 C 90 30, 102 58, 114 44 C 126 30, 138 58, 150 44 C 162 30, 174 58, 186 44 C 198 30, 208 54, 218 44"
+                      fill="none"
+                      stroke="#dc2626"
+                      stroke-width="7.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"/>
+                <path id="sauce-squiggle-highlight"
+                      d="M 44 44 C 54 30, 66 56, 78 42 C 90 28, 102 56, 114 42 C 126 28, 138 56, 150 42 C 162 28, 174 56, 186 42 C 198 28, 208 52, 218 42"
+                      fill="none"
+                      stroke="rgba(255,255,255,0.32)"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"/>
+            </svg>
+        </div>
+    </div>
+</div>
 
 <!-- NEW SCROLLING TICKER -->
 <div class="ticker-wrap" id="ticker-wrap">
@@ -1136,7 +1449,244 @@
         setTimeout(startRandomWobbles, 2000);
     }
 
-    window.onload = main;
+    // =========================================
+    // 🌭 HOTDOG CAPTCHA LOGIC 🌭
+    // =========================================
+    (function initHotdogCaptcha() {
+        const overlay = document.getElementById('hotdog-captcha-overlay');
+        const instruction = document.getElementById('captcha-instruction');
+        const sausage = document.getElementById('captcha-sausage');
+        const bottle = document.getElementById('captcha-sauce-bottle');
+        const bunZone = document.getElementById('captcha-bun-zone');
+        const bunSausageSlot = document.getElementById('bun-sausage-slot');
+        const saucePath = document.getElementById('sauce-squiggle-path');
+        const sauceHighlight = document.getElementById('sauce-squiggle-highlight');
+
+        // Lock page scroll while CAPTCHA is active
+        document.body.style.overflow = 'hidden';
+
+        let step = 1; // 1 = drag sausage, 2 = apply sauce, 3 = done
+        const sauceLength = 290;
+        let sauceProgress = 0; // 0 to 1
+        let isSquirting = false;
+        let squirtRaf = null;
+        let lastFrameTime = 0;
+
+        function setInstruction(text) {
+            instruction.classList.add('switching');
+            setTimeout(() => {
+                instruction.textContent = text;
+                instruction.classList.remove('switching');
+            }, 220);
+        }
+
+        function triggerBunBounce() {
+            bunZone.classList.remove('bun-bounce');
+            void bunZone.offsetWidth; // Force reflow for clean restart
+            bunZone.classList.add('bun-bounce');
+        }
+
+        // --- STEP 1: DRAG SAUSAGE INTO BUN ---
+        let sausageDragging = false;
+        let sStartX = 0, sStartY = 0;
+        let sCurrentX = 0, sCurrentY = 0;
+
+        sausage.addEventListener('pointerdown', (e) => {
+            if (step !== 1) return;
+            sausageDragging = true;
+            sStartX = e.clientX - sCurrentX;
+            sStartY = e.clientY - sCurrentY;
+            sausage.classList.add('dragging');
+            sausage.setPointerCapture(e.pointerId);
+        });
+
+        sausage.addEventListener('pointermove', (e) => {
+            if (!sausageDragging || step !== 1) return;
+            sCurrentX = e.clientX - sStartX;
+            sCurrentY = e.clientY - sStartY;
+            sausage.style.transform = `translate3d(${sCurrentX}px, ${sCurrentY}px, 0) scale(1.05)`;
+
+            // Highlight bun when sausage hovers over it
+            if (isOverBun(sausage, 24)) {
+                bunZone.classList.add('bun-highlight');
+            } else {
+                bunZone.classList.remove('bun-highlight');
+            }
+        });
+
+        function finishSausageDrag(e) {
+            if (!sausageDragging || step !== 1) return;
+            sausageDragging = false;
+            sausage.classList.remove('dragging');
+            bunZone.classList.remove('bun-highlight');
+
+            if (isOverBun(sausage, 30)) {
+                // Snap sausage smoothly into the bun
+                step = 2;
+                const bunRect = bunZone.getBoundingClientRect();
+                const sausageRect = sausage.getBoundingClientRect();
+                const targetX = sCurrentX + (bunRect.left + bunRect.width / 2) - (sausageRect.left + sausageRect.width / 2);
+                const targetY = sCurrentY + (bunRect.top + bunRect.height * 0.42) - (sausageRect.top + sausageRect.height / 2);
+
+                sausage.style.transform = `translate3d(${targetX}px, ${targetY}px, 0) scale(1)`;
+
+                setTimeout(() => {
+                    sausage.classList.add('placed');
+                    bunSausageSlot.classList.add('visible');
+                    triggerBunBounce();
+
+                    // Reveal sauce bottle cleanly
+                    setTimeout(() => {
+                        setInstruction('Now apply tomato sauce to the hotdog');
+                        bottle.classList.add('ready');
+                    }, 260);
+                }, 200);
+            } else {
+                // Spring back cleanly
+                sCurrentX = 0;
+                sCurrentY = 0;
+                sausage.style.transform = 'translate3d(0, 0, 0) scale(1)';
+            }
+        }
+
+        sausage.addEventListener('pointerup', finishSausageDrag);
+        sausage.addEventListener('pointercancel', finishSausageDrag);
+
+        // --- STEP 2: DRAG & APPLY TOMATO SAUCE ---
+        let bottleDragging = false;
+        let bStartX = 0, bStartY = 0;
+        let bCurrentX = 0, bCurrentY = 0;
+
+        bottle.addEventListener('pointerdown', (e) => {
+            if (step !== 2) return;
+            bottleDragging = true;
+            bStartX = e.clientX - bCurrentX;
+            bStartY = e.clientY - bCurrentY;
+            bottle.classList.add('dragging');
+            bottle.setPointerCapture(e.pointerId);
+            updateBottleTransform();
+            checkBottleOverHotdog();
+        });
+
+        bottle.addEventListener('pointermove', (e) => {
+            if (!bottleDragging || step !== 2) return;
+            bCurrentX = e.clientX - bStartX;
+            bCurrentY = e.clientY - bStartY;
+            updateBottleTransform();
+            checkBottleOverHotdog();
+        });
+
+        function updateBottleTransform() {
+            // Tilt bottle upside-down while dragging so nozzle points at the hotdog
+            bottle.style.transform = `translate3d(${bCurrentX}px, ${bCurrentY}px, 0) rotate(165deg) scale(1.04)`;
+        }
+
+        function checkBottleOverHotdog() {
+            if (step !== 2 || !bottleDragging) {
+                stopSquirting();
+                return;
+            }
+            const bRect = bottle.getBoundingClientRect();
+            const bunRect = bunZone.getBoundingClientRect();
+
+            // Generous hit area above and over the hotdog
+            const bottleCenterX = bRect.left + bRect.width / 2;
+            const bottleBottomY = bRect.bottom;
+
+            const overX = bottleCenterX >= bunRect.left - 30 && bottleCenterX <= bunRect.right + 30;
+            const overY = bottleBottomY >= bunRect.top - 55 && bRect.top <= bunRect.bottom + 20;
+
+            if (overX && overY) {
+                startSquirting();
+            } else {
+                stopSquirting();
+            }
+        }
+
+        function startSquirting() {
+            if (isSquirting) return;
+            isSquirting = true;
+            bottle.classList.add('squirting');
+            lastFrameTime = performance.now();
+            squirtRaf = requestAnimationFrame(animateSauce);
+        }
+
+        function stopSquirting() {
+            isSquirting = false;
+            bottle.classList.remove('squirting');
+            if (squirtRaf) {
+                cancelAnimationFrame(squirtRaf);
+                squirtRaf = null;
+            }
+        }
+
+        function animateSauce(now) {
+            if (!isSquirting || step !== 2) return;
+            const dt = Math.min((now - lastFrameTime) / 1000, 0.05);
+            lastFrameTime = now;
+
+            // Fill sauce smoothly over ~0.95 seconds of pouring over the hotdog
+            sauceProgress = Math.min(1, sauceProgress + dt * 1.05);
+            const offset = sauceLength * (1 - sauceProgress);
+            saucePath.style.strokeDashoffset = offset;
+            sauceHighlight.style.strokeDashoffset = offset;
+
+            if (sauceProgress >= 1) {
+                completeCaptcha();
+                return;
+            }
+            squirtRaf = requestAnimationFrame(animateSauce);
+        }
+
+        function finishBottleDrag() {
+            if (!bottleDragging || step !== 2) return;
+            bottleDragging = false;
+            stopSquirting();
+            bottle.classList.remove('dragging');
+            // Return bottle upright to resting spot if not finished yet
+            bCurrentX = 0;
+            bCurrentY = 0;
+            bottle.style.transform = 'translate3d(0, 0, 0) scale(1)';
+        }
+
+        bottle.addEventListener('pointerup', finishBottleDrag);
+        bottle.addEventListener('pointercancel', finishBottleDrag);
+
+        function isOverBun(el, padding = 20) {
+            const r1 = el.getBoundingClientRect();
+            const r2 = bunZone.getBoundingClientRect();
+            const cx = r1.left + r1.width / 2;
+            const cy = r1.top + r1.height / 2;
+            return (
+                cx >= r2.left - padding &&
+                cx <= r2.right + padding &&
+                cy >= r2.top - padding &&
+                cy <= r2.bottom + padding
+            );
+        }
+
+        // --- STEP 3: COMPLETE & REVEAL WEBSITE ---
+        function completeCaptcha() {
+            step = 3;
+            bottleDragging = false;
+            stopSquirting();
+            bottle.classList.remove('dragging', 'ready');
+            bottle.classList.add('done');
+
+            triggerBunBounce();
+            setInstruction('Perfect.');
+
+            setTimeout(() => {
+                overlay.classList.add('fade-out');
+                document.body.style.overflow = '';
+                // Start the original website's main() sequence as it reveals
+                main();
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                }, 650);
+            }, 850);
+        }
+    })();
 
 </script>
 </body>
